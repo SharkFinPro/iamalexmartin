@@ -1,7 +1,7 @@
 export default function Page() {
   return (
     <div>
-      <h1>Hello, World!</h1>
+      <h1>Alex Martin</h1>
     </div>
   );
 }
