@@ -1,0 +1,19 @@
+.wrapper {
+  background: #323232;
+  height: 100%;
+}
+
+.headerWrapper {
+  background: #191919;
+  height: 100%;
+  display: grid;
+  place-items: center;
+}
+
+.headerContainer {
+  background: #323232;
+  color: #f5f5f5;
+  padding: 2em 5em;
+  font-size: 2rem;
+  font-family: sans-serif;
+}
