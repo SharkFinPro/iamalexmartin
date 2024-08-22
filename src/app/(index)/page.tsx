@@ -4,11 +4,11 @@ export default function Page() {
   return (
     <div className={styles.wrapper}>
       {/* Header */}
-      <div className={styles.headerWrapper}>
+      <header className={styles.headerWrapper}>
         <div className={styles.headerContainer}>
           <h1>Alex Martin</h1>
         </div>
-      </div>
+      </header>
 
       {/**/}
       <div>
@@ -16,11 +16,11 @@ export default function Page() {
       </div>
 
       {/* Navigation Overlay */}
-      <div className={styles.navOverlayWrapper}>
+      <nav className={styles.navOverlayWrapper}>
         <div className={styles.navOverlayContainer}>
           <a href="">navigation</a>
         </div>
-      </div>
+      </nav>
     </div>
   );
 }
