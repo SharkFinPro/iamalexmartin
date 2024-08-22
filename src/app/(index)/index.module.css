@@ -4,17 +4,17 @@
 }
 
 .headerWrapper {
-  background: #191919;
+  background: #131415;
   height: 100%;
   display: grid;
   place-items: center;
 }
 
 .headerContainer {
-  background: #282828;
+  background: #1e2122;
   color: #f5f5f5;
   border-radius: 0.5em;
-  border: 5px solid #c8c8c8;
+  border: 5px solid #646464;
   padding: 2em 5em;
   font-size: 2rem;
   font-family: sans-serif;
