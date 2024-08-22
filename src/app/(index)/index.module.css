@@ -11,8 +11,10 @@
 }
 
 .headerContainer {
-  background: #323232;
+  background: #282828;
   color: #f5f5f5;
+  border-radius: 0.5em;
+  border: 5px solid #c8c8c8;
   padding: 2em 5em;
   font-size: 2rem;
   font-family: sans-serif;
