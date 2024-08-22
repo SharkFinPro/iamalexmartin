@@ -11,6 +11,12 @@ export default function Page() {
       <div>
         <h2>Hello, World!</h2>
       </div>
+
+      <div className={styles.navOverlayWrapper}>
+        <div className={styles.navOverlayContainer}>
+          <a href="">navigation</a>
+        </div>
+      </div>
     </div>
   );
 }
