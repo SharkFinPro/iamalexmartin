@@ -10,9 +10,18 @@ export default function Page() {
         </div>
       </header>
 
-      {/**/}
-      <div>
-        <h2>Hello, World!</h2>
+      {/* About */}
+      <div className={styles.aboutWrapper}>
+        <div className={styles.aboutContainer}>
+          <h2>About</h2>
+        </div>
+      </div>
+
+      {/* Projects */}
+      <div className={styles.projectsWrapper}>
+        <div className={styles.projectsContainer}>
+          <h2>Projects</h2>
+        </div>
       </div>
 
       {/* Navigation Overlay */}

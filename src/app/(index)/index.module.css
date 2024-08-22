@@ -46,3 +46,35 @@
   color: #f5f5f5;
   border-color: #f5f5f5;
 }
+
+.aboutWrapper {
+  background: #1e1e1e;
+  min-height: 75%;
+}
+
+.aboutContainer {
+  color: #f5f5f5;
+  display: grid
+}
+
+.aboutContainer > h2 {
+  place-self: center;
+  padding-block: 1em;
+  font-size: 2.25rem;
+}
+
+.projectsWrapper {
+  background: #191919;
+  min-height: 75%;
+}
+
+.projectsContainer {
+  color: #f5f5f5;
+  display: grid
+}
+
+.projectsContainer > h2 {
+  place-self: center;
+  padding-block: 1em;
+  font-size: 2.25rem;
+}
