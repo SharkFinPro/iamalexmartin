@@ -1,3 +1,5 @@
+@import "@/styles/variables.module.scss";
+
 .wrapper {
   position: fixed;
   top: 0;
@@ -5,7 +7,7 @@
   translate: -50% 0;
   width: 110%;
   padding-inline: 5%;
-  height: 60px;
+  height: $navBarHeight;
   display: flex;
   flex-direction: row;
 }
