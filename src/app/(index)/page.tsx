@@ -1,4 +1,4 @@
-import styles from "./index.module.css";
+import styles from "./index.module.scss";
 
 export default function Page() {
   return (
@@ -6,7 +6,9 @@ export default function Page() {
       {/* Header */}
       <header className={styles.headerWrapper}>
         <div className={styles.headerContainer}>
-          <h1>Alex Martin</h1>
+          <div className={styles.headerContent}>
+            <h1>Alex Martin</h1>
+          </div>
         </div>
       </header>
 
@@ -23,13 +25,6 @@ export default function Page() {
           <h2>Projects</h2>
         </div>
       </div>
-
-      {/* Navigation Overlay */}
-      <nav className={styles.navOverlayWrapper}>
-        <div className={styles.navOverlayContainer}>
-          <a href="">navigation</a>
-        </div>
-      </nav>
     </div>
   );
 }
