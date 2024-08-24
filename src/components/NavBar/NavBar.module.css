@@ -1,0 +1,49 @@
+.wrapper {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  translate: -50% 0;
+  width: 110%;
+  padding-inline: 5%;
+  height: 60px;
+  font-family: sans-serif;
+  color: white;
+  background: #292929;
+  display: flex;
+  flex-direction: row;
+}
+
+.wrapper::before, .wrapper::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+}
+
+.wrapper:before {
+  background: #700FDF;
+  filter: blur(0.5rem);
+}
+
+.wrapper:after {
+  background: #292929;
+}
+
+.nameContainer, .pagesContainer {
+  display: grid;
+  place-items: center;
+}
+
+.nameContainer {
+  padding-inline: 1em;
+  font-size: 2rem;
+}
+
+.pagesContainer {
+  margin-left: auto;
+  padding-inline: 2em;
+}

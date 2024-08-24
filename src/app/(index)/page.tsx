@@ -23,13 +23,6 @@ export default function Page() {
           <h2>Projects</h2>
         </div>
       </div>
-
-      {/* Navigation Overlay */}
-      <nav className={styles.navOverlayWrapper}>
-        <div className={styles.navOverlayContainer}>
-          <a href="">navigation</a>
-        </div>
-      </nav>
     </div>
   );
 }
