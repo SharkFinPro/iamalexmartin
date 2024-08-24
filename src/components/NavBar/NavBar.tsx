@@ -1,4 +1,5 @@
 import navBarStyles from "./NavBar.module.scss";
+import Link from "next/link";
 
 export default function NavBar() {
   return (
@@ -7,7 +8,9 @@ export default function NavBar() {
         <p>Alex Martin</p>
       </div>
       <div className={navBarStyles.pagesContainer}>
-        <p>Test</p>
+        <Link href={""}><p>Test</p></Link>
+        <Link href={""}><p>Test</p></Link>
+        <Link href={""}><p>Test</p></Link>
       </div>
     </nav>
   );
