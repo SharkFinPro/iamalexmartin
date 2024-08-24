@@ -41,6 +41,7 @@
 .nameContainer {
   padding-inline: 1em;
   font-size: 2rem;
+  font-weight: bold;
 }
 
 .pagesContainer {
