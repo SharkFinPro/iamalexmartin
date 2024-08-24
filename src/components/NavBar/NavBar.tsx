@@ -9,9 +9,9 @@ export default function NavBar() {
           <p>Alex Martin</p>
         </div>
         <div className={navBarStyles.pagesContainer}>
-          <Link href={""}><p>Test</p></Link>
-          <Link href={""}><p>Test</p></Link>
-          <Link href={""}><p>Test</p></Link>
+          <Link href={""}><p>Home</p></Link>
+          <Link href={""}><p>About</p></Link>
+          <Link href={""}><p>Projects</p></Link>
         </div>
       </div>
     </nav>
