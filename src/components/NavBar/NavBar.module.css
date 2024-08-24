@@ -6,9 +6,6 @@
   width: 110%;
   padding-inline: 5%;
   height: 60px;
-  font-family: sans-serif;
-  color: white;
-  background: #292929;
   display: flex;
   flex-direction: row;
 }
@@ -24,18 +21,25 @@
   height: 100%;
 }
 
-.wrapper:before {
+.wrapper::before {
   background: #700FDF;
   filter: blur(0.5rem);
+  transition-duration: 0.5s;
 }
 
-.wrapper:after {
+.wrapper:hover::before {
+  filter: blur(0.75rem);
+}
+
+.wrapper::after {
   background: #292929;
 }
 
 .nameContainer, .pagesContainer {
   display: grid;
   place-items: center;
+  font-family: sans-serif;
+  color: white;
 }
 
 .nameContainer {
