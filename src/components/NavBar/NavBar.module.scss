@@ -13,31 +13,33 @@ $glowColor: #700FDF;
   height: $navBarHeight;
   display: flex;
   flex-direction: row;
-}
-
-.wrapper::before, .wrapper::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  translate: -50% -50%;
-  z-index: -1;
-  width: 100%;
-  height: 100%;
-}
-
-.wrapper::before {
-  background: $glowColor;
-  filter: blur(0.5rem);
-  transition-duration: 0.5s;
-}
-
-.wrapper:hover::before {
-  filter: blur(0.75rem);
-}
-
-.wrapper::after {
   background-color: $navBarBackground;
+  z-index: 1;
+
+  &::before, &::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+    z-index: -2;
+    width: 100%;
+    height: 100%;
+  }
+
+  &::before {
+    background: $glowColor;
+    filter: blur(0.5rem);
+    transition-duration: 0.5s;
+  }
+
+  &:hover::before {
+    filter: blur(0.75rem);
+  }
+
+  &::after {
+    background-color: $navBarBackground;
+  }
 }
 
 .nameContainer, .pagesContainer {
@@ -71,21 +73,21 @@ $glowColor: #700FDF;
   color: white;
   text-decoration: none;
   font-size: 1.25rem;
-}
 
-.pagesContainer > *::before {
-  content: "";
-  position: absolute;
-  left: 50%;
-  translate: -50% 0;
-  bottom: 0;
-  width: 100%;
-  height: 0;
-  z-index: -1;
-  transition: 0.3s;
-}
+  &::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    translate: -50% 0;
+    bottom: 0;
+    width: 100%;
+    height: 0;
+    z-index: -1;
+    transition: 0.3s;
+  }
 
-.pagesContainer > *:hover::before {
-  height: 100%;
-  background: lighten($navBarBackground, 10%);
+  &:hover::before {
+    height: 100%;
+    background: lighten($navBarBackground, 10%);
+  }
 }
