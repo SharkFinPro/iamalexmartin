@@ -6,7 +6,9 @@ export default function Page() {
       {/* Header */}
       <header className={styles.headerWrapper}>
         <div className={styles.headerContainer}>
-          <h1>Alex Martin</h1>
+          <div className={styles.headerContent}>
+            <h1>Alex Martin</h1>
+          </div>
         </div>
       </header>
 

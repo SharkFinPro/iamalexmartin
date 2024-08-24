@@ -11,6 +11,7 @@ $glowColor: #700FDF;
   width: 110%;
   padding-inline: 5%;
   height: $navBarHeight;
+  z-index: 1000;
 }
 
 .container {
