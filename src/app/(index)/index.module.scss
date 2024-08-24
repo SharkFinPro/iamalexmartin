@@ -28,12 +28,12 @@
   &::before, &::after {
     content: "";
     position: absolute;
-    width: 101%;
-    height: 105%;
+    width: 100.3%;
+    height: 102%;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    border-radius: 0.6em;
+    border-radius: 0.5em;
     z-index: -1;
     background: #3E55F8;
   }
