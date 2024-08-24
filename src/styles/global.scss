@@ -1,6 +1,6 @@
 @import "@/styles/variables.module.scss";
 
-* {
+*, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
