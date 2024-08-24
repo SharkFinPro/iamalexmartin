@@ -16,12 +16,14 @@
   font-family: sans-serif;
   position: relative;
   z-index: 1;
+  width: min(45%, 1000px);
 }
 
 .headerContent {
   background: #1e2122;
-  padding: 2em 5em;
+  padding-block: 2em;
   border-radius: 0.5em;
+  text-align: center;
 
   &::before, &::after {
     content: "";
