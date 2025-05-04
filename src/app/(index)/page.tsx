@@ -10,8 +10,8 @@ export default function Page() {
           <p className={styles.description}>Full-stack developer specializing in interactive graphics and modern web systems, with a focus on performance, accuracy, and clean, maintainable architecture.</p>
 
           <div className={styles.buttons}>
-            <button className={`${styles.homepageButton} ${styles.viewProjects}`}>View My Work</button>
-            <button className={`${styles.homepageButton} ${styles.contactMe}`}>Contact Me</button>
+            <Link href={"/projects"} className={`${styles.homepageButton} ${styles.viewProjects}`}>View My Work</Link>
+            <Link href={"/contact"} className={`${styles.homepageButton} ${styles.contactMe}`}>Contact Me</Link>
           </div>
         </div>
       </div>

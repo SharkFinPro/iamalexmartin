@@ -10,11 +10,12 @@ $lightGray: #e9ecef;
   display: grid;
   place-items: center;
   font-family: sans-serif;
-  padding-block: 5em;
+  padding-block: 4em;
 }
 
 .homepage {
   background-color: $dark;
+  padding-block: 6em;
 }
 
 .welcome {
@@ -54,6 +55,7 @@ $lightGray: #e9ecef;
   font-size: 1rem;
   font-weight: bold;
   transition: all 0.3s ease-in-out;
+  text-decoration: none;
 }
 
 .homepageButton:hover {
