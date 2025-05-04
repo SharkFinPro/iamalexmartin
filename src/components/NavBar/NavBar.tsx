@@ -1,19 +1,17 @@
-import navBarStyles from "./NavBar.module.scss";
+import styles from "./NavBar.module.scss";
 import Link from "next/link";
 
 export default function NavBar() {
   return (
-    <nav className={navBarStyles.wrapper}>
-      <div className={navBarStyles.container}>
-        <div className={navBarStyles.nameContainer}>
-          <p>Alex Martin</p>
-        </div>
-        <div className={navBarStyles.pagesContainer}>
-          <Link href={""}><p>Home</p></Link>
-          <Link href={""}><p>About</p></Link>
-          <Link href={""}><p>Projects</p></Link>
-        </div>
-      </div>
-    </nav>
+    <header className={styles.header}>
+      <div className={styles.logo}>Alex<span>Martin</span></div>
+      <nav className={styles.nav}>
+        <Link href={""} className={`${styles.nav_item} ${styles.active}`}><p>Home</p></Link>
+        <Link href={""} className={styles.nav_item}><p>Projects</p></Link>
+        <Link href={""} className={styles.nav_item}><p>Skills</p></Link>
+        <Link href={""} className={styles.nav_item}><p>Experience</p></Link>
+        <Link href={""} className={styles.nav_item}><p>Contact</p></Link>
+      </nav>
+    </header>
   );
 }

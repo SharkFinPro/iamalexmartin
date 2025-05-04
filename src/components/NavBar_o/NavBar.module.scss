@@ -1,0 +1,94 @@
+@import "@/styles/variables.module.scss";
+
+$navBarBackground: #292929;
+$glowColor: #700FDF;
+
+.wrapper {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  translate: -50% 0;
+  width: 110%;
+  padding-inline: 5%;
+  height: $navBarHeight;
+  z-index: 1000;
+}
+
+.container {
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  background: $navBarBackground;
+
+  &::before, &::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+  }
+
+  &::before {
+    background: $glowColor;
+    filter: blur(0.5rem);
+    transition-duration: 0.5s;
+  }
+
+  &:hover::before {
+    filter: blur(0.75rem);
+  }
+}
+
+.nameContainer, .pagesContainer {
+  display: grid;
+  place-items: center;
+  font-family: sans-serif;
+  color: white;
+}
+
+.nameContainer {
+  padding-inline: 1em;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.pagesContainer {
+  margin-left: auto;
+  padding-inline: 2em;
+  grid-auto-flow: column;
+}
+
+.pagesContainer > * {
+  height: 100%;
+  display: grid;
+  place-items: center;
+  margin-inline: 2px;
+  width: 100px;
+  transition: 0.3s;
+  position: relative;
+  z-index: 0;
+  color: white;
+  text-decoration: none;
+  font-size: 1.25rem;
+
+  &::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    translate: -50% 0;
+    bottom: 0;
+    width: 100%;
+    height: 0;
+    z-index: -1;
+    transition: 0.3s;
+  }
+
+  &:hover::before {
+    height: 100%;
+    background: lighten($navBarBackground, 10%);
+  }
+}

@@ -1,94 +1,67 @@
-@import "@/styles/variables.module.scss";
+// Define variables at the top (similar to CSS variables)
+$primary: #1e293b;
+$secondary: #3b82f6;
+$accent: #10b981;
+$highlight: #f97316;
+$dark: #0f172a;
+$light: #f8fafc;
 
-$navBarBackground: #292929;
-$glowColor: #700FDF;
-
-.wrapper {
+.header {
+  padding: 20px 30px;
   position: fixed;
   top: 0;
-  left: 50%;
-  translate: -50% 0;
-  width: 110%;
-  padding-inline: 5%;
-  height: $navBarHeight;
-  z-index: 1000;
-}
-
-.container {
-  height: 100%;
-  position: relative;
+  left: 0;
+  right: 0;
+  z-index: 10;
   display: flex;
-  flex-direction: row;
-  background: $navBarBackground;
-
-  &::before, &::after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    translate: -50% -50%;
-    z-index: -1;
-    width: 100%;
-    height: 100%;
-  }
-
-  &::before {
-    background: $glowColor;
-    filter: blur(0.5rem);
-    transition-duration: 0.5s;
-  }
-
-  &:hover::before {
-    filter: blur(0.75rem);
-  }
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(10px);
+  font-family: Sans-serif;
 }
 
-.nameContainer, .pagesContainer {
-  display: grid;
-  place-items: center;
-  font-family: sans-serif;
+.logo {
+  font-weight: 700;
+  font-size: 24px;
+  letter-spacing: -0.5px;
   color: white;
+
+  span {
+    color: $accent;
+  }
 }
 
-.nameContainer {
-  padding-inline: 1em;
-  font-size: 2rem;
-  font-weight: bold;
+.nav {
+  display: flex;
+  gap: 40px;
 }
 
-.pagesContainer {
-  margin-left: auto;
-  padding-inline: 2em;
-  grid-auto-flow: column;
-}
-
-.pagesContainer > * {
-  height: 100%;
-  display: grid;
-  place-items: center;
-  margin-inline: 2px;
-  width: 100px;
-  transition: 0.3s;
-  position: relative;
-  z-index: 0;
-  color: white;
+.nav_item {
+  font-size: 15px;
+  font-weight: 500;
   text-decoration: none;
-  font-size: 1.25rem;
+  color: rgba(255, 255, 255, 0.8);
+  position: relative;
+  cursor: pointer;
+  transition: color 0.3s ease;
 
-  &::before {
-    content: "";
-    position: absolute;
-    left: 50%;
-    translate: -50% 0;
-    bottom: 0;
-    width: 100%;
-    height: 0;
-    z-index: -1;
-    transition: 0.3s;
+  &:hover {
+    color: white;
   }
 
-  &:hover::before {
-    height: 100%;
-    background: lighten($navBarBackground, 10%);
+  &.active {
+    color: white;
+
+    &:after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: $accent;
+      border-radius: 2px;
+    }
   }
 }
