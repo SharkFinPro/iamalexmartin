@@ -1,16 +1,33 @@
+"use client";
 import styles from "./NavBar.module.scss";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function NavBar() {
+  const pathname = usePathname();
+
+  const navItems = [
+    { label: "Home", path: "/" },
+    { label: "Projects", path: "/projects" },
+    { label: "Blog", path: "/blog" },
+    { label: "Contact", path: "/contact" }
+  ];
+
   return (
     <header className={styles.header}>
-      <div className={styles.logo}>Alex<span>Martin</span></div>
+      <Link href="/" className={styles.logo}>
+        Alex<span>Martin</span>
+      </Link>
       <nav className={styles.nav}>
-        <Link href={""} className={`${styles.nav_item} ${styles.active}`}><p>Home</p></Link>
-        <Link href={""} className={styles.nav_item}><p>Projects</p></Link>
-        <Link href={""} className={styles.nav_item}><p>Skills</p></Link>
-        <Link href={""} className={styles.nav_item}><p>Experience</p></Link>
-        <Link href={""} className={styles.nav_item}><p>Contact</p></Link>
+        {navItems.map((item) => (
+          <Link
+            key={item.label}
+            href={item.path}
+            className={`${styles.nav_item} ${pathname === item.path ? styles.active : ""}`}
+          >
+            {item.label}
+          </Link>
+        ))}
       </nav>
     </header>
   );
