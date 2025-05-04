@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function Page() {
   return (
-    <div className={styles.root}>
+    <div>
       <div className={`${styles.wrapper} ${styles.homepage}`}>
         <div className={styles.container}>
           <h1 className={styles.title}>Alexander Martin</h1>
