@@ -32,13 +32,13 @@ export default function Portfolio({ className }) {
       <p className={styles.sectionDescription}>Explore my work and skills</p>
 
       <div className={styles.quickLinks}>
-        {cards.map((card) => (
-          <div key={card.header} className={styles.quickLinkCard}>
-            <div className={styles.quickLinkIcon}>{card.icon}</div>
-            <h3>{card.header}</h3>
-            <p>{card.description}</p>
+        {cards.map(({ icon, header, description, link, linkText}) => (
+          <div key={header} className={styles.quickLinkCard}>
+            <div className={styles.quickLinkIcon}>{icon}</div>
+            <h3>{header}</h3>
+            <p>{description}</p>
 
-            <Link href={card.link}>{card.linkText}</Link>
+            <Link href={link}>{linkText}</Link>
           </div>
         ))}
       </div>
