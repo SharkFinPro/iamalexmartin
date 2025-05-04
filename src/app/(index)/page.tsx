@@ -24,7 +24,7 @@ export default function Page() {
           <div className={styles.quickLinkCard}>
             <div className={styles.quickLinkIcon}>🌌️</div>
             <h3>Graphics Programming</h3>
-            <p>Check out my work in high-performance graphics using C++, Vulkan, and OpenGL to create stunning visual experiences.</p>
+            <p>Check out my work in high-performance graphics using C++, Vulkan, and GLSL to create stunning visual experiences.</p>
 
             <Link href={"/projects"}>View Projects</Link>
           </div>
