@@ -1,0 +1,51 @@
+@import "@/styles/variables";
+
+.container {
+  color: $light;
+  max-width: 600px;
+}
+
+.title {
+  font-size: 3.5rem;
+  padding-bottom: 0.25em;
+  font-weight: 800;
+  background: linear-gradient(to right, $light, $secondary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.description {
+  font-size: 1.2rem;
+  padding-bottom: 2em;
+  max-width: 500px;
+}
+
+.buttons {
+  padding-block: 1em;
+  display: flex;
+  gap: 1em;
+}
+
+.homepageButton {
+  padding: 1em 2em;
+  color: $light;
+  border-radius: 0.5em;
+  border: none;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: all 0.3s ease-in-out;
+  text-decoration: none;
+}
+
+.homepageButton:hover {
+  transform: translateY(-2.5px);
+  box-shadow: 0 10px 30px rgba(255, 255, 255, 0.075);
+}
+
+.viewProjects {
+  background-color: $accent;
+}
+
+.contactMe {
+  background-color: $primary;
+}
