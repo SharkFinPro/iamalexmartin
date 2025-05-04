@@ -7,7 +7,7 @@ export default function Page() {
       <div className={`${styles.wrapper} ${styles.homepage}`}>
         <div className={styles.container}>
           <h1 className={styles.title}>Alexander Martin</h1>
-          <p className={styles.description}>Computer Science Student specializing in high-performance graphics programming, game engine development, and computational optimization.</p>
+          <p className={styles.description}>Full-stack developer specializing in interactive graphics and modern web systems, with a focus on performance, accuracy, and clean, maintainable architecture.</p>
 
           <div className={styles.buttons}>
             <button className={`${styles.homepageButton} ${styles.viewProjects}`}>View My Work</button>
