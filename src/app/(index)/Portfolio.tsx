@@ -1,24 +1,27 @@
 import styles from "./portfolio.module.scss";
 import Link from "next/link";
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCube, faDesktop, faFileCode } from "@fortawesome/free-solid-svg-icons";
+
 export default function Portfolio({ className }) {
   const cards = [
     {
-      icon: "🌌",
+      icon: <FontAwesomeIcon icon={faCube} />,
       header: "Graphics Programming",
       description: "Check out my work in high-performance graphics using C++, Vulkan, and GLSL to create stunning visual experiences.",
       link: "/projects",
       linkText: "View Projects"
     },
     {
-      icon: "💻",
+      icon: <FontAwesomeIcon icon={faDesktop} />,
       header: "Web Development",
       description: "Browse my web development projects built with React, Next.js, and other modern frameworks for dynamic, interactive web apps",
       link: "/projects",
       linkText: "View Projects"
     },
     {
-      icon: "📝",
+      icon: <FontAwesomeIcon icon={faFileCode} />,
       header: "Technical Blog",
       description: "Read articles where I share insights, experiments, and lessons learned across various computer science topics.",
       link: "/blog",
