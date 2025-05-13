@@ -1,14 +1,32 @@
 @import "@/styles/variables";
 
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
 .sectionHeader {
   font-size: 2.2rem;
   padding-block: 0.5em;
+
+  opacity: 0;
+  animation: fadeInUp 0.8s ease-out forwards;
+  animation-delay: 0.3s; /* Start slightly after the header animations begin */
 }
 
 .sectionDescription {
   font-size: 1.15rem;
   padding-block: 0.5em;
   color: $dark;
+
+  opacity: 0;
+  animation: fadeInUp 0.8s ease-out forwards;
+  animation-delay: 0.6s;
 }
 
 .quickLinks {
@@ -29,6 +47,34 @@
   flex-direction: column;
   width: 300px;
   height: 400px;
+
+  opacity: 0;
+  animation: scaleIn 0.6s ease-out forwards;
+
+  /* Apply different delays based on card index */
+  &:nth-child(1) {
+    animation-delay: 1s;
+
+    .quickLinkIcon {
+      animation-delay: 1s;
+    }
+  }
+
+  &:nth-child(2) {
+    animation-delay: 1.2s;
+
+    .quickLinkIcon {
+      animation-delay: 1.2s;
+    }
+  }
+
+  &:nth-child(3) {
+    animation-delay: 1.4s;
+
+    .quickLinkIcon {
+      animation-delay: 1.4s;
+    }
+  }
 }
 
 .quickLinkCard:hover {
@@ -47,6 +93,9 @@
   margin: 0 auto 1.5rem;
   font-size: 2rem;
   color: $primary;
+
+  /* Subtle icon animation */
+  animation: fadeInUp 0.75s ease-out 0.2s backwards;
 }
 
 .quickLinkCard > h3, .quickLinkCard > p {

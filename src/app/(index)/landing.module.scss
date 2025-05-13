@@ -5,6 +5,16 @@
   max-width: 600px;
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes buttonSlideIn {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
 .title {
   font-size: 3.5rem;
   padding-bottom: 0.25em;
@@ -12,12 +22,19 @@
   background: linear-gradient(to right, $accent, $secondary);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+
+  opacity: 0;
+  animation: fadeIn 1s ease-out forwards;
 }
 
 .description {
   font-size: 1.2rem;
   padding-bottom: 2em;
   max-width: 500px;
+
+  opacity: 0;
+  animation: fadeIn 1s ease-out forwards;
+  animation-delay: 0.7s;
 }
 
 .buttons {
@@ -35,6 +52,8 @@
   font-weight: bold;
   transition: all 0.3s ease-in-out;
   text-decoration: none;
+
+  opacity: 0;
 }
 
 .homepageButton:hover {
@@ -44,9 +63,15 @@
 
 .viewProjects {
   background-color: $accent;
+
+  animation: buttonSlideIn 0.5s ease-out forwards;
+  animation-delay: 1.2s;
 }
 
 .contactMe {
   background-color: $primary;
   border: 1px solid rgba($light, 0.3);
+
+  animation: buttonSlideIn 0.5s ease-out forwards;
+  animation-delay: 1.5s;
 }
