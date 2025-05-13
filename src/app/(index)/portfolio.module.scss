@@ -11,12 +11,20 @@
 }
 
 .sectionHeader {
-  font-size: 2.2rem;
+  font-size: 1.5rem;
   padding-block: 0.5em;
 
   opacity: 0;
   animation: fadeInUp 0.8s ease-out forwards;
   animation-delay: 0.3s; /* Start slightly after the header animations begin */
+
+  @media (min-width: 800px) {
+    font-size: 1.9rem;
+  }
+
+  @media (min-width: 1024px) {
+    font-size: 2.2rem;
+  }
 }
 
 .sectionDescription {
@@ -31,22 +39,33 @@
 
 .quickLinks {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
   margin-top: 4rem;
+
+  @media (min-width: 800px) {
+    grid-template-columns: repeat(2, 1fr);
+    margin-top: 3rem;
+  }
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(3, 1fr);
+    margin-top: 4rem;
+  }
 }
 
 .quickLinkCard {
   background-color: $light;
   border-radius: 8px;
-  padding: 2rem;
+  padding: 1.5rem;
   text-align: center;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease-in-out;
   display: flex;
   flex-direction: column;
-  width: 300px;
-  height: 400px;
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  min-height: 320px;
 
   opacity: 0;
   animation: scaleIn 0.6s ease-out forwards;
@@ -75,6 +94,16 @@
       animation-delay: 1.4s;
     }
   }
+
+  @media (min-width: 800px) {
+    padding: 1.75rem;
+  }
+
+  @media (min-width: 1024px) {
+    padding: 2rem;
+    width: 300px;
+    min-height: 380px;
+  }
 }
 
 .quickLinkCard:hover {
@@ -83,23 +112,44 @@
 }
 
 .quickLinkIcon {
-  width: 80px;
-  height: 80px;
+  width: 60px;
+  height: 60px;
   background-color: $lightGray;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 1.5rem;
-  font-size: 2rem;
+  margin: 0 auto 1.25rem;
+  font-size: 1.5rem;
   color: $primary;
 
   /* Subtle icon animation */
   animation: fadeInUp 0.75s ease-out 0.2s backwards;
+
+  @media (min-width: 800px) {
+    width: 70px;
+    height: 70px;
+    font-size: 1.75rem;
+  }
+
+  @media (min-width: 1024px) {
+    width: 80px;
+    height: 80px;
+    font-size: 2rem;
+    margin: 0 auto 1.5rem;
+  }
 }
 
 .quickLinkCard > h3, .quickLinkCard > p {
   margin-bottom: auto;
+}
+
+.quickLinkCard > h3 {
+  font-size: 1.1rem;
+
+  @media (min-width: 800px) {
+    font-size: 1.3rem;
+  }
 }
 
 .quickLinkCard > a {
@@ -108,11 +158,21 @@
   color: $light;
   font-weight: bold;
   text-decoration: none;
-  padding-block: 1rem;
+  padding-block: 0.75rem;
   border-radius: 5px;
-  width: 70%;
+  width: 85%;
   align-self: center;
   transition: all 0.3s ease-in-out;
+
+  @media (min-width: 800x) {
+    padding-block: 0.85rem;
+    width: 75%;
+  }
+
+  @media (min-width: 1024px) {
+    padding-block: 1rem;
+    width: 70%;
+  }
 }
 
 .quickLinkCard > a:hover {
