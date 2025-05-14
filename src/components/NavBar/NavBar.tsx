@@ -2,12 +2,15 @@
 import styles from "./NavBar.module.scss";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState, useRef, useEffect } from "react";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
 
 export default function NavBar() {
   const pathname = usePathname();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   const navItems = [
     { label: "Home", path: "/" },
@@ -15,6 +18,32 @@ export default function NavBar() {
     { label: "Blog", path: "/blog" },
     { label: "Contact", path: "/contact" }
   ];
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    // Close dropdown when navigating to a new page
+    const handleRouteChange = () => {
+      setIsDropdownOpen(false);
+    };
+
+    if (isDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isDropdownOpen, pathname]);
+
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
 
   return (
     <header className={styles.header}>
@@ -32,8 +61,32 @@ export default function NavBar() {
           </Link>
         ))}
       </nav>
-      <nav className={styles.navSmall}>
-        <FontAwesomeIcon icon={faBars} className={styles.navSmallBars} />
+      <nav className={styles.navSmall} ref={dropdownRef}>
+        <button
+          className={styles.navSmallToggle}
+          onClick={toggleDropdown}
+          aria-expanded={isDropdownOpen}
+          aria-label="Toggle navigation menu"
+        >
+          <FontAwesomeIcon
+            icon={isDropdownOpen ? faTimes : faBars}
+            className={styles.navSmallIcon}
+          />
+        </button>
+        {isDropdownOpen && (
+          <div className={styles.dropdownMenu}>
+            {navItems.map((item) => (
+              <Link
+                key={item.label}
+                href={item.path}
+                className={`${styles.dropdownItem} ${pathname === item.path ? styles.active : ""}`}
+                onClick={toggleDropdown}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
+        )}
       </nav>
     </header>
   );
