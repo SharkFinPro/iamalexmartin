@@ -1,7 +1,8 @@
-@import "@/styles/variables";
+@use "@/styles/variables" as *;
 
 .header {
-  padding: 20px 30px;
+  height: 70px;
+  padding-inline: 30px;
   position: sticky;
   top: 0;
   left: 0;
@@ -10,7 +11,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(15, 23, 42, 0.8);
+  background: rgba($dark, 0.8);
   backdrop-filter: blur(10px);
   font-family: sans-serif;
 }
@@ -28,7 +29,7 @@
 }
 
 .nav {
-  display: flex;
+  display: none;
   gap: 40px;
 }
 
@@ -58,5 +59,28 @@
       background: $accent;
       border-radius: 2px;
     }
+  }
+}
+
+.navSmall {
+  height: 100%;
+  display: grid;
+  place-content: center;
+}
+
+.navSmallBars {
+  color: $light;
+  font-size: 2rem;
+  height: 100%;
+  width: auto;
+}
+
+@media (min-width: 768px) {
+  .nav {
+    display: flex;
+  }
+
+  .navSmall {
+    display: none;
   }
 }

@@ -3,6 +3,9 @@ import styles from "./NavBar.module.scss";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBars } from "@fortawesome/free-solid-svg-icons";
+
 export default function NavBar() {
   const pathname = usePathname();
 
@@ -28,6 +31,9 @@ export default function NavBar() {
             {item.label}
           </Link>
         ))}
+      </nav>
+      <nav className={styles.navSmall}>
+        <FontAwesomeIcon icon={faBars} className={styles.navSmallBars} />
       </nav>
     </header>
   );
