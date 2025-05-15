@@ -1,0 +1,217 @@
+@import "@/styles/variables";
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.sectionHeader {
+  font-size: 1.5rem;
+  padding-block: 0.5em;
+
+  opacity: 0;
+  animation: fadeInUp 0.8s ease-out forwards;
+  animation-delay: 0.3s; /* Start slightly after the header animations begin */
+
+  @media (min-width: 800px) {
+    font-size: 1.9rem;
+  }
+
+  @media (min-width: 1024px) {
+    font-size: 2.2rem;
+  }
+}
+
+.sectionDescription {
+  font-size: 1.15rem;
+  padding-block: 0.5em;
+  color: $dark;
+
+  opacity: 0;
+  animation: fadeInUp 0.8s ease-out forwards;
+  animation-delay: 0.6s;
+}
+
+.quickLinks {
+  display: grid;
+  gap: 2rem;
+  margin-top: 4rem;
+
+  @media (min-width: 800px) {
+    grid-template-columns: repeat(2, 1fr);
+    margin-top: 3rem;
+  }
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(3, 1fr);
+    margin-top: 4rem;
+  }
+}
+
+.quickLinkCard {
+  background-color: $light;
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease-in-out;
+
+  width: 100%;
+
+  max-width: 300px;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+
+  @media (max-width: 500px) {
+    max-width: 100%;
+    min-height: auto;
+    display: grid;
+    grid-template-areas:
+      'icon title'
+      'link description';
+    grid-template-columns: 150px auto;
+
+    & > h3, & > p {
+      height: 100%;
+      place-content: center;
+    }
+
+    & > * {
+      margin-inline: auto;
+    }
+  }
+
+  & > .quickLinkIcon {
+    border: 3px outset $accent;
+  }
+
+  height: auto;
+
+  opacity: 0;
+  animation: scaleIn 0.6s ease-out forwards;
+
+  /* Apply different delays based on card index */
+  &:nth-child(1) {
+    animation-delay: 1s;
+
+    .quickLinkIcon {
+      animation-delay: 1s;
+    }
+  }
+
+  &:nth-child(2) {
+    animation-delay: 1.2s;
+
+    .quickLinkIcon {
+      animation-delay: 1.2s;
+    }
+  }
+
+  &:nth-child(3) {
+    animation-delay: 1.4s;
+
+    .quickLinkIcon {
+      animation-delay: 1.4s;
+    }
+  }
+
+  @media (min-width: 800px) {
+    padding: 1.75rem;
+  }
+
+  @media (min-width: 1024px) {
+    padding: 2rem;
+    width: 300px;
+    min-height: 380px;
+  }
+}
+
+.quickLinkCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.quickLinkIcon {
+  grid-area: icon;
+
+  width: 60px;
+  height: 60px;
+  background-color: $lightGray;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.25rem;
+  font-size: 1.5rem;
+  color: $primary;
+
+  /* Subtle icon animation */
+  animation: fadeInUp 0.75s ease-out 0.2s backwards;
+
+  @media (min-width: 800px) {
+    width: 70px;
+    height: 70px;
+    font-size: 1.75rem;
+  }
+
+  @media (min-width: 1024px) {
+    width: 80px;
+    height: 80px;
+    font-size: 2rem;
+    margin: 0 auto 1.5rem;
+  }
+}
+
+.quickLinkCard > h3, .quickLinkCard > p {
+  margin-bottom: auto;
+}
+
+.quickLinkCard > h3 {
+  grid-area: title;
+
+  font-size: 1.1rem;
+
+  @media (min-width: 800px) {
+    font-size: 1.3rem;
+  }
+}
+
+.quickLinkCard > p {
+  grid-area: description;
+}
+
+.quickLinkCard > a {
+  grid-area: link;
+
+  margin-top: auto;
+  background-color: $highlight;
+  color: $light;
+  font-weight: bold;
+  text-decoration: none;
+  padding-block: 0.75rem;
+  border-radius: 5px;
+  width: 85%;
+  align-self: center;
+  transition: all 0.3s ease-in-out;
+
+  @media (min-width: 800px) {
+    padding-block: 0.85rem;
+    width: 75%;
+  }
+
+  @media (min-width: 1024px) {
+    padding-block: 1rem;
+    width: 70%;
+  }
+}
+
+.quickLinkCard > a:hover {
+  transform: translateY(-2.5px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}

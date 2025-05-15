@@ -1,0 +1,107 @@
+@import "@/styles/variables";
+
+.container {
+  color: $light;
+  max-width: 600px;
+  padding: 0 1rem;
+  margin: 0 auto;
+
+  @media (min-width: 768px) {
+    padding: 0 2rem;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes buttonSlideIn {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.title {
+  font-size: 1.75rem;
+
+  @media (min-width: 400px) {
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
+  }
+
+  padding-bottom: 0.25em;
+  font-weight: 800;
+  background: linear-gradient(to right, $accent, $secondary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  opacity: 0;
+  animation: fadeIn 1s ease-out forwards;
+
+  line-height: 1.2;
+  margin-top: clamp(1rem, 3vw, 2rem);
+}
+
+.description {
+  font-size: 1rem;
+
+  @media (min-width: 400px) {
+    font-size: clamp(1rem, 2vw, 1.2rem);
+  }
+  padding-bottom: 2em;
+  max-width: 85%;
+
+  @media (min-width: 768px) {
+    max-width: 500px;
+  }
+
+  opacity: 0;
+  animation: fadeIn 1s ease-out forwards;
+  animation-delay: 0.7s;
+  line-height: 1.5;
+}
+
+.buttons {
+  padding-block: 1em;
+  display: flex;
+  gap: 1em;
+
+  @media (max-width: 400px) {
+    flex-direction: column;
+  }
+}
+
+.homepageButton {
+  padding: 1em 2em;
+  color: $light;
+  border-radius: 0.5em;
+  border: none;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: all 0.3s ease-in-out;
+  text-decoration: none;
+
+  display: grid;
+  place-content: center;
+
+  opacity: 0;
+}
+
+.homepageButton:hover {
+  transform: translateY(-2.5px);
+  box-shadow: 0 10px 30px rgba(255, 255, 255, 0.075);
+}
+
+.viewProjects {
+  background-color: $accent;
+
+  animation: buttonSlideIn 0.5s ease-out forwards;
+  animation-delay: 1.2s;
+}
+
+.contactMe {
+  background-color: $primary;
+  border: 1px solid rgba($light, 0.3);
+
+  animation: buttonSlideIn 0.5s ease-out forwards;
+  animation-delay: 1.5s;
+}
