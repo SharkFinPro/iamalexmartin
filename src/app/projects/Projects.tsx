@@ -1,6 +1,29 @@
 import styles from "./projects.module.scss";
 import Link from "next/link";
 
+function ProjectCard({ project }) {
+  return (
+    <div className={styles.card}>
+      <div className={styles.thumbnail}>
+        <h3>{project.name}</h3>
+      </div>
+
+      <div className={styles.cardContainer}>
+        <h3>{project.name}</h3>
+        <p>{project.description}</p>
+
+        <ul>
+          {project.tags.map(tag => (
+            <li key={tag}>{tag}</li>
+          ))}
+        </ul>
+
+        <Link href={`/projects/${project.name}`}>View Details</Link>
+      </div>
+    </div>
+  );
+}
+
 export default function Projects() {
   const projects = [
     {
@@ -36,25 +59,8 @@ export default function Projects() {
       <h3></h3>
 
       <div className={styles.cards}>
-        {projects.map(({name, description, tags}) => (
-          <div key={name} className={styles.card}>
-            <div className={styles.thumbnail}>
-              <h3>{name}</h3>
-            </div>
-
-            <div className={styles.cardContainer}>
-              <h3>{name}</h3>
-              <p>{description}</p>
-
-              <ul>
-                {tags.map(tag => (
-                  <li key={tag}>{tag}</li>
-                ))}
-              </ul>
-
-              <Link href={`/projects/${name}`}>View Details</Link>
-            </div>
-          </div>
+        {projects.map((project) => (
+          <ProjectCard project={project} key={project.name} />
         ))}
       </div>
     </div>
