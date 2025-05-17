@@ -32,7 +32,8 @@ export default function Projects() {
 
   return (
     <div className={styles.container}>
-      <h3>All Projects</h3>
+      {/*<h3>All Projects</h3>*/}
+      <h3></h3>
 
       <div className={styles.cards}>
         {projects.map(({name, description, tags}) => (
