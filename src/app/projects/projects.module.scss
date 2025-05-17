@@ -1,0 +1,94 @@
+@use "@/styles/variables" as *;
+
+.container {
+  background-color: $lightGray;
+
+  min-width: 100%;
+
+  color: black;
+  max-width: 600px;
+  padding: 0 1rem;
+  margin: 0 auto;
+
+  font-family: sans-serif;
+
+  @media (min-width: 768px) {
+    padding: 0 2rem;
+  }
+}
+
+.container > h3 {
+  text-align: center;
+  padding-block: 1.5em;
+  font-size: 1.4em;
+}
+
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: left; /* or start, space-between, etc. */
+  gap: 1rem; /* adjust spacing between cards */
+}
+
+.card {
+  flex: 0 1 450px;
+  max-width: 450px;
+  padding: 1em;
+
+  .thumbnail {
+    min-height: 200px;
+    display: grid;
+    place-items: center;
+
+    background: linear-gradient(90deg, $dark, $accent);
+    color: $light;
+    font-size: 1.2em;
+
+    border-radius: 0.5rem 0.5rem 0 0;
+  }
+
+  .cardContainer {
+    background-color: $light;
+    display: grid;
+    padding-inline: 1em;
+
+    border-radius: 0 0 0.5rem 0.5rem;
+
+    & > h3 {
+      font-size: 1.2em;
+      padding-block: 1.25em;
+    }
+
+    & > p {
+      padding-block: 0.25em;
+    }
+
+    & > ul {
+      list-style: none;
+      display: flex;
+      gap: 1em;
+
+      padding-block: 1em;
+
+      & > li {
+        background-color: rgba($primary, 0.05);
+        color: $accent;
+        border-radius: 1em;
+        padding: 0.5em 0.75em;
+        font-size: 0.8em;
+      }
+    }
+
+    & > a {
+      margin-block: 1em;
+      width: 100%;
+      color: $light;
+      background-color: $highlight;
+      place-self: center;
+      text-decoration: none;
+      padding-block: 1em;
+      font-weight: bold;
+      text-align: center;
+    }
+  }
+}
