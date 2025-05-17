@@ -14,7 +14,7 @@ export default function Projects() {
       tags: ["C++", "Vulkan", "GLSL", "Compute Shaders"],
     },
     {
-      name: "BSA Conclave Website",
+      name: "Conclave Website",
       description: "Official event website built with Gatsby, CSS, and Netlify, serving over 100 attendees with dynamic content.",
       tags: ["Gatsby", "CSS", "Contentful", "MongoDB"],
     },
