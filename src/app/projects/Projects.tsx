@@ -22,6 +22,11 @@ export default function Projects() {
       name: "Trading Post Web App",
       description: "Full-stack application with Next.js, React, and SQL to streamline order tracking and inventory management.",
       tags: ["Next.js", "React", "SQL", "Admin Dashboard"],
+    },
+    {
+      name: "Platformer",
+      description: "A 2D Platformer Built with a Custom C++ Entity Framework and SFML",
+      tags: ["C++", "SFML", "Platformer"]
     }
   ];
 
