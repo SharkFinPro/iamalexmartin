@@ -24,16 +24,15 @@
 }
 
 .cards {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: left; /* or start, space-between, etc. */
-  gap: 1rem; /* adjust spacing between cards */
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  grid-auto-rows: 1fr;
+  gap: 1em;
+  padding-block: 1rem;
 }
 
 .card {
-  flex: 0 1 450px;
-  max-width: 450px;
-  padding: 1em;
+  display: grid;
 
   .thumbnail {
     min-height: 200px;
@@ -71,7 +70,7 @@
       padding-block: 1em;
 
       & > li {
-        background-color: rgba($primary, 0.05);
+        background-color: rgba($primary, 0.08);
         color: $accent;
         border-radius: 1em;
         padding: 0.5em 0.75em;
