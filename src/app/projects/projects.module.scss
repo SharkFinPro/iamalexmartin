@@ -38,6 +38,8 @@
   display: grid;
   grid-template-rows: 200px 1fr;
 
+  transition: all 0.3s ease-in-out;
+
   .thumbnail {
     display: grid;
     place-items: center;
@@ -92,5 +94,10 @@
       font-weight: bold;
       text-align: center;
     }
+  }
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
   }
 }
