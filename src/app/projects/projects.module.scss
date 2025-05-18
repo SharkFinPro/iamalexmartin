@@ -1,7 +1,7 @@
 @use "@/styles/variables" as *;
 
 .container {
-  background-color: $lightGray;
+  background-color: darken($light, 15);
 
   min-width: 100%;
 

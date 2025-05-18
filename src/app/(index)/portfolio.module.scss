@@ -142,7 +142,7 @@
 
   width: 60px;
   height: 60px;
-  background-color: $lightGray;
+  background-color: darken($light, 10);
   border-radius: 50%;
   display: flex;
   align-items: center;
