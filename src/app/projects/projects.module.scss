@@ -89,10 +89,10 @@
 
       $shadowWidth: 1px;
       text-shadow:
-              -$shadowWidth -$shadowWidth 0 $dark,
-              $shadowWidth -$shadowWidth 0 $dark,
-              -$shadowWidth $shadowWidth 0 $dark,
-              $shadowWidth $shadowWidth 0 $dark;
+        ($shadowWidth) (-$shadowWidth) 0 $dark,
+        $shadowWidth (-$shadowWidth) 0 $dark,
+        (-$shadowWidth) $shadowWidth 0 $dark,
+        $shadowWidth $shadowWidth 0 $dark;
 
       opacity: 1;
 
