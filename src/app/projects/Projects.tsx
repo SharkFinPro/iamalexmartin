@@ -5,6 +5,7 @@ import Image from "next/image";
 import tpImg from "../../public/images/tp.png";
 import vkImg from "../../public/images/vk.png";
 import ecsImg from "../../public/images/ecs.png";
+import platformerImg from "../../public/images/platformer.png";
 
 function ProjectCard({ project }) {
   return (
@@ -64,7 +65,8 @@ export default function Projects() {
     {
       name: "Platformer",
       description: "A 2D Platformer Built with a Custom C++ Entity Framework and SFML",
-      tags: ["C++", "SFML", "Platformer"]
+      tags: ["C++", "SFML", "Platformer"],
+      image: platformerImg
     }
   ];
 
