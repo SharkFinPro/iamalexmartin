@@ -6,6 +6,7 @@ import tpImg from "../../public/images/tp.png";
 import vkImg from "../../public/images/vk.png";
 import ecsImg from "../../public/images/ecs.png";
 import platformerImg from "../../public/images/platformer.png";
+import alaskaclaveImg from "../../public/images/alaskaclave.png";
 
 function ProjectCard({ project }) {
   return (
@@ -55,6 +56,7 @@ export default function Projects() {
       name: "Conclave Website",
       description: "Official event website built with Gatsby, CSS, and Netlify, serving over 100 attendees with dynamic content.",
       tags: ["Gatsby", "CSS", "Contentful", "MongoDB"],
+      image: alaskaclaveImg
     },
     {
       name: "Trading Post Web App",
