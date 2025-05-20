@@ -18,7 +18,7 @@ function ProjectCard({ project }) {
         {project.image && (
           <Image
             src={project.image}
-            alt={project.title}
+            alt={project.name}
             className={styles.thumbnailImage}
           />
         )}
