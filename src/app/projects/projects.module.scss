@@ -17,10 +17,34 @@
   }
 }
 
-.container > h3 {
-  text-align: center;
-  padding-block: 1.5em;
-  font-size: 1.4em;
+.projectTypeSelector {
+  display: flex;
+  gap: 1em;
+  place-content: center;
+  padding-block: 2em 1em;
+
+  & > button {
+    padding: 1em;
+    border: none;
+    background: darken($light, 60);
+    color: $light;
+    border-radius: 0.5em;
+    font-size: 0.9rem;
+
+    transition: background 0.2s ease-in-out;
+
+    &:hover {
+      background: darken($light, 70);
+    }
+  }
+
+  & > .selectedProjectType {
+    background: $secondary;
+
+    &:hover {
+      background: darken($secondary, 10);
+    }
+  }
 }
 
 .cards {
