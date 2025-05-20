@@ -1,4 +1,4 @@
-@import "@/styles/variables";
+@use "@/styles/variables" as *;
 
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(20px); }
@@ -68,6 +68,11 @@
   display: flex;
   flex-direction: column;
 
+  height: auto;
+
+  opacity: 0;
+  animation: scaleIn 0.6s ease-out forwards;
+
   @media (max-width: 500px) {
     max-width: 100%;
     min-height: auto;
@@ -90,11 +95,6 @@
   & > .quickLinkIcon {
     border: 3px outset $accent;
   }
-
-  height: auto;
-
-  opacity: 0;
-  animation: scaleIn 0.6s ease-out forwards;
 
   /* Apply different delays based on card index */
   &:nth-child(1) {
@@ -142,7 +142,7 @@
 
   width: 60px;
   height: 60px;
-  background-color: $lightGray;
+  background-color: darken($light, 10);
   border-radius: 50%;
   display: flex;
   align-items: center;

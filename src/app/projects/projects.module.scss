@@ -1,0 +1,188 @@
+@use "@/styles/variables" as *;
+
+.container {
+  background-color: darken($light, 15);
+  min-width: 100%;
+  color: black;
+  max-width: 600px;
+  padding: 0 1rem;
+  margin: 0 auto;
+  font-family: sans-serif;
+
+  @media (min-width: 768px) {
+    padding: 0 2rem;
+  }
+}
+
+.projectTypeSelector {
+  display: flex;
+  gap: 1em;
+  place-content: center;
+  padding-block: 2em 1em;
+
+  & > button {
+    padding: 1em;
+    border: none;
+    background: darken($light, 60);
+    color: $light;
+    border-radius: 0.5em;
+    font-size: 0.9rem;
+    transition: background 0.2s ease-in-out;
+
+    &:hover {
+      background: darken($light, 70);
+    }
+  }
+
+  & > .selectedProjectType {
+    background: $secondary;
+
+    &:hover {
+      background: darken($secondary, 10);
+    }
+  }
+
+  @media (max-width: 500px) {
+    flex-direction: column;
+    gap: 0.5em;
+    padding-block: 1em 0.5em;
+  }
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1em;
+  padding-block: 1rem;
+
+  @media (min-width: 500px) {
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    grid-auto-rows: 1fr;
+    max-width: 1300px;
+    margin-inline: auto;
+  }
+}
+
+.card {
+  display: grid;
+  transition: all 0.3s ease-in-out;
+
+  .thumbnail {
+    aspect-ratio: 2/1;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(25deg, $primary, $secondary);
+    color: $light;
+    font-size: 1.2em;
+    border-radius: 0.5rem 0.5rem 0 0;
+    position: relative;
+    overflow: hidden;
+
+    .thumbnailImage {
+      height: 100%;
+      width: 100%;
+      object-fit: contain;
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    &::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba($dark, 0.8);
+      transition: background-color 0.5s ease-in-out;
+      z-index: 1;
+    }
+
+    & > h3 {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: grid;
+      place-content: center;
+      color: $light;
+      z-index: 2;
+      $shadowWidth: 1px;
+      text-shadow:
+        ($shadowWidth) (-$shadowWidth) 0 $dark,
+        $shadowWidth (-$shadowWidth) 0 $dark,
+        (-$shadowWidth) $shadowWidth 0 $dark,
+        $shadowWidth $shadowWidth 0 $dark;
+      opacity: 1;
+      transition: opacity 0.3s ease-in-out;
+      cursor: default;
+    }
+  }
+
+  .cardContainer {
+    background-color: $light;
+    display: grid;
+    padding: 1em;
+    border-radius: 0 0 0.5rem 0.5rem;
+
+    & > h3 {
+      font-size: 1.2em;
+      padding-block: 0.5em;
+    }
+
+    & > p {
+      padding-block: 0.5em;
+    }
+
+    & > ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5em;
+      padding-block: 0.5em;
+
+      & > li {
+        display: grid;
+        place-content: center;
+        background-color: rgba($primary, 0.08);
+        color: $accent;
+        border-radius: 1em;
+        padding-inline: 0.75em;
+        height: 1.75rem;
+        font-size: 0.8em;
+      }
+    }
+
+    & > a {
+      place-self: end;
+      margin-top: 1.5em;
+      width: 100%;
+      color: $light;
+      background-color: $secondary;
+      text-decoration: none;
+      padding-block: 1em;
+      font-weight: bold;
+      text-align: center;
+      transition: all 0.3s ease-in-out;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+      }
+    }
+  }
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+
+    .thumbnail::after {
+      background-color: rgba($dark, 0.4);
+    }
+
+    .thumbnail > h3 {
+      opacity: 0;
+    }
+  }
+}

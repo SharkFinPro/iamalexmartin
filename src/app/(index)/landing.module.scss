@@ -1,4 +1,4 @@
-@import "@/styles/variables";
+@use "@/styles/variables" as *;
 
 .container {
   color: $light;
@@ -24,10 +24,6 @@
 .title {
   font-size: 1.75rem;
 
-  @media (min-width: 400px) {
-    font-size: clamp(2.5rem, 5vw, 3.5rem);
-  }
-
   padding-bottom: 0.25em;
   font-weight: 800;
   background: linear-gradient(to right, $accent, $secondary);
@@ -39,25 +35,29 @@
 
   line-height: 1.2;
   margin-top: clamp(1rem, 3vw, 2rem);
+
+  @media (min-width: 400px) {
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
+  }
 }
 
 .description {
   font-size: 1rem;
-
-  @media (min-width: 400px) {
-    font-size: clamp(1rem, 2vw, 1.2rem);
-  }
   padding-bottom: 2em;
   max-width: 85%;
-
-  @media (min-width: 768px) {
-    max-width: 500px;
-  }
 
   opacity: 0;
   animation: fadeIn 1s ease-out forwards;
   animation-delay: 0.7s;
   line-height: 1.5;
+
+  @media (min-width: 400px) {
+    font-size: clamp(1rem, 2vw, 1.2rem);
+  }
+
+  @media (min-width: 768px) {
+    max-width: 500px;
+  }
 }
 
 .buttons {

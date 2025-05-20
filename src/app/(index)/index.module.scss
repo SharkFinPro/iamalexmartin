@@ -1,4 +1,4 @@
-@import "@/styles/variables";
+@use "@/styles/variables" as *;
 
 .wrapper {
   display: grid;
@@ -13,5 +13,5 @@
 }
 
 .welcome {
-  background-color: $lightGray;
+  background-color: darken($light, 10);
 }
