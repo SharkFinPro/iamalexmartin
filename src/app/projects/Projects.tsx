@@ -2,13 +2,14 @@
 import styles from "./projects.module.scss";
 import Link from "next/link";
 import Image from "next/image";
+import { useState } from "react";
+import { useSearchParams } from 'next/navigation'
 
 import tpImg from "../../public/images/tp.png";
 import vkImg from "../../public/images/vk.png";
 import ecsImg from "../../public/images/ecs.png";
 import platformerImg from "../../public/images/platformer.png";
 import alaskaclaveImg from "../../public/images/alaskaclave.png";
-import { useState } from "react";
 
 function ProjectCard({ project }) {
   return (
@@ -79,7 +80,15 @@ export default function Projects() {
     }
   ];
 
-  const [projectType, setProjectType] = useState("all");
+  const validProjectTypes = ["all", "graphics", "web"];
+
+  const searchParams = useSearchParams();
+
+  const queriedProjectType = searchParams.get("projectType");
+
+  const [projectType, setProjectType] = useState<string>(queriedProjectType !== null &&
+                                                         validProjectTypes.includes(queriedProjectType) ?
+                                                         queriedProjectType : "all");
 
   return (
     <div className={styles.container}>

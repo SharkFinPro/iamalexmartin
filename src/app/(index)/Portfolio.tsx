@@ -31,7 +31,7 @@ export default function Portfolio({ className }) {
       header: "Graphics Programming",
       description: "Check out my work in high-performance graphics using C++, Vulkan, and GLSL to create stunning visual experiences.",
       shortDescription: "Real-time rendering engines and visual simulations",
-      link: "/projects",
+      link: "/projects?projectType=graphics",
       linkText: "View Projects"
     },
     {
@@ -39,7 +39,7 @@ export default function Portfolio({ className }) {
       header: "Web Development",
       description: "Browse my web development projects built with React, Next.js, and other modern frameworks for dynamic, interactive web apps",
       shortDescription: "Interactive websites and full-stack web apps",
-      link: "/projects",
+      link: "/projects?projectType=web",
       linkText: "View Projects"
     },
     {
