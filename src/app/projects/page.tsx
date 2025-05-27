@@ -1,6 +1,11 @@
 import Banner from "@/components/Banner";
 import Projects from "./Projects";
 import { Suspense } from "react";
+import type { Metadata } from "next";
+
+export const metadata : Metadata = {
+  title: "Projects"
+};
 
 export const dynamic = "force-dynamic";
 
