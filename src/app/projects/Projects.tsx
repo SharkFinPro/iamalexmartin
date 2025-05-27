@@ -5,28 +5,24 @@ import Image from "next/image";
 import { useState } from "react";
 import { useSearchParams } from 'next/navigation'
 
-import tpImg from "../../public/images/tp.png";
-import vkImg from "../../public/images/vk.png";
-import ecsImg from "../../public/images/ecs.png";
-import platformerImg from "../../public/images/platformer.png";
-import alaskaclaveImg from "../../public/images/alaskaclave.png";
-
 function ProjectCard({ project }) {
   return (
     <div className={styles.card}>
       <div className={styles.thumbnail}>
         {project.image && (
           <Image
-            src={project.image}
-            alt={project.name}
+            src={project.image.url}
+            alt={project.title}
             className={styles.thumbnailImage}
+            width={800}
+            height={400}
           />
         )}
-        <h3>{project.name}</h3>
+        <h3>{project.title}</h3>
       </div>
 
       <div className={styles.cardContainer}>
-        <h3>{project.name}</h3>
+        <h3>{project.title}</h3>
         <p>{project.description}</p>
 
         <ul>
@@ -35,51 +31,13 @@ function ProjectCard({ project }) {
           ))}
         </ul>
 
-        <Link href={`/projects/${project.name}`}>View Details</Link>
+        <Link href={`/projects/${project.title}`}>View Details</Link>
       </div>
     </div>
   );
 }
 
-export default function Projects() {
-  const projects = [
-    {
-      name: "ECS3D",
-      description: "A modular 3D game engine with an Entity Component System architecture, physics simulation, and Vulkan rendering.",
-      tags: ["C++", "Vulkan", "ECS", "Physics"],
-      image: ecsImg,
-      type: "graphics"
-    },
-    {
-      name: "Vulkan Renderer",
-      description: "High-performance real-time 3D renderer with compute and graphics pipelines for optimized particle simulation.",
-      tags: ["C++", "Vulkan", "GLSL", "Compute Shaders"],
-      image: vkImg,
-      type: "graphics"
-    },
-    {
-      name: "Conclave Website",
-      description: "Official event website built with Gatsby, CSS, and Netlify, serving over 100 attendees with dynamic content.",
-      tags: ["Gatsby", "CSS", "Contentful", "MongoDB"],
-      image: alaskaclaveImg,
-      type: "web"
-    },
-    {
-      name: "Trading Post Web App",
-      description: "Full-stack application with Next.js, React, and SQL to streamline order tracking and inventory management.",
-      tags: ["Next.js", "React", "SQL", "Admin Dashboard"],
-      image: tpImg,
-      type: "web"
-    },
-    {
-      name: "Platformer",
-      description: "A 2D Platformer Built with a Custom C++ Entity Framework and SFML",
-      tags: ["C++", "SFML", "Platformer"],
-      image: platformerImg,
-      type: "graphics"
-    }
-  ];
-
+export default function Projects({ projects }) {
   const validProjectTypes = ["all", "graphics", "web"];
 
   const searchParams = useSearchParams();
@@ -111,7 +69,7 @@ export default function Projects() {
         {projects
           .filter(project => projectType === "all" || projectType === project.type)
           .map((project) => (
-            <ProjectCard project={project} key={project.name}/>
+            <ProjectCard project={project} key={project.title}/>
           ))}
       </div>
     </div>
