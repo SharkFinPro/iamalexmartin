@@ -2,6 +2,8 @@ import Banner from "@/components/Banner";
 import Projects from "./Projects";
 import { Suspense } from "react";
 
+export const dynamic = "force-dynamic";
+
 export default async function Page() {
   const response = await fetch(process.env.CMS_ENDPOINT, {
     method: "POST",
