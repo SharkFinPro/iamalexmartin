@@ -1,6 +1,11 @@
 import styles from "./index.module.scss";
 import Landing from "./Landing";
 import Portfolio from "./Portfolio";
+import type { Metadata } from "next";
+
+export const metadata : Metadata = {
+  title: "Portfolio"
+};
 
 export default function Page() {
   return <>
