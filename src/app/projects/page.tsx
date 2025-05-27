@@ -4,34 +4,48 @@ import { Suspense } from "react";
 
 export const dynamic = "force-dynamic";
 
-export default async function Page() {
+const PROJECTS_QUERY = `
+  query ProjectWidgets {
+    projectWidgets {
+      title
+      description
+      tags
+      image {
+        url
+      }
+      type
+    }
+  }
+`;
+
+async function getProjects() {
   const response = await fetch(process.env.CMS_ENDPOINT, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      query: `query ProjectWidgets {
-                projectWidgets {
-                  title
-                  description
-                  tags
-                  image {
-                    url
-                  }
-                  type
-                }
-              }`
+      query: PROJECTS_QUERY
     })
   });
   const json = await response.json();
-  const projects = json.data.projectWidgets;
 
-  return <>
-    <Banner title={"My Projects"} description={"Explore my technical work and creative solutions"} />
+  return json.data.projectWidgets;
+}
 
-    <Suspense>
-      <Projects projects={projects} />
-    </Suspense>
-  </>
+export default async function Page() {
+  const projects = await getProjects();
+
+  return (
+    <>
+      <Banner
+        title={"My Projects"}
+        description={"Explore my technical work and creative solutions"}
+      />
+
+      <Suspense>
+        <Projects projects={projects} />
+      </Suspense>
+    </>
+  );
 }
