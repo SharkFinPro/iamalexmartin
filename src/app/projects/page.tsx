@@ -10,9 +10,10 @@ export const metadata : Metadata = {
 export const dynamic = "force-dynamic";
 
 const PROJECTS_QUERY = `
-  query ProjectWidgets {
-    projectWidgets {
+  query Projects {
+    projects {
       title
+      slug
       description
       tags
       image {
@@ -35,7 +36,7 @@ async function getProjects() {
   });
   const json = await response.json();
 
-  return json.data.projectWidgets;
+  return json.data.projects;
 }
 
 export default async function Page() {
