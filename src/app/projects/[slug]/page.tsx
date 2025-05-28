@@ -3,7 +3,7 @@ import { RichText } from '@graphcms/rich-text-react-renderer';
 import styles from "./Project.module.scss";
 import richTextStyles from './RichText.module.scss';
 
-async function getContent(slug: string) {
+async function getProject(slug: string) {
   try {
     const response = await fetch(process.env.CMS_ENDPOINT, {
       method: "POST",
@@ -12,9 +12,10 @@ async function getContent(slug: string) {
       },
       body: JSON.stringify({
         query: `
-          query ProjectPages {
-            projectPages(where: { projectWidget: { title: "${slug}" }}) {
-              rich {
+          query Projects {
+            projects(where: { slug: "${slug.toLowerCase()}" }) {
+              title
+              projectPageContent {
                 raw
               }
             }
@@ -26,7 +27,7 @@ async function getContent(slug: string) {
 
     const json = await response.json();
 
-    return json.data.projectPages[0].rich.raw;
+    return json.data.projects[0];
   } catch (error) {
     notFound();
   }
@@ -35,13 +36,13 @@ async function getContent(slug: string) {
 export default async function Page({ params }) {
   const { slug } = await params;
 
-  const content = await getContent(slug);
+  const project = await getProject(slug);
 
   return (
     <div className={styles.container}>
-      <h1>{slug}</h1>
+      <h1>{project.title}</h1>
       <div className={richTextStyles.container}>
-        <RichText content={content} />
+        <RichText content={project.projectPageContent.raw} />
       </div>
     </div>
   );

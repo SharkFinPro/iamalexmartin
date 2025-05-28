@@ -31,7 +31,7 @@ function ProjectCard({ project }) {
           ))}
         </ul>
 
-        <Link href={`/projects/${project.title}`}>View Details</Link>
+        <Link href={`/projects/${project.slug}`}>View Details</Link>
       </div>
     </div>
   );
