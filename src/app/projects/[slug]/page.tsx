@@ -12,19 +12,21 @@ async function getContent(slug: string) {
       },
       body: JSON.stringify({
         query: `
-        query Tests {
-          tests(where: { projectWidget: { title: "${slug}" }}) {
-            rich {
-              raw
+          query ProjectPages {
+            projectPages(where: { projectWidget: { title: "${slug}" }}) {
+              rich {
+                raw
+              }
             }
           }
-        }
-      `
+        `
       })
     });
+
+
     const json = await response.json();
 
-    return json.data.tests[0].rich.raw;
+    return json.data.projectPages[0].rich.raw;
   } catch (error) {
     notFound();
   }
