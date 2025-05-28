@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import { RichText } from '@graphcms/rich-text-react-renderer';
 import styles from "./Project.module.scss";
 import richTextStyles from './RichText.module.scss';
+import {Metadata} from "next";
 
 async function getProject(slug: string) {
   try {
@@ -46,4 +47,26 @@ export default async function Page({ params }) {
       </div>
     </div>
   );
+}
+
+export async function generateMetadata({ params }): Promise<Metadata> {
+  const { slug } = await params;
+
+  try {
+    const project = await getProject(slug);
+
+    if (!project) {
+      return {
+        title: 'Project Not Found',
+      };
+    }
+
+    return {
+      title: project.title,
+      description: project.description
+    }
+  }
+  catch (error) {
+    notFound();
+  }
 }
