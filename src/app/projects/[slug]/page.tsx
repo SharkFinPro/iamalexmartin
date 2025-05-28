@@ -1,5 +1,6 @@
 import { RichText } from '@graphcms/rich-text-react-renderer';
-import styles from './RichText.module.scss';
+import styles from "./Project.module.scss";
+import richTextStyles from './RichText.module.scss';
 
 const CONTENT_QUERY = `
   query Tests {
@@ -31,12 +32,12 @@ export default async function Page({ params }) {
 
   const content = await getContent();
 
-  return <>
-    <h3>Hello, World!</h3>
-    <p>{slug}</p>
-    {/* @ts-ignore */}
+  return (
     <div className={styles.container}>
-      <RichText content={content} />
+      <h1>{slug}</h1>
+      <div className={richTextStyles.container}>
+        <RichText content={content} />
+      </div>
     </div>
-  </>
+  );
 }

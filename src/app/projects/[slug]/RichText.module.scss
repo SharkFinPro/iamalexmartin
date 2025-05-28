@@ -1,4 +1,27 @@
 .container {
+  max-width: 1200px;
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 60% 40%;
+
+    thead, tbody {
+      display: contents;
+    }
+
+    tr {
+      display: contents;
+    }
+
+    img {
+      width: 100%; /* Take up full column width (40% of container) */
+      height: auto;
+      display: block; /* Remove inline spacing */
+    }
+  }
+
   :global(.testing) {
     table {
       border-collapse: collapse;
