@@ -1,13 +1,39 @@
 @use "@/styles/variables" as *;
 
 .container {
-  max-width: 1200px;
+  font-family: sans-serif;
+  max-width: 1000px;
+  padding-inline: 0.5rem;
+
+  h2, h3, h4, h5, h6 {
+    padding-block: 0.5em 0.25em;
+  }
+
+  p {
+    padding-block: 0.25em;
+  }
+
+  li {
+    margin-left: 3rem;
+  }
 
   table {
+    padding-block: 1rem;
     border-collapse: collapse;
     width: 100%;
     display: grid;
-    grid-template-columns: 60% 40%;
+
+    @media (min-width: 500px) {
+      grid-template-columns: 50% 50%;
+    }
+
+    @media (min-width: 700px) {
+      grid-template-columns: 60% 40%;
+    }
+
+    :global(.imageHeader) {
+      font-size: 1.2rem;
+    }
 
     thead, tbody {
       display: contents;
@@ -18,9 +44,9 @@
     }
 
     img {
-      width: 100%; /* Take up full column width (40% of container) */
+      width: 100%;
       height: auto;
-      display: block; /* Remove inline spacing */
+      display: block;
     }
   }
 
