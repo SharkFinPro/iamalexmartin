@@ -4,6 +4,7 @@
   display: grid;
   align-content: center;
   place-items: center;
+  background-color: darken($light, 10);
 
   h1 {
     width: 100%;
