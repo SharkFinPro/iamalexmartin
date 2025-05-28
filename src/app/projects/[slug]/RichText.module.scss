@@ -1,0 +1,29 @@
+.container {
+  :global(.testing) {
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 0.6fr 0.4fr;
+
+      thead, tbody {
+        display: contents;
+      }
+
+      tr {
+        display: contents;
+      }
+
+      th, td {
+        border: 1px solid black;
+        padding: 8px;
+        text-align: left;
+      }
+
+      th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+      }
+    }
+  }
+}
