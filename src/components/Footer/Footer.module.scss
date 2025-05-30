@@ -1,1 +1,98 @@
 @use "@/styles/variables" as *;
+
+.wrapper {
+  background-color: $dark;
+  padding-block: 2rem;
+}
+
+.container {
+  max-width: 800px;
+  margin-inline: auto;
+  color: $light;
+  display: flex;
+  gap: 3rem;
+  justify-content: center;
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    padding-inline: 2rem;
+  }
+}
+
+.social {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  & > p {
+    background: linear-gradient(to right, $accent, $secondary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+    font-size: 1.5rem;
+  }
+
+  & > .icons {
+    display: flex;
+    gap: 1rem;
+    font-size: 1.3rem;
+    padding-block: 1rem;
+
+    & > a {
+      color: $light;
+      background: $primary;
+      width: 2.75rem;
+      height: 2.75rem;
+      display: grid;
+      place-content: center;
+      border-radius: 0.5rem;
+      border: 1px solid rgba($light, 0.3);
+      transition: 0.3s all ease-in-out;
+
+      &:hover {
+        background: $accent;
+        border-color: $accent;
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 10px 20px rgba($light, 0.1);
+      }
+    }
+  }
+}
+
+.navigate, .projects {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    position: relative;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.9;
+
+    &::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -0.5rem;
+      width: 2rem;
+      height: 0.15rem;
+      background-color: $accent;
+      border-radius: 0.1rem;
+    }
+  }
+
+  span {
+    opacity: 0.8;
+    transition: 0.3s all ease-in-out;
+
+
+    &:hover {
+      color: $accent;
+      transform: translateX(0.5rem);
+    }
+  }
+}
