@@ -27,6 +27,9 @@ export default function Footer() {
           <span>Web</span>
         </div>
       </div>
+      <div className={styles.bottom}>
+        <p>&copy; 2025 <span>Alexander Martin</span>.</p>
+      </div>
     </footer>
   );
 };
