@@ -22,7 +22,9 @@
 .social {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  @media (max-width: 600px) {
+    align-items: center;
+  }
 
   & > p {
     background: linear-gradient(to right, $accent, $secondary);
