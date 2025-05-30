@@ -23,7 +23,7 @@
   }
 
   @media (min-width: 1024px) {
-    font-size: 2.2rem;
+    font-size: 2.1rem;
   }
 }
 
@@ -178,12 +178,13 @@
   font-size: 1.1rem;
 
   @media (min-width: 800px) {
-    font-size: 1.3rem;
+    font-size: 1.25rem;
   }
 }
 
 .quickLinkCard > p {
   grid-area: description;
+  font-size: 0.95rem;
 }
 
 .quickLinkCard > a {
