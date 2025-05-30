@@ -16,15 +16,19 @@ export default function Footer() {
         </div>
         <div className={styles.navigate}>
           <h3>Navigate</h3>
-          <span>Home</span>
-          <span>Projects</span>
-          <span>Blog</span>
-          <span>Contact</span>
+          <ul>
+            <li><Link href="/">Home</Link></li>
+            <li><Link href="/projects">Projects</Link></li>
+            <li><Link href="/blog">Blog</Link></li>
+            <li><Link href="/contact">Contact</Link></li>
+          </ul>
         </div>
         <div className={styles.projects}>
           <h3>Projects</h3>
-          <span>Graphics</span>
-          <span>Web</span>
+          <ul>
+            <li><Link href="/projects?projectType=graphics">Graphics</Link></li>
+            <li><Link href="/projects?projectType=web">Web</Link></li>
+          </ul>
         </div>
       </div>
       <div className={styles.bottom}>

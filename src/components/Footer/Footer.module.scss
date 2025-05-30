@@ -87,6 +87,35 @@
     }
   }
 
+  ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    li {
+      transition: 0.3s all ease-in-out;
+    }
+
+    a {
+      color: $light;
+      text-decoration: none;
+      opacity: 0.8;
+
+      &:hover {
+        color: $accent;
+
+      }
+    }
+
+    li:hover {
+      transform: translateX(0.5rem);
+
+      a {
+        color: $accent;
+      }
+    }
+  }
   span {
     opacity: 0.8;
     transition: 0.3s all ease-in-out;
