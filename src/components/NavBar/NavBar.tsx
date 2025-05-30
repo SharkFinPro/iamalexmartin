@@ -57,7 +57,7 @@ export default function NavBar() {
             href={item.path}
             className={`${styles.nav_item} ${pathname === item.path ? styles.active : ""}`}
           >
-            {item.label}
+            <span>{item.label}</span>
           </Link>
         ))}
       </nav>
