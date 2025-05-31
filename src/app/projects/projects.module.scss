@@ -65,6 +65,7 @@
 .card {
   display: grid;
   transition: all 0.3s ease-in-out;
+  grid-template-rows: auto 1fr;
 
   .thumbnail {
     aspect-ratio: 2/1;
