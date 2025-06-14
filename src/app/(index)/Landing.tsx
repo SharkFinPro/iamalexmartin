@@ -5,8 +5,8 @@ export default function Landing({ className, description }) {
   return (
     <div className={className}>
       <div className={styles.container}>
-        <h1 className={styles.title}>Alexander Martin</h1>
-        <p className={styles.description}>{description}</p>
+        <h1 className={styles.title}>{description.header}</h1>
+        <p className={styles.description}>{description.description}</p>
 
         <div className={styles.buttons}>
           <Link href={"/projects"} className={`${styles.homepageButton} ${styles.viewProjects}`}>View My Work</Link>

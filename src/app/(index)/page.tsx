@@ -10,6 +10,7 @@ export const metadata : Metadata = {
 const PORTFOLIO_QUERY = `
   query Portfolio {
     descriptions(where: { location: "Landing" }) {
+      header
       description
     }
     portfolioCards {
@@ -35,7 +36,7 @@ export default async function Page() {
   });
 
   const response = await request.json();
-  const landingDescription = response.data.descriptions[0].description;
+  const landingDescription = response.data.descriptions[0];
   const portfolioCards = response.data.portfolioCards;
 
 
