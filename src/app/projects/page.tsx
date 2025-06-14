@@ -11,6 +11,11 @@ export const dynamic = "force-dynamic";
 
 const PROJECTS_QUERY = `
   query Projects {
+    __type(name: "ProjectTypes") {
+      enumValues {
+        name
+      }
+    }
     projects {
       title
       slug
@@ -19,7 +24,7 @@ const PROJECTS_QUERY = `
       image {
         url
       }
-      type
+      projectType
     }
   }
 `;
@@ -36,7 +41,7 @@ async function getProjects() {
   });
   const json = await response.json();
 
-  return json.data.projects;
+  return json.data;
 }
 
 export default async function Page() {

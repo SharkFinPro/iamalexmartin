@@ -5,6 +5,18 @@ import Image from "next/image";
 import { useState } from "react";
 import { useSearchParams } from 'next/navigation'
 
+function camelCaseToSentence(str : string) {
+  return str
+    // Insert space before uppercase letters (but not at the start)
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    // Insert space before numbers that follow letters
+    .replace(/([a-zA-Z])(\d)/g, '$1 $2')
+    // Insert space before letters that follow numbers
+    .replace(/(\d)([a-zA-Z])/g, '$1 $2')
+    // Capitalize the first letter
+    .replace(/^./, match => match.toUpperCase());
+}
+
 function ProjectCard({ project }) {
   return (
     <div className={styles.card}>
@@ -38,15 +50,17 @@ function ProjectCard({ project }) {
 }
 
 export default function Projects({ projects }) {
-  const validProjectTypes = ["all", "graphics", "web"];
 
   const searchParams = useSearchParams();
 
   const queriedProjectType = searchParams.get("projectType");
 
-  const [projectType, setProjectType] = useState<string>(queriedProjectType !== null &&
-                                                         validProjectTypes.includes(queriedProjectType) ?
-                                                         queriedProjectType : "all");
+  function isValidProjectType() {
+    return queriedProjectType !== null &&
+           projects["__type"].enumValues.some((enumType: any) => enumType.name === queriedProjectType)
+  }
+
+  const [projectType, setProjectType] = useState<string>(isValidProjectType() ? queriedProjectType : "all");
 
   return (
     <div className={styles.container}>
@@ -55,19 +69,18 @@ export default function Projects({ projects }) {
                 onClick={()=>setProjectType("all")}>
           All Projects
         </button>
-        <button className={projectType === "graphics" ? styles.selectedProjectType : ""}
-                onClick={()=>setProjectType("graphics")}>
-          Graphics
-        </button>
-        <button className={projectType === "web" ? styles.selectedProjectType : ""}
-                onClick={()=>setProjectType("web")}>
-          Web Development
-        </button>
+        {projects["__type"].enumValues
+          .map((type : any) => (
+            <button key={type.name} className={projectType === type.name ? styles.selectedProjectType : ""}
+              onClick={()=>setProjectType(type.name)}>
+              {camelCaseToSentence(type.name)}
+            </button>
+          ))}
       </div>
 
       <div className={styles.cards}>
-        {projects
-          .filter(project => projectType === "all" || projectType === project.type)
+        {projects.projects
+          .filter(project => projectType === "all" || project.projectType.includes(projectType))
           .map((project) => (
             <ProjectCard project={project} key={project.title}/>
           ))}
