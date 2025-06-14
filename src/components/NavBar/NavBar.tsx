@@ -27,11 +27,6 @@ export default function NavBar() {
       }
     };
 
-    // Close dropdown when navigating to a new page
-    const handleRouteChange = () => {
-      setIsDropdownOpen(false);
-    };
-
     if (isDropdownOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     }
