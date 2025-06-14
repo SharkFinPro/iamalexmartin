@@ -73,6 +73,14 @@
   opacity: 0;
   animation: scaleIn 0.6s ease-out forwards;
 
+  .shortDescription {
+    display: none;
+  }
+
+  .description {
+    display: inline-block;
+  }
+
   @media (max-width: 500px) {
     max-width: 100%;
     min-height: auto;
@@ -89,6 +97,14 @@
 
     & > * {
       margin-inline: auto;
+    }
+
+    .shortDescription {
+      display: inline-block;
+    }
+
+    .description {
+      display: none;
     }
   }
 
