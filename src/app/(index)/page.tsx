@@ -9,7 +9,11 @@ export const metadata : Metadata = {
 
 const PORTFOLIO_QUERY = `
   query Portfolio {
-    descriptions(where: { location: "Landing" }) {
+    portfolioDescriptions: descriptions(where: { location: "Portfolio" }) {
+      header
+      description
+    }
+    landingDescriptions: descriptions(where: { location: "Landing" }) {
       header
       description
     }
@@ -36,13 +40,14 @@ export default async function Page() {
   });
 
   const response = await request.json();
-  const landingDescription = response.data.descriptions[0];
+  const portfolioDescription = response.data.portfolioDescriptions[0];
+  const landingDescription = response.data.landingDescriptions[0];
   const portfolioCards = response.data.portfolioCards;
-
 
   return <>
     <Landing className={`${styles.wrapper} ${styles.homepage}`} description={landingDescription} />
 
-    <Portfolio className={`${styles.wrapper} ${styles.welcome}`} cards={portfolioCards} />
+    <Portfolio className={`${styles.wrapper} ${styles.welcome}`} cards={portfolioCards}
+               description={portfolioDescription} />
   </>
 }

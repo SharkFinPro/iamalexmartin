@@ -9,7 +9,7 @@ import { useState, useEffect } from "react";
 
 library.add(fas);
 
-export default function Portfolio({ className, cards }) {
+export default function Portfolio({ className, cards, description }) {
   const [isMobile, setIsMobile] = useState(false);
 
   // Check if screen width is less than 500px
@@ -30,8 +30,8 @@ export default function Portfolio({ className, cards }) {
 
   return (
     <div className={className}>
-      <h2 className={styles.sectionHeader}>Welcome to My Portfolio</h2>
-      <p className={styles.sectionDescription}>Explore my work and skills</p>
+      <h2 className={styles.sectionHeader}>{description.header}</h2>
+      <p className={styles.sectionDescription}>{description.description}</p>
 
       <div className={styles.quickLinks}>
         {cards.map(({ fontAwesomeIcon, title, description, shortDescription, link, linkText}) => (
