@@ -8,7 +8,10 @@ export const metadata : Metadata = {
 };
 
 const PORTFOLIO_QUERY = `
-  query PortfolioCards {
+  query Portfolio {
+    descriptions(where: { location: "Landing" }) {
+      description
+    }
     portfolioCards {
       title
       fontAwesomeIcon
@@ -21,7 +24,7 @@ const PORTFOLIO_QUERY = `
 `;
 
 export default async function Page() {
-  const portfolioCardsRequest = await fetch(process.env.CMS_ENDPOINT, {
+  const request = await fetch(process.env.CMS_ENDPOINT, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -31,12 +34,14 @@ export default async function Page() {
     })
   });
 
-  const portfolioCards = await portfolioCardsRequest.json();
+  const response = await request.json();
+  const landingDescription = response.data.descriptions[0].description;
+  const portfolioCards = response.data.portfolioCards;
 
 
   return <>
-    <Landing className={`${styles.wrapper} ${styles.homepage}`} />
+    <Landing className={`${styles.wrapper} ${styles.homepage}`} description={landingDescription} />
 
-    <Portfolio className={`${styles.wrapper} ${styles.welcome}`} cards={portfolioCards.data.portfolioCards} />
+    <Portfolio className={`${styles.wrapper} ${styles.welcome}`} cards={portfolioCards} />
   </>
 }
