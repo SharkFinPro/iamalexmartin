@@ -5,8 +5,30 @@ export const metadata : Metadata = {
   title: "Blog"
 };
 
-export default function Page() {
+const QUERY = `
+  query Portfolio {
+    descriptions(where: { location: "Blog" }) {
+      header
+      description
+    }
+  }
+`;
+
+export default async function Page() {
+  const request = await fetch(process.env.CMS_ENDPOINT, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      query: QUERY
+    })
+  });
+
+  const response = await request.json();
+  const description = response.data.descriptions[0];
+
   return <>
-    <Banner title={"Blog"} description={"Graphics programming insights, tutorials, and thoughts on technology"} />
+    <Banner title={description.header} description={description.description} />
   </>
 }
