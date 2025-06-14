@@ -3,7 +3,40 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGithub, faLinkedin } from "@fortawesome/free-brands-svg-icons";
 import Link from "next/link";
 
-export default function Footer() {
+const PROJECTS_TYPES_QUERY = `
+  query ProjectTypes {
+    __type(name: "ProjectTypes") {
+      enumValues {
+        name
+      }
+    }
+  }
+`;
+
+function camelCaseToSentence(str : string) {
+  return str
+    // Insert space before uppercase letters (but not at the start)
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    // Insert space before numbers that follow letters
+    .replace(/([a-zA-Z])(\d)/g, '$1 $2')
+    // Insert space before letters that follow numbers
+    .replace(/(\d)([a-zA-Z])/g, '$1 $2')
+    // Capitalize the first letter
+    .replace(/^./, match => match.toUpperCase());
+}
+
+export default async function Footer() {
+  const request = await fetch(process.env.CMS_ENDPOINT, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      query: PROJECTS_TYPES_QUERY
+    })
+  });
+  const response = await request.json();
+
   return (
     <footer className={styles.wrapper}>
       <div className={styles.container}>
@@ -26,8 +59,12 @@ export default function Footer() {
         <div className={styles.projects}>
           <h3>Projects</h3>
           <ul>
-            <li><Link href="/projects?projectType=graphics">Graphics</Link></li>
-            <li><Link href="/projects?projectType=web">Web</Link></li>
+            {response.data["__type"].enumValues
+              .map((type : any) => (
+                <li key={type.name}>
+                  <Link href={`/projects?projectType=${type.name}`}>{camelCaseToSentence(type.name)}</Link>
+                </li>
+              ))}
           </ul>
         </div>
       </div>

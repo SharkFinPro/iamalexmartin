@@ -7,10 +7,47 @@ export const metadata : Metadata = {
   title: "Portfolio"
 };
 
-export default function Page() {
-  return <>
-    <Landing className={`${styles.wrapper} ${styles.homepage}`} />
+const PORTFOLIO_QUERY = `
+  query Portfolio {
+    portfolioDescriptions: descriptions(where: { location: "Portfolio" }) {
+      header
+      description
+    }
+    landingDescriptions: descriptions(where: { location: "Landing" }) {
+      header
+      description
+    }
+    portfolioCards {
+      title
+      fontAwesomeIcon
+      description
+      shortDescription
+      linkText
+      link
+    }
+  }
+`;
 
-    <Portfolio className={`${styles.wrapper} ${styles.welcome}`} />
+export default async function Page() {
+  const request = await fetch(process.env.CMS_ENDPOINT, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      query: PORTFOLIO_QUERY
+    })
+  });
+
+  const response = await request.json();
+  const portfolioDescription = response.data.portfolioDescriptions[0];
+  const landingDescription = response.data.landingDescriptions[0];
+  const portfolioCards = response.data.portfolioCards;
+
+  return <>
+    <Landing className={`${styles.wrapper} ${styles.homepage}`} description={landingDescription} />
+
+    <Portfolio className={`${styles.wrapper} ${styles.welcome}`} cards={portfolioCards}
+               description={portfolioDescription} />
   </>
 }
