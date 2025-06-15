@@ -1,0 +1,68 @@
+@use "@/styles/variables" as *;
+@use "sass:color";
+
+.container {
+  background-color: color.mix(#000, $light, 15%);
+}
+
+.contactForm {
+  background-color: $light;
+  max-width: 800px;
+  margin-inline: auto;
+  border-radius: 15px;
+  padding: 3rem;
+
+  .formHeader {
+    text-align: center;
+  }
+
+  .formContent {
+
+  }
+
+  .formGroup {
+    display: grid;
+
+    & > label {
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+
+    & > input, & > textarea {
+      padding: 0.8rem;
+      border-radius: 1rem;
+      border: 2px solid color.mix(#000, $light, 15%);
+      transition: all 0.3s ease-in-out;
+
+      &:focus {
+        border-color: $accent;
+        outline: none;
+        box-shadow:
+                0 0 0 4px rgba(16, 185, 129, 0.15),
+                0 10px 25px rgba(16, 185, 129, 0.1);
+        transform: translateY(-2px);
+        background: rgba(255, 255, 255, 0.95);
+      }
+    }
+  }
+
+  .twoColumns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .formSubmit {
+    border: none;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, $accent 0%, $secondary 100%);
+    width: 100%;
+    padding: 1rem;
+    margin-block: 1rem;
+    color: white;
+    font-weight: bold;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+  }
+}
+
