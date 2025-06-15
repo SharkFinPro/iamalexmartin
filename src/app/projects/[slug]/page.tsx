@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation'
 import { RichText } from '@graphcms/rich-text-react-renderer';
 import styles from "./Project.module.scss";
 import richTextStyles from './RichText.module.scss';
-import {Metadata} from "next";
+import { Metadata } from "next";
 
 async function getProject(slug: string) {
   try {
