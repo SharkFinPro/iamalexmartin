@@ -1,7 +1,8 @@
 @use "@/styles/variables" as *;
+@use "sass:color";
 
 .container {
-  background-color: darken($light, 15);
+  background-color: color.mix(#000, $light, 15%);
   min-width: 100%;
   color: black;
   max-width: 600px;
@@ -22,14 +23,14 @@
   & > button {
     padding: 1em;
     border: none;
-    background: darken($light, 60);
+    background: color.mix(#000, $light, 60%);
     color: $light;
     border-radius: 0.5em;
     font-size: 0.9rem;
     transition: background 0.2s ease-in-out;
 
     &:hover {
-      background: darken($light, 70);
+      background: color.mix(#000, $light, 70%);
     }
   }
 
@@ -37,7 +38,7 @@
     background: $secondary;
 
     &:hover {
-      background: darken($secondary, 10);
+      background: color.mix(#000, $secondary, 10%);
     }
   }
 

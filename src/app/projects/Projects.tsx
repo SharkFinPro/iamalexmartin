@@ -72,7 +72,7 @@ export default function Projects({ projects }) {
         {projects["__type"].enumValues
           .map((type : any) => (
             <button key={type.name} className={projectType === type.name ? styles.selectedProjectType : ""}
-              onClick={()=>setProjectType(type.name)}>
+              onClick={()=> setProjectType(type.name)}>
               {camelCaseToSentence(type.name)}
             </button>
           ))}

@@ -3,6 +3,8 @@ import Landing from "./Landing";
 import Portfolio from "./Portfolio";
 import type { Metadata } from "next";
 
+export const dynamic = "force-dynamic";
+
 export const metadata : Metadata = {
   title: "Portfolio"
 };

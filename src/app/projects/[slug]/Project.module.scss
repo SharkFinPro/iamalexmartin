@@ -1,10 +1,11 @@
 @use "@/styles/variables" as *;
+@use "sass:color";
 
 .container {
   display: grid;
   align-content: center;
   place-items: center;
-  background-color: darken($light, 10);
+  background-color: color.mix(#000, $light, 10%);
 
   h1 {
     width: 100%;
