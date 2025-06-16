@@ -54,7 +54,7 @@ export default async function Page() {
               <input type="text" id="name" name="name" placeholder="Your name" required />
             </div>
             <div className={styles.formGroup}>
-              <label htmlFor="email">Email</label>
+              <label htmlFor="email">Email Address</label>
               <input type="email" id="email" name="email" placeholder="your@email.com" required />
             </div>
           </div>
