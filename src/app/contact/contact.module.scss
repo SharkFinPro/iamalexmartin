@@ -1,0 +1,177 @@
+@use "@/styles/variables" as *;
+@use "sass:color";
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.container {
+  background-color: color.mix(#000, $light, 15%);
+  padding-block: 2rem;
+  padding-inline: 1rem;
+
+  @media (max-width: 480px) {
+    padding-block: 1rem;
+    padding-inline: 0.5rem;
+  }
+}
+
+.contactForm {
+  background-color: $light;
+  width: min(800px, 100%);
+  margin-inline: auto;
+  border-radius: 15px;
+  padding: 3rem;
+  position: relative;
+  overflow: hidden;
+
+  @media (max-width: 768px) {
+    padding: 2rem;
+    border-radius: 10px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 1.5rem;
+    border-radius: 8px;
+  }
+
+  &:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, $accent, $secondary, $highlight, $accent);
+    background-size: 300% 100%;
+    animation: gradientShift 5s ease infinite;
+  }
+
+  .formHeader {
+    text-align: center;
+    display: grid;
+    gap: 0.5rem;
+
+    & > h2 {
+      color: $dark;
+      font-weight: 800;
+      font-size: 2.1rem;
+      position: relative;
+
+      &:after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(90deg, $accent, $secondary);
+        border-radius: 2px;
+      }
+    }
+
+    & > p {
+      color: color.mix($dark, $light, 75%);
+      font-size: 1.1rem;
+    }
+  }
+
+  .formSubmitSuccess, .formSubmitFailure {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid;
+    animation: fade-in 0.5s ease-out;
+  }
+
+  .formSubmitSuccess {
+    background-color: color.mix(#2abf2a, $light, 15%);
+    border-color: color.mix(#2abf2a, $light, 45%);
+  }
+
+  .formSubmitFailure {
+    background-color: color.mix(#bf2a2a, $light, 15%);
+    border-color: color.mix(#bf2a2a, $light, 45%);
+  }
+
+  .formContent {
+    padding-top: 2rem;
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .formGroup {
+    display: grid;
+    gap: 0.5rem;
+
+    & > label {
+      text-transform: uppercase;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    & > input, & > textarea {
+      padding: 0.8rem;
+      border-radius: 1rem;
+      border: 2px solid color.mix(#000, $light, 15%);
+      transition: all 0.3s ease-in-out;
+
+      &:focus {
+        border-color: $accent;
+        outline: none;
+        box-shadow:
+                0 0 0 4px rgba(16, 185, 129, 0.15),
+                0 10px 25px rgba(16, 185, 129, 0.1);
+        transform: translateY(-2px);
+        background: rgba(255, 255, 255, 0.95);
+      }
+    }
+  }
+
+  .twoColumns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: inherit;
+    }
+  }
+
+  .formSubmit {
+    border: none;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, $accent 0%, $secondary 100%);
+    width: 100%;
+    padding: 1rem;
+    margin-block: 1rem;
+    color: white;
+    font-weight: 500;
+    font-size: 1.1rem;
+    transition: all 0.3s ease-in-out;
+
+    &:hover {
+      translate: 0 -3px;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    &:disabled {
+      background: color.mix($dark, $light, 75%);
+    }
+  }
+}
+

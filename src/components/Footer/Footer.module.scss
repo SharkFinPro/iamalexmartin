@@ -102,10 +102,10 @@
       color: $light;
       text-decoration: none;
       opacity: 0.8;
+      transition: 0.3s all ease-in-out;
 
       &:hover {
         color: $accent;
-
       }
     }
 
