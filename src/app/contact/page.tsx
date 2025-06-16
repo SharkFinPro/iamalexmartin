@@ -47,7 +47,7 @@ export default async function Page() {
           <h2>{contactFormDescription.header}</h2>
           <p>{contactFormDescription.description}</p>
         </div>
-        <div className={styles.formContent}>
+        <form className={styles.formContent}>
           <div className={styles.twoColumns}>
             <div className={styles.formGroup}>
               <label htmlFor="name">Full Name</label>
@@ -69,7 +69,7 @@ export default async function Page() {
           <button type="submit" className={styles.formSubmit}>
             <FontAwesomeIcon icon={faPaperPlane}></FontAwesomeIcon> Send Message
           </button>
-        </div>
+        </form>
       </div>
     </div>
   </>
