@@ -79,6 +79,22 @@
     }
   }
 
+  .formSubmitSuccess, .formSubmitFailure {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid;
+  }
+
+  .formSubmitSuccess {
+    background-color: color.mix(#2abf2a, $light, 15%);
+    border-color: color.mix(#2abf2a, $light, 45%);
+  }
+
+  .formSubmitFailure {
+    background-color: color.mix(#bf2a2a, $light, 15%);
+    border-color: color.mix(#bf2a2a, $light, 45%);
+  }
+
   .formContent {
     padding-top: 2rem;
     display: grid;
@@ -132,14 +148,17 @@
     padding: 1rem;
     margin-block: 1rem;
     color: white;
-    font-weight: bold;
+    font-weight: 500;
     font-size: 1.1rem;
-    text-transform: uppercase;
     transition: all 0.3s ease-in-out;
 
     &:hover {
       translate: 0 -3px;
       box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    &:disabled {
+      background: color.mix($dark, $light, 75%);
     }
   }
 }
