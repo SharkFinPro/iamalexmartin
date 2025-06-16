@@ -7,6 +7,17 @@
   100% { background-position: 0% 50%; }
 }
 
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .container {
   background-color: color.mix(#000, $light, 15%);
   padding-block: 2rem;
@@ -83,6 +94,7 @@
     padding: 1rem;
     border-radius: 0.5rem;
     border: 1px solid;
+    animation: fade-in 0.5s ease-out;
   }
 
   .formSubmitSuccess {
