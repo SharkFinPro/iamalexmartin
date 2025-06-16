@@ -4,14 +4,30 @@
 .container {
   background-color: color.mix(#000, $light, 15%);
   padding-block: 2rem;
+  padding-inline: 1rem;
+
+  @media (max-width: 480px) {
+    padding-block: 1rem;
+    padding-inline: 0.5rem;
+  }
 }
 
 .contactForm {
   background-color: $light;
-  max-width: 800px;
+  width: min(800px, 100%);
   margin-inline: auto;
   border-radius: 15px;
   padding: 3rem;
+
+  @media (max-width: 768px) {
+    padding: 2rem;
+    border-radius: 10px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 1.5rem;
+    border-radius: 8px;
+  }
 
   .formHeader {
     text-align: center;
@@ -56,6 +72,11 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: inherit;
+    }
   }
 
   .formSubmit {
