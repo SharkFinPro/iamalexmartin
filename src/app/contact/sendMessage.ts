@@ -93,11 +93,25 @@ function createEmailData(name : string, email : string, subject : string, messag
                   border-radius: 4px;
                   padding: 20px; 
                   margin: 25px 0;
+                  
+                  & > h3 {
+                    margin-top: 0;
+                    color: #495057;
+                    font-size: 16px;
+                  }
                 }
-                .message-details h3 {
-                  margin-top: 0;
-                  color: #495057;
-                  font-size: 16px;
+                .message-detail {
+                  display: grid;
+                  box-sizing: border-box;
+                  margin-bottom: 0.5rem;
+                  
+                  @media(min-width: 600px) {
+                    grid-template-columns: auto 1fr;
+                  }
+                  
+                  & > * {
+                    padding: 0;
+                  }
                 }
                 .message-text {
                   color: #6c757d;
@@ -161,19 +175,19 @@ function createEmailData(name : string, email : string, subject : string, messag
                   <div class="message-details">
                     <h3>Message Details</h3>
                     <table>
-                      <tr>
+                      <tr class="message-detail">
                         <td class="label">From:</td>
                         <td>${name}</td>
                       </tr>
-                      <tr>
+                      <tr class="message-detail">
                         <td class="label">Email:</td>
                         <td>${email}</td>
                       </tr>
-                      <tr>
+                      <tr class="message-detail">
                         <td class="label">Date:</td>
                         <td>${dateString}</td>
                       </tr>
-                      <tr>
+                      <tr class="message-detail">
                         <td class="label">Subject:</td>
                         <td>${subject}</td>
                       </tr>
