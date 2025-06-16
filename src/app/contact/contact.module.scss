@@ -33,6 +33,17 @@
     text-align: center;
     display: grid;
     gap: 0.5rem;
+
+    & > h2 {
+      color: $dark;
+      font-weight: 800;
+      font-size: 2.1rem;
+    }
+
+    & > p {
+      color: color.mix($dark, $light, 75%);
+      font-size: 1.1rem;
+    }
   }
 
   .formContent {
@@ -47,7 +58,8 @@
 
     & > label {
       text-transform: uppercase;
-      font-weight: bold;
+      font-weight: 700;
+      font-size: 0.9rem;
     }
 
     & > input, & > textarea {
