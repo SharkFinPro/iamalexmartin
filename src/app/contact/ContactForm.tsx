@@ -1,14 +1,16 @@
 "use client";
 import styles from "./contact.module.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
+import { faPaperPlane, faSquareCheck } from "@fortawesome/free-solid-svg-icons";
 import sendMessage from "./sendMessage";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 export default function ContactForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [shouldShowStatus, setShouldShowStatus] = useState(false);
   const [status, setStatus] = useState<boolean>(false);
+  const [sentEmail, setSentEmail] = useState("");
+  const contactFormRef = useRef<HTMLFormElement>(null);
 
   function handleMessageSubmit(event: any) {
     event.preventDefault();
@@ -16,22 +18,39 @@ export default function ContactForm() {
     setShouldShowStatus(false);
 
     const { name, email, subject, message } = event.target;
+    setSentEmail(email.value);
+
+    let wasSuccessful = false;
 
     sendMessage(name.value, email.value, subject.value, message.value)
-      .then(() => setStatus(true))
-      .catch(err => setStatus(false))
+      .then(() => {
+        setStatus(true);
+        wasSuccessful = true;
+      })
+      .catch(err => {
+        setStatus(false);
+        console.log(err);
+      })
       .finally(() => setTimeout(() => {
         setIsSubmitting(false);
         setShouldShowStatus(true);
+
+        if (wasSuccessful) {
+          contactFormRef?.current?.reset();
+        }
       }, 1000));
   }
 
   return (
-    <form className={styles.formContent} onSubmit={handleMessageSubmit}>
+    <form className={styles.formContent} onSubmit={handleMessageSubmit} ref={contactFormRef}>
       {shouldShowStatus && (status ? (
-        <p className={styles.formSubmitSuccess}>Success!</p>
+        <p className={styles.formSubmitSuccess}>
+          <FontAwesomeIcon icon={faSquareCheck} /> Message sent! A copy has been sent to {sentEmail}!
+          <br />
+          <span>Check your spam folder if you did not receive a confirmation email.</span>
+        </p>
       ) : (
-        <p className={styles.formSubmitFailure}>Failure!</p>
+        <p className={styles.formSubmitFailure}>Message failed to send. Please try again.</p>
       ))}
       <div className={styles.twoColumns}>
         <div className={styles.formGroup}>

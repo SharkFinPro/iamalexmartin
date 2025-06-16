@@ -3,99 +3,207 @@ import FormData from "form-data";
 import Mailgun from "mailgun.js";
 
 function createEmailData(name : string, email : string, subject : string, message : string) {
+  const date = new Date();
+
+  const ptFormatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Los_Angeles',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    weekday: 'long',
+    hour: 'numeric',
+    minute: '2-digit',
+    second: '2-digit',
+    timeZoneName: 'short'
+  });
+
+  const dateString = ptFormatter.format(date);
+
   return {
     from: "Alex Martin <no-reply@iamalexmartin.com>",
     to: [`${name} <${email}>`],
     bcc: [`Alex Martin <${process.env.CONTACT_EMAIL}>`],
     subject: `Portfolio Message: ${subject}`,
-    text: `Hello ${name},
+    text: `Message Confirmation
 
-          Thank you for reaching out through my portfolio website. I have received your message and will review it shortly.
+          Dear ${name},
+          
+          Thank you for contacting me through my portfolio website. This email confirms that I have successfully received your message.
+          
+          Message Details
+          From: ${name}
+          Email: ${email}
+          Date: ${dateString}
+          Subject: ${subject}
           
           Your message:
           "${message}"
           
-          I aim to respond to all inquiries within 24-48 hours. If your matter is urgent, please feel free to reach out directly at ${process.env.CONTACT_EMAIL}.
+          I will review your message and respond within 1-2 business days. I appreciate your interest and look forward to connecting with you.
           
-          Best regards,
-          Alex Martin
-          Portfolio: https://iamalexmartin.com
+          For urgent matters, you may reach me directly at:
           Email: ${process.env.CONTACT_EMAIL}
           
-          ---
-          This is an automated confirmation of your contact form submission.`,
-
+          Best regards,
+          
+          Alex Martin
+          Software Developer
+          iamalexmartin.com
+          
+          This is an automated response confirming receipt of your contact form submission.
+          Please do not reply to this email address.`,
     html: `<!DOCTYPE html>
           <html lang="en">
             <head>
               <meta charset="UTF-8">
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>Contact Form Confirmation</title>
+              <title>Message Received - Alex Martin</title>
               <style>
                 body { 
-                  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                  font-family: Arial, sans-serif; 
                   line-height: 1.6; 
-                  color: #333; 
+                  color: #333333; 
                   max-width: 600px; 
                   margin: 0 auto; 
                   padding: 20px;
+                  background-color: #ffffff;
+                }
+                .container {
+                  background-color: #ffffff;
+                  border: 1px solid #e0e0e0;
+                  border-radius: 4px;
+                  padding: 30px;
                 }
                 .header { 
-                  border-bottom: 2px solid #007acc; 
-                  padding-bottom: 15px; 
-                  margin-bottom: 20px; 
+                  text-align: center;
+                  margin-bottom: 30px;
                 }
-                .message-box { 
+                .header h1 {
+                  color: #2c3e50;
+                  font-size: 24px;
+                  margin: 0;
+                  font-weight: normal;
+                }
+                .content {
+                  margin-bottom: 25px;
+                }
+                .message-details { 
                   background-color: #f8f9fa; 
-                  border-left: 4px solid #007acc; 
-                  padding: 15px; 
-                  margin: 20px 0; 
+                  border: 1px solid #dee2e6;
+                  border-radius: 4px;
+                  padding: 20px; 
+                  margin: 25px 0;
+                }
+                .message-details h3 {
+                  margin-top: 0;
+                  color: #495057;
+                  font-size: 16px;
+                }
+                .message-text {
+                  color: #6c757d;
                   font-style: italic;
+                  margin: 10px 0;
+                }
+                .contact-info {
+                  margin: 25px 0;
+                  padding: 20px 0;
+                  border-top: 1px solid #e9ecef;
+                }
+                .signature { 
+                  margin: 25px 0;
+                  color: #495057;
                 }
                 .footer { 
                   margin-top: 30px; 
-                  padding-top: 15px; 
-                  border-top: 1px solid #eee; 
-                  font-size: 0.9em; 
-                  color: #666; 
-                }
-                .signature { 
-                  margin: 20px 0; 
+                  padding-top: 20px; 
+                  border-top: 1px solid #e9ecef; 
+                  font-size: 14px; 
+                  color: #6c757d;
+                  text-align: center;
                 }
                 a { 
-                  color: #007acc; 
+                  color: #007bff; 
                   text-decoration: none; 
                 }
                 a:hover { 
                   text-decoration: underline; 
                 }
+                .highlight {
+                  color: #28a745;
+                  font-weight: 500;
+                }
+                table {
+                  width: 100%;
+                  border-collapse: collapse;
+                }
+                td {
+                  padding: 8px 0;
+                  vertical-align: top;
+                }
+                .label {
+                  font-weight: 500;
+                  color: #495057;
+                  width: 120px;
+                }
               </style>
             </head>
             <body>
-              <div class="header">
-                <h2>Thank you for your message</h2>
-              </div>
-              
-              <p>Hello ${name},</p>
-              
-              <p>Thank you for reaching out through my portfolio website. I have received your message and will review it shortly.</p>
-              
-              <div class="message-box">
-                <strong>Your message:</strong><br>
-                "${message}"
-              </div>
-              
-              <p>I aim to respond to all inquiries within 24-48 hours. If your matter is urgent, please feel free to reach out directly at <a href="mailto:${process.env.CONTACT_EMAIL}">${process.env.CONTACT_EMAIL}</a>.</p>
-              
-              <div class="signature">
-                <p>Best regards,<br>
-                <strong>Alex Martin</strong><br>
-                Portfolio: <a href="https://iamalexmartin.com">iamalexmartin.com</a><br>
-                Email: <a href="mailto:${process.env.CONTACT_EMAIL}">${process.env.CONTACT_EMAIL}</a></p>
-              </div>
-              
-              <div class="footer">
-                <p><em>This is an automated confirmation of your contact form submission.</em></p>
+              <div class="container">
+                <div class="header">
+                  <h1>Message Confirmation</h1>
+                </div>
+                
+                <div class="content">
+                  <p>Dear ${name},</p>
+                  
+                  <p>Thank you for contacting me through my portfolio website. This email confirms that I have successfully received your message.</p>
+                  
+                  <div class="message-details">
+                    <h3>Message Details</h3>
+                    <table>
+                      <tr>
+                        <td class="label">From:</td>
+                        <td>${name}</td>
+                      </tr>
+                      <tr>
+                        <td class="label">Email:</td>
+                        <td>${email}</td>
+                      </tr>
+                      <tr>
+                        <td class="label">Date:</td>
+                        <td>${dateString}</td>
+                      </tr>
+                      <tr>
+                        <td class="label">Subject:</td>
+                        <td>${subject}</td>
+                      </tr>
+                    </table>
+                    
+                    <div class="message-text">
+                      <strong>Your message:</strong><br>
+                      "${message}"
+                    </div>
+                  </div>
+                  
+                  <p>I will review your message and respond within <span class="highlight">1-2 business days</span>. I appreciate your interest and look forward to connecting with you.</p>
+                  
+                  <div class="contact-info">
+                    <p>For urgent matters, you may reach me directly at:</p>
+                    <p><strong>Email:</strong> <a href="mailto:${process.env.CONTACT_EMAIL}">${process.env.CONTACT_EMAIL}</a></p>
+                  </div>
+                </div>
+                
+                <div class="signature">
+                  <p>Best regards,</p>
+                  <p><strong>Alex Martin</strong><br>
+                     Software Developer<br>
+                     <a href="https://iamalexmartin.com">iamalexmartin.com</a></p>
+                </div>
+                
+                <div class="footer">
+                  <p>This is an automated response confirming receipt of your contact form submission.<br>
+                     Please do not reply to this email address.</p>
+                </div>
               </div>
             </body>
           </html>`
@@ -113,7 +221,7 @@ export default async function sendMessage(name : string, email : string, subject
     });
 
     mg.messages.create("iamalexmartin.com", emailData)
-      .then((message) => resolve(true))
+      .then(() => resolve(true))
       .catch((err) => reject(err));
   });
 }
