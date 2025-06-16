@@ -3,6 +3,7 @@
 
 .container {
   background-color: color.mix(#000, $light, 15%);
+  padding-block: 2rem;
 }
 
 .contactForm {
@@ -14,14 +15,19 @@
 
   .formHeader {
     text-align: center;
+    display: grid;
+    gap: 0.5rem;
   }
 
   .formContent {
-
+    padding-top: 2rem;
+    display: grid;
+    gap: 1.5rem;
   }
 
   .formGroup {
     display: grid;
+    gap: 0.5rem;
 
     & > label {
       text-transform: uppercase;
