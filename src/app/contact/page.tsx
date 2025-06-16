@@ -16,6 +16,10 @@ const QUERY = `
       header
       description
     }
+    contactFormDescriptions: descriptions(where: { location: "ContactForm" }) {
+      header
+      description
+    }
   }
 `;
 
@@ -32,6 +36,7 @@ export default async function Page() {
 
   const response = await request.json();
   const description = response.data.descriptions[0];
+  const contactFormDescription = response.data.contactFormDescriptions[0];
 
   return <>
     <Banner title={description.header} description={description.description} />
@@ -39,8 +44,8 @@ export default async function Page() {
     <div className={styles.container}>
       <div className={styles.contactForm}>
         <div className={styles.formHeader}>
-          <h2>Send Me a Message</h2>
-          <p>Tell me about your project and I&#39;ll get back to you soon</p>
+          <h2>{contactFormDescription.header}</h2>
+          <p>{contactFormDescription.description}</p>
         </div>
         <div className={styles.formContent}>
           <div className={styles.twoColumns}>
