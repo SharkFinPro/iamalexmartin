@@ -4,12 +4,12 @@ import type { Metadata } from "next";
 export const dynamic = "force-dynamic";
 
 export const metadata : Metadata = {
-  title: "Blog"
+  title: "About"
 };
 
 const QUERY = `
   query Portfolio {
-    descriptions(where: { location: "Blog" }) {
+    descriptions(where: { location: "About" }) {
       header
       description
     }
