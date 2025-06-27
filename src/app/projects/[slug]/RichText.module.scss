@@ -8,7 +8,6 @@
   color: $primary;
   max-width: 800px;
   padding: 2rem 1.5rem;
-  margin: 1rem;
   border-radius: 1rem;
 
   h2, h3, h4, h5, h6 {
@@ -23,14 +22,7 @@
   }
 
   h2 {
-    font-size: 1.5rem;
-    border-bottom: 2px solid $accent;
-    padding-bottom: 0.5rem;
-    margin-bottom: 1rem;
-  }
-
-  h3 {
-    font-size: 1.3rem;
+    font-size: 1.6rem;
     color: $secondary;
     margin-top: 1rem;
   }

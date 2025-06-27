@@ -3,6 +3,7 @@ import { RichText } from '@graphcms/rich-text-react-renderer';
 import styles from "./Project.module.scss";
 import richTextStyles from './RichText.module.scss';
 import { Metadata } from "next";
+import Banner from "@/components/Banner";
 
 async function getProject(slug: string) {
   try {
@@ -16,6 +17,7 @@ async function getProject(slug: string) {
           query Projects {
             projects(where: { slug: "${slug.toLowerCase()}" }) {
               title
+              projectPageDescription
               projectPageContent {
                 raw
               }
@@ -40,12 +42,15 @@ export default async function Page({ params }) {
   const project = await getProject(slug);
 
   return (
-    <div className={styles.container}>
-      <h1>{project.title}</h1>
-      <div className={richTextStyles.container}>
-        <RichText content={project.projectPageContent.raw} />
+    <>
+      <Banner title={project.title} description={project.projectPageDescription} />
+
+      <div className={styles.container}>
+        <div className={richTextStyles.container}>
+          <RichText content={project.projectPageContent.raw} />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
