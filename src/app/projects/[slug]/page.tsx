@@ -42,10 +42,8 @@ export default async function Page({ params }) {
   return (
     <div className={styles.container}>
       <h1>{project.title}</h1>
-      <div className={styles.wrapper}>
-        <div className={richTextStyles.container}>
-          <RichText content={project.projectPageContent.raw} />
-        </div>
+      <div className={richTextStyles.container}>
+        <RichText content={project.projectPageContent.raw} />
       </div>
     </div>
   );
