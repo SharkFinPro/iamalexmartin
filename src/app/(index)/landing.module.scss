@@ -72,17 +72,13 @@
 
 .homepageButton {
   padding: 1em 2em;
-  color: $light;
   border-radius: 0.5em;
   border: none;
   font-size: 1rem;
-  font-weight: bold;
   transition: all 0.3s ease-in-out;
   text-decoration: none;
-
   display: grid;
   place-content: center;
-
   opacity: 0;
 }
 
@@ -93,15 +89,15 @@
 
 .viewProjects {
   background-color: $accent;
-
+  color: $dark;
   animation: buttonSlideIn 0.5s ease-out forwards;
   animation-delay: 1.2s;
 }
 
 .contactMe {
   background-color: $primary;
+  color: $light;
   border: 1px solid rgba($light, 0.3);
-
   animation: buttonSlideIn 0.5s ease-out forwards;
   animation-delay: 1.5s;
 }
