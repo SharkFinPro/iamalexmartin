@@ -83,7 +83,7 @@
   }
 
   a {
-    color: $accent;
+    color: $secondary;
     text-decoration: none;
     position: relative;
     font-weight: 500;
@@ -96,12 +96,12 @@
       left: 0;
       width: 0;
       height: 2px;
-      background: linear-gradient(90deg, $accent, color.mix($accent, $primary, 70%));
+      background: linear-gradient(90deg, $secondary, color.mix($secondary, $primary, 70%));
       transition: width 0.3s ease;
     }
 
     &:hover {
-      color: color.mix($accent, $dark, 80%);
+      color: color.mix($secondary, $dark, 80%);
 
       &::after {
         width: 100%;
