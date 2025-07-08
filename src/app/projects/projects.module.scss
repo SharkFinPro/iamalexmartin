@@ -145,8 +145,9 @@
       padding-block: 0.5em;
 
       & > li {
-        display: grid;
-        place-content: center;
+        display: flex;
+        place-items: center;
+        gap: 0.25em;
         background-color: rgba($primary, 0.08);
         color: $secondary;
         border-radius: 1em;
