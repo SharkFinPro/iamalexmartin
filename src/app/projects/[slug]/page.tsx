@@ -95,8 +95,6 @@ export async function generateMetadata({ params }): Promise<Metadata> {
       };
     }
 
-    console.log(project);
-
     return {
       title: project.title,
       description: project.description,
