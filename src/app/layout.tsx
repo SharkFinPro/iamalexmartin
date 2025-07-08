@@ -9,6 +9,7 @@ config.autoAddCss = false
 
 import { Open_Sans } from "next/font/google";
 import { Metadata } from "next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const openSans = Open_Sans({
   subsets: ["latin"],
@@ -57,6 +58,7 @@ export default function RootLayout({
         <NavBar />
         {children}
         <Footer />
+        <SpeedInsights />
       </body>
     </html>
   );
