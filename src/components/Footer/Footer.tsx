@@ -30,8 +30,20 @@ function Social() {
     <div className={styles.social}>
       <p>Alexander Martin</p>
       <div className={styles.icons}>
-        <Link href="https://github.com/SharkFinPro"><FontAwesomeIcon icon={faGithub} /></Link>
-        <Link href="https://www.linkedin.com/in/iamalexmartin/"><FontAwesomeIcon icon={faLinkedin} /></Link>
+        <Link
+          href="https://github.com/SharkFinPro"
+          aria-label="Alex Martin's GitHub Profile"
+          title="Alex Martin's GitHub Profile"
+        >
+          <FontAwesomeIcon icon={faGithub} />
+        </Link>
+        <Link
+          href="https://www.linkedin.com/in/iamalexmartin/"
+          aria-label="Alex Martin's LinkedIn Profile"
+          title="Alex Martin's LinkedIn Profile"
+        >
+          <FontAwesomeIcon icon={faLinkedin} />
+        </Link>
       </div>
     </div>
   );
