@@ -1,9 +1,8 @@
 import { notFound } from 'next/navigation'
-import { RichText } from '@graphcms/rich-text-react-renderer';
 import styles from "./Project.module.scss";
-import richTextStyles from './RichText.module.scss';
 import { Metadata } from "next";
 import Banner from "@/components/Banner";
+import RichTextWidget from "@/components/RichTextWidget";
 
 async function getProject(slug: string) {
   try {
@@ -78,9 +77,7 @@ export default async function Page({ params }) {
       <Banner title={project.title} description={project.projectPageDescription} />
 
       <div className={styles.container}>
-        <div className={richTextStyles.container}>
-          <RichText content={project.projectPageContent.raw} />
-        </div>
+        <RichTextWidget content={project.projectPageContent.raw} />
       </div>
     </>
   );

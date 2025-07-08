@@ -1,0 +1,14 @@
+@use "@/styles/variables" as *;
+@use "sass:color";
+
+.container {
+  background-color: color.mix(#000, $light, 15%);
+  place-items: center;
+  padding-block: 2rem;
+  padding-inline: 1rem;
+
+  @media (max-width: 480px) {
+    padding-block: 1rem;
+    padding-inline: 0.5rem;
+  }
+}
