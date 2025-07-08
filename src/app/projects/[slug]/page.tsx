@@ -1,9 +1,8 @@
 import { notFound } from 'next/navigation'
-import { RichText } from '@graphcms/rich-text-react-renderer';
 import styles from "./Project.module.scss";
-import richTextStyles from './RichText.module.scss';
 import { Metadata } from "next";
 import Banner from "@/components/Banner";
+import RichTextWidget from "@/components/RichTextWidget";
 
 async function getProject(slug: string) {
   try {
@@ -36,6 +35,38 @@ async function getProject(slug: string) {
   }
 }
 
+async function getProjectMetadata(slug: string) {
+  try {
+    const response = await fetch(process.env.CMS_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        query: `
+          query Projects {
+            projects(where: { slug: "${slug.toLowerCase()}" }) {
+              title
+              description
+              tags
+              image {
+                url
+              }
+            }
+          }
+        `
+      })
+    });
+
+
+    const json = await response.json();
+
+    return json.data.projects[0];
+  } catch (error) {
+    notFound();
+  }
+}
+
 export default async function Page({ params }) {
   const { slug } = await params;
 
@@ -46,9 +77,7 @@ export default async function Page({ params }) {
       <Banner title={project.title} description={project.projectPageDescription} />
 
       <div className={styles.container}>
-        <div className={richTextStyles.container}>
-          <RichText content={project.projectPageContent.raw} />
-        </div>
+        <RichTextWidget content={project.projectPageContent.raw} />
       </div>
     </>
   );
@@ -58,7 +87,7 @@ export async function generateMetadata({ params }): Promise<Metadata> {
   const { slug } = await params;
 
   try {
-    const project = await getProject(slug);
+    const project = await getProjectMetadata(slug);
 
     if (!project) {
       return {
@@ -66,9 +95,20 @@ export async function generateMetadata({ params }): Promise<Metadata> {
       };
     }
 
+    console.log(project);
+
     return {
       title: project.title,
-      description: project.description
+      description: project.description,
+      keywords: project.tags,
+      openGraph: {
+        type: "website",
+        url: `https://iamalexmartin.com/projects/${slug}`,
+        title: project.title,
+        description: project.description,
+        siteName: "Alex Martin's Portfolio",
+        images: [project.image]
+      }
     }
   }
   catch (error) {
