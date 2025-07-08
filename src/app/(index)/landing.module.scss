@@ -1,4 +1,5 @@
 @use "@/styles/variables" as *;
+@use "sass:color";
 
 .container {
   color: $light;
@@ -88,8 +89,9 @@
 }
 
 .viewProjects {
-  background-color: $accent;
-  color: $dark;
+  background-color: color.mix($accent, $dark, 55%);
+  color: $light;
+  border: 2px solid color.mix($accent, $light, 70%);
   animation: buttonSlideIn 0.5s ease-out forwards;
   animation-delay: 1.2s;
 }
@@ -97,7 +99,7 @@
 .contactMe {
   background-color: $primary;
   color: $light;
-  border: 1px solid rgba($light, 0.3);
+  border: 2px solid color.mix($light, $dark, 30%);
   animation: buttonSlideIn 0.5s ease-out forwards;
   animation-delay: 1.5s;
 }
