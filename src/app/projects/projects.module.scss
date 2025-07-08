@@ -99,7 +99,7 @@
       z-index: 1;
     }
 
-    & > h3 {
+    & > h2 {
       position: absolute;
       top: 0;
       left: 0;
@@ -118,6 +118,7 @@
       opacity: 1;
       transition: opacity 0.3s ease-in-out;
       cursor: default;
+      font-size: 1.4rem;
     }
   }
 
@@ -184,7 +185,7 @@
       background-color: rgba($dark, 0.4);
     }
 
-    .thumbnail > h3 {
+    .thumbnail > h2 {
       opacity: 0;
     }
   }

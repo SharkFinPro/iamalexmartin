@@ -32,7 +32,7 @@ function ProjectCard({ project }) {
             height={400}
           />
         )}
-        <h3>{project.title}</h3>
+        <h2>{project.title}</h2>
       </div>
 
       <div className={styles.cardContainer}>
