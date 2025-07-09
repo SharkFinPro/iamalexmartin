@@ -1,4 +1,5 @@
 @use "@/styles/variables" as *;
+@use "sass:color";
 
 .container {
   color: $light;
@@ -72,17 +73,13 @@
 
 .homepageButton {
   padding: 1em 2em;
-  color: $light;
   border-radius: 0.5em;
   border: none;
   font-size: 1rem;
-  font-weight: bold;
   transition: all 0.3s ease-in-out;
   text-decoration: none;
-
   display: grid;
   place-content: center;
-
   opacity: 0;
 }
 
@@ -92,16 +89,17 @@
 }
 
 .viewProjects {
-  background-color: $accent;
-
+  background-color: color.mix($accent, $dark, 55%);
+  color: $light;
+  border: 2px solid color.mix($accent, $light, 70%);
   animation: buttonSlideIn 0.5s ease-out forwards;
   animation-delay: 1.2s;
 }
 
 .contactMe {
   background-color: $primary;
-  border: 1px solid rgba($light, 0.3);
-
+  color: $light;
+  border: 2px solid color.mix($light, $dark, 30%);
   animation: buttonSlideIn 0.5s ease-out forwards;
   animation-delay: 1.5s;
 }

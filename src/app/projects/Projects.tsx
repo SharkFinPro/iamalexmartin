@@ -4,6 +4,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import { useSearchParams } from 'next/navigation'
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTag } from "@fortawesome/free-solid-svg-icons";
 
 function camelCaseToSentence(str : string) {
   return str
@@ -30,7 +32,7 @@ function ProjectCard({ project }) {
             height={400}
           />
         )}
-        <h3>{project.title}</h3>
+        <h2>{project.title}</h2>
       </div>
 
       <div className={styles.cardContainer}>
@@ -39,7 +41,7 @@ function ProjectCard({ project }) {
 
         <ul>
           {project.tags.map(tag => (
-            <li key={tag}>{tag}</li>
+            <li key={tag}><FontAwesomeIcon icon={faTag} />{tag}</li>
           ))}
         </ul>
 

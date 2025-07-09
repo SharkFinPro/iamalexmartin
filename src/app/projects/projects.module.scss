@@ -99,7 +99,7 @@
       z-index: 1;
     }
 
-    & > h3 {
+    & > h2 {
       position: absolute;
       top: 0;
       left: 0;
@@ -118,6 +118,7 @@
       opacity: 1;
       transition: opacity 0.3s ease-in-out;
       cursor: default;
+      font-size: 1.4rem;
     }
   }
 
@@ -145,10 +146,11 @@
       padding-block: 0.5em;
 
       & > li {
-        display: grid;
-        place-content: center;
+        display: flex;
+        place-items: center;
+        gap: 0.25em;
         background-color: rgba($primary, 0.08);
-        color: $accent;
+        color: $secondary;
         border-radius: 1em;
         padding-inline: 0.75em;
         height: 1.75rem;
@@ -183,7 +185,7 @@
       background-color: rgba($dark, 0.4);
     }
 
-    .thumbnail > h3 {
+    .thumbnail > h2 {
       opacity: 0;
     }
   }
