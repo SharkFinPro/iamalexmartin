@@ -70,7 +70,8 @@ export default function Projects({ projects }) {
   }, [searchParams, projects]);
 
   function changeProjectType(type: string) {
-    router.push(`?projectType=${type}`);
+    const url = type === "all" ? "/projects" : `?projectType=${type}`;
+    router.push(url, { scroll: false });
     setProjectType(type);
   }
 
