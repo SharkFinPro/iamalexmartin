@@ -3,7 +3,7 @@ import styles from "./projects.module.scss";
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from 'next/navigation'
+import {  useSearchParams } from 'next/navigation'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTag } from "@fortawesome/free-solid-svg-icons";
 
@@ -52,8 +52,6 @@ function ProjectCard({ project }) {
 }
 
 export default function Projects({ projects }) {
-  const router = useRouter();
-
   const searchParams = useSearchParams();
 
   const [projectType, setProjectType] = useState<string>("all");
@@ -71,7 +69,8 @@ export default function Projects({ projects }) {
 
   function changeProjectType(type: string) {
     const url = type === "all" ? "/projects" : `?projectType=${type}`;
-    router.push(url, { scroll: false });
+    window.history.pushState(null, "", url);
+
     setProjectType(type);
   }
 
