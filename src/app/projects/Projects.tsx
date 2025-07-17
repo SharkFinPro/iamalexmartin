@@ -2,8 +2,8 @@
 import styles from "./projects.module.scss";
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
-import { useSearchParams } from 'next/navigation'
+import { useEffect, useState } from "react";
+import {  useSearchParams } from 'next/navigation'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTag } from "@fortawesome/free-solid-svg-icons";
 
@@ -52,29 +52,39 @@ function ProjectCard({ project }) {
 }
 
 export default function Projects({ projects }) {
-
   const searchParams = useSearchParams();
 
-  const queriedProjectType = searchParams.get("projectType");
+  const [projectType, setProjectType] = useState<string>("all");
 
-  function isValidProjectType() {
-    return queriedProjectType !== null &&
-           projects["__type"].enumValues.some((enumType: any) => enumType.name === queriedProjectType)
+  useEffect(() => {
+    const queriedProjectType = searchParams.get("projectType");
+
+    function isValidProjectType() {
+      return queriedProjectType &&
+             projects["__type"].enumValues.some((enumType: any) => enumType.name === queriedProjectType)
+    }
+
+    setProjectType(isValidProjectType() ? queriedProjectType : "all");
+  }, [searchParams, projects]);
+
+  function changeProjectType(type: string) {
+    const url = type === "all" ? "/projects" : `?projectType=${type}`;
+    window.history.pushState(null, "", url);
+
+    setProjectType(type);
   }
-
-  const [projectType, setProjectType] = useState<string>(isValidProjectType() ? queriedProjectType : "all");
 
   return (
     <div className={styles.container}>
       <div className={styles.projectTypeSelector}>
         <button className={projectType === "all" ? styles.selectedProjectType : ""}
-                onClick={()=>setProjectType("all")}>
+                onClick={() => changeProjectType("all")}>
           All Projects
         </button>
         {projects["__type"].enumValues
           .map((type : any) => (
             <button key={type.name} className={projectType === type.name ? styles.selectedProjectType : ""}
-              onClick={()=> setProjectType(type.name)}>
+              onClick={()=> changeProjectType(type.name)}>
               {camelCaseToSentence(type.name)}
             </button>
           ))}
