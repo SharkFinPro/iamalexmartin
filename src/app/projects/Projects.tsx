@@ -95,7 +95,11 @@ export default function Projects({ projects }) {
         {projects.projects
           .filter(project => projectType === "all" || project.projectType.includes(projectType))
           .map((project, index) => (
-            <ProjectCard project={project} key={project.title} priority={index < 3}/>
+            <ProjectCard
+              project={project}
+              key={project.title}
+              priority={index < 3}
+            />
           ))}
       </div>
     </div>
