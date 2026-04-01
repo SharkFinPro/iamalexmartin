@@ -98,7 +98,7 @@ export default async function Footer() {
         <Projects projectTypes={response.data["__type"].enumValues} />
       </div>
       <div className={styles.bottom}>
-        <p>&copy; 2025 <span>Alexander Martin</span>.</p>
+        <p>&copy; 2026 <span>Alexander Martin</span>.</p>
       </div>
     </footer>
   );
