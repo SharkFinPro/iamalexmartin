@@ -63,7 +63,6 @@ async function getProjectMetadata(slug: string) {
       })
     });
 
-
     const json = await response.json();
 
     return json.data.projects[0];
