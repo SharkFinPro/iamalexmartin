@@ -13,8 +13,8 @@ async function getProject(slug: string) {
       },
       body: JSON.stringify({
         query: `
-          query Projects {
-            projects(where: { slug: "${slug.toLowerCase()}" }) {
+          query Projects($slug: String!) {
+            projects(where: { slug: $slug }) {
               title
               projectPageDescription
               projectPageContent {
@@ -22,10 +22,12 @@ async function getProject(slug: string) {
               }
             }
           }
-        `
+        `,
+        variables: {
+          slug: slug.toLowerCase()
+        }
       })
     });
-
 
     const json = await response.json();
 
@@ -44,8 +46,8 @@ async function getProjectMetadata(slug: string) {
       },
       body: JSON.stringify({
         query: `
-          query Projects {
-            projects(where: { slug: "${slug.toLowerCase()}" }) {
+          query Projects($slug: String!) {
+            projects(where: { slug: $slug }) {
               title
               description
               tags
@@ -54,7 +56,10 @@ async function getProjectMetadata(slug: string) {
               }
             }
           }
-        `
+        `,
+        variables: {
+          slug: slug.toLowerCase()
+        }
       })
     });
 
