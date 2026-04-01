@@ -1,25 +1,14 @@
 "use client";
+import { camelCaseToSentence } from "@/utils/string";
 import styles from "./projects.module.scss";
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import {  useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTag } from "@fortawesome/free-solid-svg-icons";
 
-function camelCaseToSentence(str : string) {
-  return str
-    // Insert space before uppercase letters (but not at the start)
-    .replace(/([a-z])([A-Z])/g, '$1 $2')
-    // Insert space before numbers that follow letters
-    .replace(/([a-zA-Z])(\d)/g, '$1 $2')
-    // Insert space before letters that follow numbers
-    .replace(/(\d)([a-zA-Z])/g, '$1 $2')
-    // Capitalize the first letter
-    .replace(/^./, match => match.toUpperCase());
-}
-
-function ProjectCard({ project }) {
+function ProjectCard({ project, priority }) {
   return (
     <div className={styles.card}>
       <div className={styles.thumbnail}>
@@ -30,6 +19,7 @@ function ProjectCard({ project }) {
             className={styles.thumbnailImage}
             width={800}
             height={400}
+            priority={priority}
           />
         )}
         <h2>{project.title}</h2>
@@ -52,6 +42,7 @@ function ProjectCard({ project }) {
 }
 
 export default function Projects({ projects }) {
+  const router = useRouter();
   const searchParams = useSearchParams();
 
   const [projectType, setProjectType] = useState<string>("all");
@@ -69,7 +60,7 @@ export default function Projects({ projects }) {
 
   function changeProjectType(type: string) {
     const url = type === "all" ? "/projects" : `?projectType=${type}`;
-    window.history.pushState(null, "", url);
+    router.push(url, { scroll: false });
 
     setProjectType(type);
   }
@@ -93,8 +84,12 @@ export default function Projects({ projects }) {
       <div className={styles.cards}>
         {projects.projects
           .filter(project => projectType === "all" || project.projectType.includes(projectType))
-          .map((project) => (
-            <ProjectCard project={project} key={project.title}/>
+          .map((project, index) => (
+            <ProjectCard
+              project={project}
+              key={project.title}
+              priority={index < 3}
+            />
           ))}
       </div>
     </div>
