@@ -19,7 +19,7 @@ function camelCaseToSentence(str : string) {
     .replace(/^./, match => match.toUpperCase());
 }
 
-function ProjectCard({ project }) {
+function ProjectCard({ project, priority }) {
   return (
     <div className={styles.card}>
       <div className={styles.thumbnail}>
@@ -30,6 +30,7 @@ function ProjectCard({ project }) {
             className={styles.thumbnailImage}
             width={800}
             height={400}
+            priority={priority}
           />
         )}
         <h2>{project.title}</h2>
@@ -93,8 +94,8 @@ export default function Projects({ projects }) {
       <div className={styles.cards}>
         {projects.projects
           .filter(project => projectType === "all" || project.projectType.includes(projectType))
-          .map((project) => (
-            <ProjectCard project={project} key={project.title}/>
+          .map((project, index) => (
+            <ProjectCard project={project} key={project.title} priority={index < 3}/>
           ))}
       </div>
     </div>
