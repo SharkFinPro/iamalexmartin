@@ -27,9 +27,10 @@ const nextConfig = {
             value: [
               "default-src 'self'",
               "img-src 'self' https: data:",
+              "media-src 'self' https://*.graphassets.com",
               `script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com${isDev ? " 'unsafe-eval'" : ""}`,
               "style-src 'self' 'unsafe-inline'",
-              "connect-src 'self' https://vitals.vercel-insights.com",
+              "connect-src 'self' https://vitals.vercel-insights.com https://*.graphassets.com",
               "font-src 'self'",
               "frame-ancestors 'none'",
               "object-src 'none'",
