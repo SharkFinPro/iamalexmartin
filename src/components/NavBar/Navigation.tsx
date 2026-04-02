@@ -9,8 +9,20 @@ import Link from "next/link";
 export default function Navigation() {
   const pathname = usePathname();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    if (typeof window === 'undefined') return 'light';
+    const docTheme = document.documentElement.dataset.theme;
+    if (docTheme === 'light' || docTheme === 'dark') return docTheme;
+    try {
+      const saved = localStorage.getItem('theme');
+      if (saved === 'light' || saved === 'dark') return saved;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    } catch {
+      return 'light';
+    }
+  });
   const dropdownRef = useRef(null);
+  const isInitialized = useRef(false);
 
   const navItems = [
     { label: "Home", path: "/" },
@@ -19,36 +31,13 @@ export default function Navigation() {
     { label: "Contact", path: "/contact" }
   ];
 
-  // Initialize theme - read from the value already set by the inline script
-  // to avoid a flash, falling back to storage/preference detection if absent.
+  // Update theme when changed - skip the initial mount since the inline
+  // script and lazy initializer have already set the correct value.
   useEffect(() => {
-    const docTheme = document.documentElement.dataset.theme;
-    if (docTheme === 'light' || docTheme === 'dark') {
-      setTheme(docTheme);
+    if (!isInitialized.current) {
+      isInitialized.current = true;
       return;
     }
-
-    let initial: 'light' | 'dark' = 'light';
-    try {
-      const saved = localStorage.getItem('theme');
-      if (saved === 'light' || saved === 'dark') {
-        initial = saved;
-      } else {
-        const prefersDark =
-          typeof window !== 'undefined' &&
-          typeof window.matchMedia === 'function' &&
-          window.matchMedia('(prefers-color-scheme: dark)').matches;
-        initial = prefersDark ? 'dark' : 'light';
-      }
-    } catch {
-      // If accessing localStorage or matchMedia fails, fall back to 'light'
-      initial = 'light';
-    }
-    setTheme(initial);
-  }, []);
-
-  // Update theme when changed
-  useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     document.documentElement.style.colorScheme = theme;
     try {
