@@ -19,11 +19,31 @@ export default function Navigation() {
     { label: "Contact", path: "/contact" }
   ];
 
-  // Initialize theme from localStorage
+  // Initialize theme - read from the value already set by the inline script
+  // to avoid a flash, falling back to storage/preference detection if absent.
   useEffect(() => {
-    const saved = localStorage.getItem('theme') as 'light' | 'dark' | null;
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initial = saved || (prefersDark ? 'dark' : 'light');
+    const docTheme = document.documentElement.dataset.theme;
+    if (docTheme === 'light' || docTheme === 'dark') {
+      setTheme(docTheme);
+      return;
+    }
+
+    let initial: 'light' | 'dark' = 'light';
+    try {
+      const saved = localStorage.getItem('theme');
+      if (saved === 'light' || saved === 'dark') {
+        initial = saved;
+      } else {
+        const prefersDark =
+          typeof window !== 'undefined' &&
+          typeof window.matchMedia === 'function' &&
+          window.matchMedia('(prefers-color-scheme: dark)').matches;
+        initial = prefersDark ? 'dark' : 'light';
+      }
+    } catch {
+      // If accessing localStorage or matchMedia fails, fall back to 'light'
+      initial = 'light';
+    }
     setTheme(initial);
   }, []);
 
@@ -31,7 +51,13 @@ export default function Navigation() {
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     document.documentElement.style.colorScheme = theme;
-    localStorage.setItem('theme', theme);
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.setItem('theme', theme);
+      }
+    } catch {
+      // Ignore storage errors to avoid breaking navigation
+    }
   }, [theme]);
 
   // Close dropdown when clicking outside
