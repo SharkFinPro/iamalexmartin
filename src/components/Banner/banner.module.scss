@@ -1,13 +1,18 @@
 @use "@/styles/variables" as *;
 
 .wrapper {
-  background: linear-gradient(135deg, #{$primary}, #{$dark});
+  background: var(--bg-tertiary);
+  background: linear-gradient(
+    135deg,
+    var(--bg-secondary),
+    var(--bg-tertiary)
+  );
   display: grid;
   place-items: center;
 }
 
 .container {
-  color: $light;
+  color: var(--text-secondary);
   text-align: center;
   padding: 4em;
 }
