@@ -7,6 +7,12 @@ import { faBars, faTimes, faSun, faMoon } from "@fortawesome/free-solid-svg-icon
 import Link from "next/link";
 
 export default function Navigation() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const pathname = usePathname();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
@@ -85,28 +91,32 @@ export default function Navigation() {
           <span>{item.label}</span>
         </Link>
       ))}
-      <button
-        className={styles.themeToggle}
-        onClick={toggleTheme}
-        aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-      >
-        <FontAwesomeIcon
-          icon={theme === 'light' ? faMoon : faSun}
-          className={styles.themeToggleIcon}
-        />
-      </button>
+      {mounted && (
+        <button
+          className={styles.themeToggle}
+          onClick={toggleTheme}
+          aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+        >
+          <FontAwesomeIcon
+            icon={theme === 'light' ? faMoon : faSun}
+            className={styles.themeToggleIcon}
+          />
+        </button>
+      )}
     </nav>
     <nav className={styles.navSmall} ref={dropdownRef}>
-      <button
-        className={styles.themeToggle}
-        onClick={toggleTheme}
-        aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-      >
-        <FontAwesomeIcon
-          icon={theme === 'light' ? faMoon : faSun}
-          className={styles.themeToggleIcon}
-        />
-      </button>
+      {mounted && (
+        <button
+          className={styles.themeToggle}
+          onClick={toggleTheme}
+          aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+        >
+          <FontAwesomeIcon
+            icon={theme === 'light' ? faMoon : faSun}
+            className={styles.themeToggleIcon}
+          />
+        </button>
+      )}
       <button
         className={styles.navSmallToggle}
         onClick={toggleDropdown}

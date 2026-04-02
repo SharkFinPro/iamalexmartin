@@ -83,8 +83,10 @@ export default async function Footer() {
     <footer className={styles.wrapper}>
       <div className={styles.container}>
         <Social />
-        <Navigate />
-        <Projects projectTypes={response.data["__type"].enumValues} />
+        <div className={styles.links}>
+          <Navigate />
+          <Projects projectTypes={response.data["__type"].enumValues} />
+        </div>
       </div>
       <div className={styles.bottom}>
         <p>&copy; 2026 <span>Alexander Martin</span>.</p>
