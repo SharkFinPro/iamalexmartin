@@ -42,14 +42,14 @@
     padding-block: 0.5rem;
 
     & > a {
-      color: var(--text-light);
-      background: $primary;
+      color: var(--text-primary);
+      background: var(--bg-primary);
       width: 2.75rem;
       height: 2.75rem;
       display: grid;
       place-content: center;
       border-radius: 0.5rem;
-      border: 1px solid rgba(245, 245, 245, 0.2);
+      border: 2px solid var(--bg-tertiary);
       transition: 0.3s all ease-in-out;
 
       &:hover {
