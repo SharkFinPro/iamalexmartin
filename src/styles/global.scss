@@ -21,11 +21,8 @@
 [data-theme="light"] { @include t.emit-theme(map.get(t.$themes, light)); }
 [data-theme="dark"]  { @include t.emit-theme(map.get(t.$themes, dark));  }
 
-html {
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
