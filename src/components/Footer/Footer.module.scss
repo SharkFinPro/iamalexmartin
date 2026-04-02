@@ -62,6 +62,13 @@
   }
 }
 
+.links {
+  display: flex;
+  flex-direction: row;
+  gap: 3rem;
+  margin-inline: auto;
+}
+
 .navigate, .projects {
   display: flex;
   flex-direction: column;
