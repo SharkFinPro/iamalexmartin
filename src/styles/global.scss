@@ -1,5 +1,31 @@
+@use "./variables";
+@use "./themes" as t;
+@use "sass:map";
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+:root {
+  @include t.emit-theme(map.get(t.$themes, light));
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    @include t.emit-theme(map.get(t.$themes, dark));
+  }
+}
+
+[data-theme="light"] { @include t.emit-theme(map.get(t.$themes, light)); }
+[data-theme="dark"]  { @include t.emit-theme(map.get(t.$themes, dark));  }
+
+html {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
 }

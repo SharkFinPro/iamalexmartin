@@ -3,12 +3,13 @@ import styles from "./NavBar.module.scss";
 import { usePathname } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faTimes, faSun, faMoon } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 
 export default function Navigation() {
   const pathname = usePathname();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const dropdownRef = useRef(null);
 
   const navItems = [
@@ -17,6 +18,21 @@ export default function Navigation() {
     { label: "About", path: "/about" },
     { label: "Contact", path: "/contact" }
   ];
+
+  // Initialize theme from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('theme') as 'light' | 'dark' | null;
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const initial = saved || (prefersDark ? 'dark' : 'light');
+    setTheme(initial);
+  }, []);
+
+  // Update theme when changed
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.style.colorScheme = theme;
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -39,6 +55,10 @@ export default function Navigation() {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
+
   return <>
     <nav className={styles.nav}>
       {navItems.map((item) => (
@@ -50,8 +70,28 @@ export default function Navigation() {
           <span>{item.label}</span>
         </Link>
       ))}
+      <button
+        className={styles.themeToggle}
+        onClick={toggleTheme}
+        aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+      >
+        <FontAwesomeIcon
+          icon={theme === 'light' ? faMoon : faSun}
+          className={styles.themeToggleIcon}
+        />
+      </button>
     </nav>
     <nav className={styles.navSmall} ref={dropdownRef}>
+      <button
+        className={styles.themeToggle}
+        onClick={toggleTheme}
+        aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+      >
+        <FontAwesomeIcon
+          icon={theme === 'light' ? faMoon : faSun}
+          className={styles.themeToggleIcon}
+        />
+      </button>
       <button
         className={styles.navSmallToggle}
         onClick={toggleDropdown}

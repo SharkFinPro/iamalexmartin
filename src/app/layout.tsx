@@ -53,7 +53,22 @@ export default function RootLayout({
   children: ReactNode
 }) {
   return (
-    <html lang="en" className={openSans.className}>
+    <html lang="en" className={openSans.className} suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                const saved = localStorage.getItem('theme');
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                const theme = saved || (prefersDark ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', theme);
+                document.documentElement.style.colorScheme = theme;
+              })();
+            `,
+          }}
+        />
+      </head>
       <body>
         <NavBar />
         {children}

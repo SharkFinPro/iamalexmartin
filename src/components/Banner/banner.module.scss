@@ -1,7 +1,7 @@
 @use "@/styles/variables" as *;
 
 .wrapper {
-  background: linear-gradient(135deg, $primary, $dark);
+  background: linear-gradient(135deg, #{$primary}, #{$dark});
   display: grid;
   place-items: center;
 }

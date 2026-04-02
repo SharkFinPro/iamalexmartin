@@ -2,10 +2,11 @@
 @use "sass:color";
 
 .container {
-  background-color: color.mix(#000, $light, 15%);
+  background-color: var(--bg-primary);
   place-items: center;
   padding-block: 2rem;
   padding-inline: 1rem;
+  min-height: calc(100vh - 70px);
 
   @media (max-width: 480px) {
     padding-block: 1rem;

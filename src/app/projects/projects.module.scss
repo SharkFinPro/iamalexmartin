@@ -2,9 +2,9 @@
 @use "sass:color";
 
 .container {
-  background-color: color.mix(#000, $light, 15%);
+  background-color: var(--bg-primary);
   min-width: 100%;
-  color: black;
+  color: var(--text-primary);
   max-width: 600px;
   padding: 0 1rem;
   margin: 0 auto;
@@ -23,19 +23,20 @@
   & > button {
     padding: 1em;
     border: none;
-    background: color.mix(#000, $light, 60%);
-    color: $light;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
     border-radius: 0.5em;
     font-size: 0.9rem;
     transition: background 0.2s ease-in-out;
 
     &:hover {
-      background: color.mix(#000, $light, 70%);
+      background: var(--bg-secondary);
     }
   }
 
   & > .selectedProjectType {
     background: $secondary;
+    color: $light;
 
     &:hover {
       background: color.mix(#000, $secondary, 10%);
@@ -123,19 +124,23 @@
   }
 
   .cardContainer {
-    background-color: $light;
+    background-color: var(--bg-card);
     display: grid;
     padding: 1em;
     border-radius: 0 0 0.5rem 0.5rem;
+    border: 1px solid var(--border-color);
+    border-top: none;
 
     & > h3 {
       font-size: 1.2em;
       padding-block: 0.5em;
+      color: var(--text-primary);
     }
 
     & > p {
       padding-block: 0.5em;
       font-size: 0.95rem;
+      color: var(--text-secondary);
     }
 
     & > ul {
@@ -149,8 +154,8 @@
         display: flex;
         place-items: center;
         gap: 0.25em;
-        background-color: rgba($primary, 0.08);
-        color: $secondary;
+        background-color: var(--bg-primary);
+        color: var(--text-muted);
         border-radius: 1em;
         padding-inline: 0.75em;
         height: 1.75rem;
