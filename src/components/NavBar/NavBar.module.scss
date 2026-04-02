@@ -89,8 +89,8 @@
   height: 40px;
   width: 40px;
   border: none;
-  border-radius: 50%;
-  background: rgba($light, 0.1);
+  border-radius: 25%;
+  background: inherit;
   cursor: pointer;
   display: grid;
   place-content: center;
@@ -98,7 +98,7 @@
   transition: background 0.2s ease;
 
   &:hover {
-    background: rgba($light, 0.2);
+    background: rgba($light, 0.1);
   }
 }
 
