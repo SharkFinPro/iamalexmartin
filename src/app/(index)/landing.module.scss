@@ -2,7 +2,7 @@
 @use "sass:color";
 
 .container {
-  color: $light;
+  color: var(--text-primary);
   max-width: 600px;
   padding: 0 1rem;
   margin: 0 auto;
@@ -85,21 +85,21 @@
 
 .homepageButton:hover {
   transform: translateY(-2.5px);
-  box-shadow: 0 10px 30px rgba(255, 255, 255, 0.075);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 }
 
 .viewProjects {
-  background-color: color.mix($accent, $dark, 55%);
-  color: $light;
-  border: 2px solid color.mix($accent, $light, 70%);
+  background: linear-gradient(135deg, $accent, color.mix($accent, $secondary, 50%));
+  color: white;
+  border: 2px solid $accent;
   animation: buttonSlideIn 0.5s ease-out forwards;
   animation-delay: 1.2s;
 }
 
 .contactMe {
-  background-color: $primary;
-  color: $light;
-  border: 2px solid color.mix($light, $dark, 30%);
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  border: 2px solid var(--border-color);
   animation: buttonSlideIn 0.5s ease-out forwards;
   animation-delay: 1.5s;
 }

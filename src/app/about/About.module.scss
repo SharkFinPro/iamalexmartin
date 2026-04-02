@@ -2,7 +2,7 @@
 @use "sass:color";
 
 .container {
-  background-color: color.mix(#000, $light, 15%);
+  background-color: var(--bg-primary);
   place-items: center;
   padding-block: 2rem;
   padding-inline: 1rem;

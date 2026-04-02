@@ -31,7 +31,7 @@
 .sectionDescription {
   font-size: 1.15rem;
   padding-block: 0.5em;
-  color: $dark;
+  color: var(--text-secondary);
 
   opacity: 0;
   animation: fadeInUp 0.8s ease-out forwards;
@@ -55,12 +55,13 @@
 }
 
 .quickLinkCard {
-  background-color: $light;
+  background-color: var(--bg-card);
   border-radius: 8px;
   padding: 1.5rem;
   text-align: center;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease-in-out;
+  border: 1px solid var(--border-color);
 
   width: 100%;
 
@@ -111,6 +112,7 @@
 
   & > .quickLinkIcon {
     border: 3px outset $accent;
+    color: var(--text-primary);
   }
 
   /* Apply different delays based on card index */
@@ -159,14 +161,14 @@
 
   width: 60px;
   height: 60px;
-  background-color: color.mix(#000, $light, 10%);
+  background-color: var(--bg-secondary);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 1.25rem;
   font-size: 1.5rem;
-  color: $primary;
+  color: $accent;
 
   /* Subtle icon animation */
   animation: fadeInUp 0.75s ease-out 0.2s backwards;
@@ -193,6 +195,7 @@
   grid-area: title;
 
   font-size: 1.1rem;
+  color: var(--text-primary);
 
   @media (min-width: 800px) {
     font-size: 1.25rem;
@@ -202,14 +205,15 @@
 .quickLinkCard > p {
   grid-area: description;
   font-size: 0.95rem;
+  color: var(--text-secondary);
 }
 
 .quickLinkCard > a {
   grid-area: link;
 
   margin-top: auto;
-  background-color: $highlight;
-  color: $primary;
+  background-color: $accent;
+  color: white;
   font-weight: bold;
   text-decoration: none;
   padding-block: 0.75rem;

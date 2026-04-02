@@ -53,7 +53,33 @@ export default function RootLayout({
   children: ReactNode
 }) {
   return (
-    <html lang="en" className={openSans.className}>
+    <html lang="en" className={openSans.className} suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var saved = localStorage.getItem('theme');
+                  var theme;
+                  if (saved === 'light' || saved === 'dark') {
+                    theme = saved;
+                  } else {
+                    var prefersDark =
+                      typeof window.matchMedia === 'function' &&
+                      window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    theme = prefersDark ? 'dark' : 'light';
+                  }
+                  document.documentElement.setAttribute('data-theme', theme);
+                  document.documentElement.style.colorScheme = theme;
+                } catch (e) {
+                  // If storage or matchMedia is unavailable, leave defaults in place
+                }
+              })();
+            `,
+          }}
+        />
+      </head>
       <body>
         <NavBar />
         {children}
