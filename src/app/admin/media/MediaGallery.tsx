@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -9,7 +9,11 @@ import {
   faFileAudio,
   faFilePdf,
   faFileLines,
-  faTrash
+  faFileImage,
+  faTrash,
+  faMagnifyingGlass,
+  faArrowUpWideShort,
+  faArrowDownWideShort
 } from "@fortawesome/free-solid-svg-icons";
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import type { MediaAsset } from "@/lib/getAssets";
@@ -52,6 +56,31 @@ function baseName(fileName: string): string {
   const dot = fileName.lastIndexOf(".");
   return dot > 0 ? fileName.slice(0, dot) : fileName;
 }
+
+// Broad media categories used by the type filter. Derived from the MIME type so
+// the same buckets drive both filtering and the filter dropdown labels.
+type FileKind = "image" | "video" | "audio" | "pdf" | "document" | "other";
+
+function fileKind(mime: string | null): FileKind {
+  const m = mime ?? "";
+  if (m.startsWith("image/")) return "image";
+  if (m.startsWith("video/")) return "video";
+  if (m.startsWith("audio/")) return "audio";
+  if (m === "application/pdf") return "pdf";
+  if (m.startsWith("text/") || m.includes("word") || m.includes("document")) {
+    return "document";
+  }
+  return "other";
+}
+
+const KIND_LABELS: Record<FileKind, string> = {
+  image: "Images",
+  video: "Video",
+  audio: "Audio",
+  pdf: "PDF",
+  document: "Documents",
+  other: "Other"
+};
 
 function placeholderIcon(mime: string): IconDefinition {
   if (mime.startsWith("video/")) return faFileVideo;
@@ -106,6 +135,7 @@ function MediaCard({
   asset,
   selected,
   selectionMode,
+  compact,
   onToggleSelect,
   onLongPress,
   onStatusChange,
@@ -114,6 +144,7 @@ function MediaCard({
   asset: MediaAsset;
   selected: boolean;
   selectionMode: boolean;
+  compact: boolean;
   onToggleSelect: (id: string) => void;
   onLongPress: (id: string) => void;
   onStatusChange: (id: string, status: MediaAsset["status"]) => void;
@@ -179,9 +210,11 @@ function MediaCard({
 
   return (
     <li
-      className={`${styles.card} ${isDraft ? styles.cardDraft : ""} ${
-        selected ? styles.cardSelected : ""
-      } ${selectionMode ? styles.cardSelectable : ""}`}
+      className={`${styles.card} ${compact ? styles.cardCompact : ""} ${
+        isDraft ? styles.cardDraft : ""
+      } ${selected ? styles.cardSelected : ""} ${
+        selectionMode ? styles.cardSelectable : ""
+      }`}
       onClick={handleCardClick}
     >
       <div
@@ -205,7 +238,17 @@ function MediaCard({
           </label>
         )}
         <Preview asset={asset} />
+        {compact && isDraft && (
+          <span className={styles.compactBadge} title="Draft (unpublished)">
+            Draft
+          </span>
+        )}
       </div>
+      {compact ? (
+        <div className={styles.compactName} title={`${displayName} · ${asset.fileName}`}>
+          {displayName}
+        </div>
+      ) : (
       <div className={styles.meta}>
         <p className={styles.fileName} title={displayName}>
           <EditableText
@@ -283,6 +326,7 @@ function MediaCard({
         </div>
         {error && <span className={styles.actionError}>{error}</span>}
       </div>
+      )}
     </li>
   );
 }
@@ -298,6 +342,69 @@ export default function MediaGallery({ assets }: { assets: MediaAsset[] }) {
   const [pendingDelete, setPendingDelete] = useState<string[] | null>(null);
   const [bulkBusy, setBulkBusy] = useState(false);
   const [bulkError, setBulkError] = useState<string | null>(null);
+
+  // --- Browsing controls -------------------------------------------------
+  // Search, filters and sort are kept here so toggling the metadata view never
+  // resets them; the view toggle only changes how the same result set renders.
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | MediaAsset["status"]>("all");
+  const [kindFilter, setKindFilter] = useState<"all" | FileKind>("all");
+  const [sortKey, setSortKey] = useState<"date" | "name" | "size" | "type" | "status">(
+    "date"
+  );
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  const [hideMetadata, setHideMetadata] = useState(false);
+
+  // File kinds actually present in the library, so the type filter only offers
+  // categories that exist.
+  const availableKinds = useMemo(() => {
+    const kinds = new Set<FileKind>();
+    items.forEach((a) => kinds.add(fileKind(a.mimeType)));
+    return Array.from(kinds);
+  }, [items]);
+
+  const visibleItems = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const filtered = items.filter((a) => {
+      if (statusFilter !== "all" && a.status !== statusFilter) return false;
+      if (kindFilter !== "all" && fileKind(a.mimeType) !== kindFilter) return false;
+      if (q) {
+        const name = `${a.title ?? ""} ${a.fileName}`.toLowerCase();
+        if (!name.includes(q)) return false;
+      }
+      return true;
+    });
+
+    const dir = sortDir === "asc" ? 1 : -1;
+    const name = (a: MediaAsset) => (a.title?.trim() || a.fileName).toLowerCase();
+
+    return filtered.sort((a, b) => {
+      switch (sortKey) {
+        case "name":
+          return name(a).localeCompare(name(b)) * dir;
+        case "size":
+          return ((a.size ?? 0) - (b.size ?? 0)) * dir;
+        case "type":
+          return (a.mimeType ?? "").localeCompare(b.mimeType ?? "") * dir;
+        case "status":
+          return a.status.localeCompare(b.status) * dir;
+        case "date":
+        default:
+          return (
+            (new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()) * dir
+          );
+      }
+    });
+  }, [items, query, statusFilter, kindFilter, sortKey, sortDir]);
+
+  const hasActiveFilters =
+    query.trim() !== "" || statusFilter !== "all" || kindFilter !== "all";
+
+  function resetFilters() {
+    setQuery("");
+    setStatusFilter("all");
+    setKindFilter("all");
+  }
 
   function setStatus(id: string, status: MediaAsset["status"]) {
     setItems((prev) => prev.map((a) => (a.id === id ? { ...a, status } : a)));
@@ -391,11 +498,112 @@ export default function MediaGallery({ assets }: { assets: MediaAsset[] }) {
     <>
       <div className={styles.toolbar}>
         <p className={styles.count}>
-          {items.length} {items.length === 1 ? "asset" : "assets"}
+          {hasActiveFilters
+            ? `${visibleItems.length} of ${items.length} ${
+                items.length === 1 ? "asset" : "assets"
+              }`
+            : `${items.length} ${items.length === 1 ? "asset" : "assets"}`}
           {draftCount > 0 && ` · ${draftCount} draft${draftCount === 1 ? "" : "s"}`}
         </p>
         <MediaUploader onUploaded={addAsset} />
       </div>
+
+      {items.length > 0 && (
+        <div className={styles.controls} role="region" aria-label="Sort and filter">
+          <div className={styles.search}>
+            <FontAwesomeIcon icon={faMagnifyingGlass} className={styles.searchIcon} />
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search by name…"
+              aria-label="Search media by name"
+            />
+          </div>
+
+          <label className={styles.control}>
+            <span>Status</span>
+            <select
+              value={statusFilter}
+              onChange={(e) =>
+                setStatusFilter(e.target.value as typeof statusFilter)
+              }
+            >
+              <option value="all">All</option>
+              <option value="published">Published</option>
+              <option value="draft">Unpublished</option>
+            </select>
+          </label>
+
+          <label className={styles.control}>
+            <span>Type</span>
+            <select
+              value={kindFilter}
+              onChange={(e) => setKindFilter(e.target.value as typeof kindFilter)}
+            >
+              <option value="all">All</option>
+              {availableKinds.map((k) => (
+                <option key={k} value={k}>
+                  {KIND_LABELS[k]}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className={styles.control}>
+            <span>Sort by</span>
+            <select
+              value={sortKey}
+              onChange={(e) => setSortKey(e.target.value as typeof sortKey)}
+            >
+              <option value="date">Upload date</option>
+              <option value="name">Name</option>
+              <option value="size">File size</option>
+              <option value="type">File type</option>
+              <option value="status">Status</option>
+            </select>
+          </label>
+
+          <button
+            type="button"
+            className={styles.iconToggle}
+            onClick={() => setSortDir((d) => (d === "asc" ? "desc" : "asc"))}
+            aria-label={`Sort ${sortDir === "asc" ? "ascending" : "descending"}`}
+            title={sortDir === "asc" ? "Ascending" : "Descending"}
+          >
+            <FontAwesomeIcon
+              icon={sortDir === "asc" ? faArrowUpWideShort : faArrowDownWideShort}
+            />
+          </button>
+
+          {hasActiveFilters && (
+            <button
+              type="button"
+              className={styles.clearFilters}
+              onClick={resetFilters}
+            >
+              Clear filters
+            </button>
+          )}
+
+          <button
+            type="button"
+            className={`${styles.viewToggle} ${
+              hideMetadata ? styles.viewToggleActive : ""
+            }`}
+            onClick={() => setHideMetadata((v) => !v)}
+            aria-pressed={hideMetadata}
+            title={
+              hideMetadata
+                ? "Show full details for managing media"
+                : "Hide details for a clean browsing gallery"
+            }
+          >
+            <FontAwesomeIcon icon={faFileImage} />
+            {hideMetadata ? "Show metadata" : "Hide metadata"}
+          </button>
+        </div>
+      )}
 
       {selectedCount > 0 && (
         <div className={styles.bulkBar} role="region" aria-label="Bulk actions">
@@ -448,14 +656,25 @@ export default function MediaGallery({ assets }: { assets: MediaAsset[] }) {
             Upload an image above, or add assets directly in the CMS.
           </p>
         </div>
+      ) : visibleItems.length === 0 ? (
+        <div className={styles.state}>
+          <p className={styles.stateTitle}>No matching media</p>
+          <p className={styles.stateBody}>
+            No assets match the current filters.{" "}
+            <button type="button" className={styles.linkBtn} onClick={resetFilters}>
+              Clear filters
+            </button>
+          </p>
+        </div>
       ) : (
-        <ul className={styles.grid}>
-          {items.map((asset) => (
+        <ul className={`${styles.grid} ${hideMetadata ? styles.gridCompact : ""}`}>
+          {visibleItems.map((asset) => (
             <MediaCard
               key={asset.id}
               asset={asset}
               selected={selected.has(asset.id)}
               selectionMode={selectionMode}
+              compact={hideMetadata}
               onToggleSelect={toggleSelect}
               onLongPress={startSelection}
               onStatusChange={setStatus}
