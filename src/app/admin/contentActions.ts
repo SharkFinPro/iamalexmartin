@@ -362,17 +362,6 @@ const PORTFOLIO_CARD_FIELDS = `
   link
 `;
 
-// Sensible starter content so a freshly created card renders immediately and is
-// obviously a placeholder the admin then edits inline.
-const NEW_CARD_DEFAULTS = {
-  title: "New Card",
-  fontAwesomeIcon: "star",
-  description: "Describe this section of your portfolio.",
-  shortDescription: "",
-  linkText: "Learn more",
-  link: "/"
-};
-
 const CREATE_PORTFOLIO_CARD_MUTATION = `
   mutation CreatePortfolioCard($data: PortfolioCardCreateInput!) {
     createPortfolioCard(data: $data) {
@@ -387,22 +376,67 @@ const PUBLISH_PORTFOLIO_CARD_MUTATION = `
   }
 `;
 
-type CreateCardResult = { ok: true; card: PortfolioCard } | { ok: false; error: string };
+const UNPUBLISH_PORTFOLIO_CARD_MUTATION = `
+  mutation UnpublishPortfolioCard($id: ID!) {
+    unpublishPortfolioCard(where: { id: $id }, from: PUBLISHED) { id }
+  }
+`;
+
+const DELETE_PORTFOLIO_CARD_MUTATION = `
+  mutation DeletePortfolioCard($id: ID!) {
+    deletePortfolioCard(where: { id: $id }) { id }
+  }
+`;
 
 /**
- * Create a new portfolio card (with placeholder content) and publish it so it
- * shows on the homepage right away. Returns the full card so the client can
- * append it and order it without a refetch. Visibility/order are tracked in
- * siteConfig by the caller.
+ * Permanently delete a portfolio card. A published card must be unpublished first,
+ * so we always attempt an unpublish (ignoring the error when it isn't published)
+ * before deleting. Irreversible — the UI confirms with the user beforehand. The
+ * caller also drops the card from siteConfig (order + flags).
  */
-export async function createPortfolioCard(): Promise<CreateCardResult> {
+export async function deletePortfolioCard(id: string): Promise<ActionResult> {
   if (!(await isAuthed())) {
     return { ok: false, error: "Not authorized." };
   }
 
   try {
-    const data = await cmsMutate(CREATE_PORTFOLIO_CARD_MUTATION, { data: NEW_CARD_DEFAULTS });
-    const card = data?.createPortfolioCard;
+    try {
+      await cmsMutate(UNPUBLISH_PORTFOLIO_CARD_MUTATION, { id });
+    } catch {
+      // Not published (or already unpublished) — nothing to undo before delete.
+    }
+    await cmsMutate(DELETE_PORTFOLIO_CARD_MUTATION, { id });
+  } catch (e: any) {
+    return { ok: false, error: e?.message || "Failed to delete card." };
+  }
+
+  return { ok: true };
+}
+
+type CreateCardResult = { ok: true; card: PortfolioCard } | { ok: false; error: string };
+
+/**
+ * Create a new portfolio card from the admin's form values and publish it so it
+ * shows on the homepage right away. Fields are filtered against the PortfolioCard
+ * whitelist. Returns the full card so the client can append + order it without a
+ * refetch. Visibility/order are tracked in siteConfig by the caller.
+ */
+export async function createPortfolioCard(
+  data: Record<string, string>
+): Promise<CreateCardResult> {
+  if (!(await isAuthed())) {
+    return { ok: false, error: "Not authorized." };
+  }
+
+  const allowed = EDITABLE_FIELDS.PortfolioCard;
+  const clean: Record<string, string> = {};
+  for (const key of allowed) {
+    if (typeof data?.[key] === "string") clean[key] = data[key];
+  }
+
+  try {
+    const result = await cmsMutate(CREATE_PORTFOLIO_CARD_MUTATION, { data: clean });
+    const card = result?.createPortfolioCard;
     if (!card?.id) {
       return { ok: false, error: "Card was not created." };
     }
@@ -411,6 +445,41 @@ export async function createPortfolioCard(): Promise<CreateCardResult> {
   } catch (e: any) {
     return { ok: false, error: e?.message || "Failed to create card." };
   }
+}
+
+const UPDATE_PORTFOLIO_CARD_MUTATION = `
+  mutation UpdatePortfolioCard($id: ID!, $data: PortfolioCardUpdateInput!) {
+    updatePortfolioCard(where: { id: $id }, data: $data) { id }
+  }
+`;
+
+/**
+ * Update any subset of a portfolio card's editable fields in one write, then
+ * publish. Fields are filtered against the PortfolioCard whitelist, so only the
+ * known simple fields are ever sent. Backs the card edit modal.
+ */
+export async function updatePortfolioCard(
+  id: string,
+  data: Record<string, string>
+): Promise<ActionResult> {
+  if (!(await isAuthed())) {
+    return { ok: false, error: "Not authorized." };
+  }
+
+  const allowed = EDITABLE_FIELDS.PortfolioCard;
+  const clean: Record<string, string> = {};
+  for (const key of allowed) {
+    if (typeof data?.[key] === "string") clean[key] = data[key];
+  }
+
+  try {
+    await cmsMutate(UPDATE_PORTFOLIO_CARD_MUTATION, { id, data: clean });
+    await cmsMutate(PUBLISH_PORTFOLIO_CARD_MUTATION, { id });
+  } catch (e: any) {
+    return { ok: false, error: e?.message || "Failed to update card." };
+  }
+
+  return { ok: true };
 }
 
 // --- Projects ----------------------------------------------------------------
