@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPen, faCheck, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { updateContentField } from "@/app/admin/contentActions";
@@ -36,11 +36,15 @@ export default function EditableText({ model, id, field, value, editable, multil
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  // Re-sync from the server value when it changes (e.g. after router.refresh()
-  // or navigating to another entry), but never while the user is mid-edit. A
-  // fresh server value supersedes the optimistic `display`, so clear it.
+  // Re-sync from the server value only when the `value` prop genuinely changes
+  // (e.g. after router.refresh() or navigating to another entry). Crucially this
+  // must NOT fire merely because editing toggled off after a save — that would
+  // clobber the optimistic `display` (the read CDN lags, so `value` is unchanged)
+  // and restore the old text. A fresh server value supersedes `display`.
+  const lastValue = useRef(value);
   useEffect(() => {
-    if (editing) return;
+    if (lastValue.current === value || editing) return;
+    lastValue.current = value;
     setDraft(isList(value) ? value.join(", ") : value);
     setDisplay(null);
   }, [editing, value]);
