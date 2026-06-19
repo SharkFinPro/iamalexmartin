@@ -3,7 +3,7 @@ import { camelCaseToSentence } from "@/utils/string";
 import styles from "./projects.module.scss";
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTag, faStar, faEye, faEyeSlash, faGripVertical } from "@fortawesome/free-solid-svg-icons";
@@ -11,14 +11,13 @@ import EditableText from "@/components/EditableText";
 import { saveConfig } from "@/app/admin/contentActions";
 import { projectFlags, type SiteConfigData } from "@/lib/siteConfig";
 
-function ProjectCard({ project, priority, isAdmin, flags, onToggle, dragHandlers }) {
+function ProjectCard({ project, priority, isAdmin, flags, onToggle, onHandlePointerDown, innerRef, floating }: any) {
   const hidden = isAdmin && !flags.visible;
 
   return (
     <div
-      className={`${styles.card} ${hidden ? styles.hiddenCard : ""}`}
-      draggable={isAdmin && !!dragHandlers}
-      {...(dragHandlers || {})}
+      ref={innerRef}
+      className={`${styles.card} ${hidden ? styles.hiddenCard : ""} ${floating ? styles.floating : ""}`}
     >
       <div className={styles.thumbnail}>
         {project.image && (
@@ -35,8 +34,12 @@ function ProjectCard({ project, priority, isAdmin, flags, onToggle, dragHandlers
 
         {isAdmin && (
           <div className={styles.adminOverlay}>
-            {dragHandlers && (
-              <span className={styles.dragHandle} aria-label="Drag to reorder">
+            {onHandlePointerDown && (
+              <span
+                className={styles.dragHandle}
+                aria-label="Drag to reorder"
+                onPointerDown={onHandlePointerDown}
+              >
                 <FontAwesomeIcon icon={faGripVertical} />
               </span>
             )}
@@ -91,10 +94,25 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
   const [projectType, setProjectType] = useState<string>("all");
   const [items, setItems] = useState<any[]>(projects.projects);
   const [cfg, setCfg] = useState<SiteConfigData>(config);
-  const [dragIndex, setDragIndex] = useState<number | null>(null);
+
+  // Drag state: which card is "in hand", where the cursor is, the grab offset
+  // within the card, and the lifted card's size (so the placeholder + floating
+  // clone match the original).
+  const [draggingSlug, setDraggingSlug] = useState<string | null>(null);
+  const [pointer, setPointer] = useState({ x: 0, y: 0 });
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [size, setSize] = useState({ w: 0, h: 0 });
+
+  const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const dragIndexRef = useRef<number | null>(null);
+  const draggingSlugRef = useRef<string | null>(null);
+  const itemsRef = useRef(items);
+  const cfgRef = useRef(cfg);
 
   useEffect(() => setItems(projects.projects), [projects.projects]);
   useEffect(() => setCfg(config), [config]);
+  useEffect(() => { itemsRef.current = items; }, [items]);
+  useEffect(() => { cfgRef.current = cfg; }, [cfg]);
 
   useEffect(() => {
     const queriedProjectType = searchParams.get("projectType");
@@ -134,22 +152,103 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
     });
   }
 
-  function handleDrop(targetIndex: number) {
-    if (dragIndex === null || dragIndex === targetIndex) {
-      setDragIndex(null);
+  function registerCard(slug: string) {
+    return (el: HTMLDivElement | null) => {
+      if (el) {
+        cardRefs.current.set(slug, el);
+      } else {
+        cardRefs.current.delete(slug);
+      }
+    };
+  }
+
+  function startDrag(index: number, slug: string, e: React.PointerEvent) {
+    if (e.button !== 0) {
       return;
     }
-    const reordered = [...items];
-    const [moved] = reordered.splice(dragIndex, 1);
-    reordered.splice(targetIndex, 0, moved);
-    setItems(reordered);
-    setDragIndex(null);
-    persist({ ...cfg, projectOrder: reordered.map((p) => p.slug) });
+    e.preventDefault();
+
+    const el = cardRefs.current.get(slug);
+    if (!el) {
+      return;
+    }
+    const rect = el.getBoundingClientRect();
+
+    setOffset({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+    setSize({ w: rect.width, h: rect.height });
+    setPointer({ x: e.clientX, y: e.clientY });
+
+    dragIndexRef.current = index;
+    draggingSlugRef.current = slug;
+    setDraggingSlug(slug);
   }
+
+  // While the card is in hand: follow the cursor and, when it hovers a different
+  // card, slide that card's slot open by reordering the list live.
+  function handlePointerMove(e: PointerEvent) {
+    if (draggingSlugRef.current === null) {
+      return;
+    }
+    setPointer({ x: e.clientX, y: e.clientY });
+
+    const from = dragIndexRef.current;
+    if (from === null) {
+      return;
+    }
+
+    const list = itemsRef.current;
+    for (let i = 0; i < list.length; i++) {
+      if (list[i].slug === draggingSlugRef.current) {
+        continue;
+      }
+      const el = cardRefs.current.get(list[i].slug);
+      if (!el) {
+        continue;
+      }
+      const r = el.getBoundingClientRect();
+      const inside =
+        e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+      if (inside) {
+        if (i !== from) {
+          const next = [...list];
+          const [moved] = next.splice(from, 1);
+          next.splice(i, 0, moved);
+          setItems(next);
+          dragIndexRef.current = i;
+        }
+        break;
+      }
+    }
+  }
+
+  function handlePointerUp() {
+    if (draggingSlugRef.current === null) {
+      return;
+    }
+    draggingSlugRef.current = null;
+    dragIndexRef.current = null;
+    setDraggingSlug(null);
+    persist({ ...cfgRef.current, projectOrder: itemsRef.current.map((p) => p.slug) });
+  }
+
+  useEffect(() => {
+    if (!draggingSlug) {
+      return;
+    }
+    window.addEventListener("pointermove", handlePointerMove);
+    window.addEventListener("pointerup", handlePointerUp);
+    return () => {
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerup", handlePointerUp);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draggingSlug]);
 
   const visible = items.filter(
     project => projectType === "all" || project.projectType.includes(projectType)
   );
+
+  const draggingProject = draggingSlug ? items.find((p) => p.slug === draggingSlug) : null;
 
   return (
     <div className={styles.container}>
@@ -169,21 +268,44 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
 
       <div className={styles.cards}>
         {visible.map((project, index) => (
-          <ProjectCard
-            project={project}
-            key={project.slug}
-            priority={index < 3}
-            isAdmin={isAdmin}
-            flags={projectFlags(cfg, project.slug)}
-            onToggle={toggleFlag}
-            dragHandlers={canReorder ? {
-              onDragStart: () => setDragIndex(index),
-              onDragOver: (e: React.DragEvent) => e.preventDefault(),
-              onDrop: () => handleDrop(index)
-            } : null}
-          />
+          project.slug === draggingSlug ? (
+            // The lifted card leaves a gap here; the real card floats by the cursor.
+            <div key={project.slug} className={styles.placeholder} style={{ height: size.h }} />
+          ) : (
+            <ProjectCard
+              project={project}
+              key={project.slug}
+              innerRef={registerCard(project.slug)}
+              priority={index < 3}
+              isAdmin={isAdmin}
+              flags={projectFlags(cfg, project.slug)}
+              onToggle={toggleFlag}
+              onHandlePointerDown={
+                canReorder ? (e: React.PointerEvent) => startDrag(index, project.slug, e) : undefined
+              }
+            />
+          )
         ))}
       </div>
+
+      {draggingProject && (
+        <div
+          className={styles.floatingLayer}
+          style={{
+            left: pointer.x - offset.x,
+            top: pointer.y - offset.y,
+            width: size.w
+          }}
+        >
+          <ProjectCard
+            project={draggingProject}
+            isAdmin={isAdmin}
+            flags={projectFlags(cfg, draggingProject.slug)}
+            onToggle={() => {}}
+            floating
+          />
+        </div>
+      )}
     </div>
   );
 }
