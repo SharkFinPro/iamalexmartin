@@ -12,15 +12,17 @@ import styles from "./RichTextEditor.module.scss";
 type Props = {
   onSelect: (asset: MediaAsset) => void;
   onClose: () => void;
+  /** Dialog heading; defaults to the rich-text "Insert image" context. */
+  title?: string;
 };
 
 /**
- * Inline image picker for the rich-text editor. Loads assets through the same
- * Media Library data layer (via the `listMediaAssets` action), narrows to images
- * (the only thing insertable into rich text), and lets the admin search + pick
- * one without leaving the editor.
+ * Inline image picker. Loads assets through the same Media Library data layer
+ * (via the `listMediaAssets` action), narrows to images, and lets the admin
+ * search + pick one without leaving the page. Used by the rich-text editor and
+ * the project image control.
  */
-export default function AssetPicker({ onSelect, onClose }: Props) {
+export default function AssetPicker({ onSelect, onClose, title = "Insert image" }: Props) {
   const [assets, setAssets] = useState<MediaAsset[] | null>(null);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
@@ -63,14 +65,14 @@ export default function AssetPicker({ onSelect, onClose }: Props) {
       className={styles.pickerOverlay}
       role="dialog"
       aria-modal="true"
-      aria-label="Insert image"
+      aria-label={title}
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       <div className={styles.pickerModal}>
         <div className={styles.pickerHead}>
-          <h2 className={styles.pickerTitle}>Insert image</h2>
+          <h2 className={styles.pickerTitle}>{title}</h2>
           <div className={styles.pickerHeadActions}>
             {/* Reuse the Media Library's crop & upload widget — a freshly
                 uploaded asset is inserted straight into the editor. */}

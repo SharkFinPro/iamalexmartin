@@ -6,19 +6,120 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTag, faStar, faEye, faEyeSlash, faGripVertical } from "@fortawesome/free-solid-svg-icons";
+import {
+  faTag,
+  faStar,
+  faEye,
+  faEyeSlash,
+  faGripVertical,
+  faBoxArchive,
+  faRotateLeft,
+  faImage,
+  faPlus,
+  faXmark
+} from "@fortawesome/free-solid-svg-icons";
 import EditableText from "@/components/EditableText";
+import AssetPicker from "@/components/RichTextEditor/AssetPicker";
 import { useDragReorder } from "@/components/useDragReorder";
-import { saveConfig } from "@/app/admin/contentActions";
+import {
+  saveConfig,
+  updateContentField,
+  createProject,
+  setProjectImage
+} from "@/app/admin/contentActions";
 import { projectFlags, type SiteConfigData } from "@/lib/siteConfig";
 
-function ProjectCard({ project, priority, isAdmin, flags, onToggle, onHandlePointerDown, innerRef, floating }: any) {
+/**
+ * Tag pills for a project. Visitors see the original read-only chip list; admins
+ * get the same chips with a per-tag remove (×) plus an inline "add tag" input.
+ * Tags stay a plain string array on the Project (no Tag entity) — `onChange`
+ * persists the full next array.
+ */
+function TagEditor({ project, isAdmin, onChange }: any) {
+  const [draft, setDraft] = useState("");
+
+  if (!isAdmin) {
+    return (
+      <ul>
+        {project.tags.map((tag: string) => (
+          <li key={tag}><FontAwesomeIcon icon={faTag} />{tag}</li>
+        ))}
+      </ul>
+    );
+  }
+
+  function addTag() {
+    const value = draft.trim();
+    setDraft("");
+    if (!value || project.tags.includes(value)) return;
+    onChange(project, [...project.tags, value]);
+  }
+
+  function removeTag(tag: string) {
+    onChange(project, project.tags.filter((t: string) => t !== tag));
+  }
+
+  return (
+    <ul className={styles.tagEditorList}>
+      {project.tags.map((tag: string) => (
+        <li key={tag}>
+          <FontAwesomeIcon icon={faTag} />{tag}
+          <button
+            type="button"
+            className={styles.tagRemove}
+            aria-label={`Remove tag ${tag}`}
+            onClick={() => removeTag(tag)}
+          >
+            <FontAwesomeIcon icon={faXmark} />
+          </button>
+        </li>
+      ))}
+      <li className={styles.tagInputChip}>
+        <input
+          className={styles.tagInput}
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              addTag();
+            } else if (e.key === "Backspace" && draft === "" && project.tags.length) {
+              removeTag(project.tags[project.tags.length - 1]);
+            }
+          }}
+          onBlur={addTag}
+          placeholder="Add tag…"
+          aria-label="Add tag"
+        />
+      </li>
+    </ul>
+  );
+}
+
+function ProjectCard({
+  project,
+  priority,
+  isAdmin,
+  flags,
+  enumValues,
+  onToggle,
+  onArchive,
+  onEditImage,
+  onToggleType,
+  onTagsChange,
+  onHandlePointerDown,
+  innerRef,
+  floating
+}: any) {
   const hidden = isAdmin && !flags.visible;
+  const archived = isAdmin && flags.archived;
 
   return (
     <div
       ref={innerRef}
-      className={`${styles.card} ${hidden ? styles.hiddenCard : ""} ${floating ? styles.floating : ""}`}
+      className={`${styles.card} ${hidden ? styles.hiddenCard : ""} ${
+        archived ? styles.archivedCard : ""
+      } ${floating ? styles.floating : ""}`}
     >
       <div className={styles.thumbnail}>
         {project.image && (
@@ -47,6 +148,14 @@ function ProjectCard({ project, priority, isAdmin, flags, onToggle, onHandlePoin
             )}
             <button
               type="button"
+              aria-label="Change image"
+              title="Change image"
+              onClick={() => onEditImage(project)}
+            >
+              <FontAwesomeIcon icon={faImage} />
+            </button>
+            <button
+              type="button"
               className={flags.featured ? styles.flagActive : ""}
               aria-label="Toggle featured"
               onClick={() => onToggle(project.slug, "featured")}
@@ -60,6 +169,15 @@ function ProjectCard({ project, priority, isAdmin, flags, onToggle, onHandlePoin
               onClick={() => onToggle(project.slug, "visible")}
             >
               <FontAwesomeIcon icon={flags.visible ? faEye : faEyeSlash} />
+            </button>
+            <button
+              type="button"
+              className={archived ? styles.flagActive : ""}
+              aria-label={archived ? "Restore project" : "Archive project"}
+              title={archived ? "Restore project" : "Archive project"}
+              onClick={() => onArchive(project.slug, !archived)}
+            >
+              <FontAwesomeIcon icon={archived ? faRotateLeft : faBoxArchive} />
             </button>
           </div>
         )}
@@ -77,11 +195,25 @@ function ProjectCard({ project, priority, isAdmin, flags, onToggle, onHandlePoin
           </EditableText>
         </p>
 
-        <ul>
-          {project.tags.map(tag => (
-            <li key={tag}><FontAwesomeIcon icon={faTag} />{tag}</li>
-          ))}
-        </ul>
+        <TagEditor project={project} isAdmin={isAdmin} onChange={onTagsChange} />
+
+        {isAdmin && (
+          <div className={styles.typeChips}>
+            {enumValues.map((type: any) => {
+              const active = project.projectType.includes(type.name);
+              return (
+                <button
+                  key={type.name}
+                  type="button"
+                  className={`${styles.typeChip} ${active ? styles.typeChipActive : ""}`}
+                  onClick={() => onToggleType(project, type.name)}
+                >
+                  {camelCaseToSentence(type.name)}
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         <Link href={`/projects/${project.slug}`}>View Details</Link>
       </div>
@@ -92,11 +224,21 @@ function ProjectCard({ project, priority, isAdmin, flags, onToggle, onHandlePoin
 export default function Projects({ projects, config, isAdmin = false }: any) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const enumValues = projects["__type"].enumValues;
 
   const [projectType, setProjectType] = useState<string>("all");
   const [items, setItems] = useState<any[]>(projects.projects);
   const [cfg, setCfg] = useState<SiteConfigData>(config);
   const cfgRef = useRef(cfg);
+
+  // Image picker (project being re-imaged) and the New Project modal.
+  const [imageFor, setImageFor] = useState<any | null>(null);
+  const [showCreate, setShowCreate] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
+  const [newSlug, setNewSlug] = useState("");
+  const [newTypes, setNewTypes] = useState<string[]>([]);
+  const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState("");
 
   useEffect(() => setItems(projects.projects), [projects.projects]);
   useEffect(() => setCfg(config), [config]);
@@ -107,11 +249,11 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
 
     function isValidProjectType() {
       return queriedProjectType &&
-             projects["__type"].enumValues.some((enumType: any) => enumType.name === queriedProjectType)
+             enumValues.some((enumType: any) => enumType.name === queriedProjectType)
     }
 
-    setProjectType(isValidProjectType() ? queriedProjectType : "all");
-  }, [searchParams, projects]);
+    setProjectType(isValidProjectType() ? queriedProjectType! : "all");
+  }, [searchParams, enumValues]);
 
   function changeProjectType(type: string) {
     const url = type === "all" ? "/projects" : `?projectType=${type}`;
@@ -133,11 +275,70 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
   }
 
   function toggleFlag(slug: string, key: "visible" | "featured") {
-    const current = projectFlags(cfg, slug);
+    const current = projectFlags(cfgRef.current, slug);
     persist({
-      ...cfg,
-      projects: { ...cfg.projects, [slug]: { ...current, [key]: !current[key] } }
+      ...cfgRef.current,
+      projects: { ...cfgRef.current.projects, [slug]: { ...current, [key]: !current[key] } }
     });
+  }
+
+  function setArchived(slug: string, archived: boolean) {
+    const current = projectFlags(cfgRef.current, slug);
+    persist({
+      ...cfgRef.current,
+      projects: { ...cfgRef.current.projects, [slug]: { ...current, archived } }
+    });
+  }
+
+  async function toggleType(project: any, typeName: string) {
+    const has = project.projectType.includes(typeName);
+    const next = has
+      ? project.projectType.filter((t: string) => t !== typeName)
+      : [...project.projectType, typeName];
+
+    setItems((prev) => prev.map((p) => (p.slug === project.slug ? { ...p, projectType: next } : p)));
+    const result = await updateContentField("Project", project.id, "projectType", next);
+    if ("error" in result) {
+      alert(`Save failed: ${result.error}`);
+      router.refresh();
+    }
+  }
+
+  async function setTags(project: any, next: string[]) {
+    setItems((prev) => prev.map((p) => (p.slug === project.slug ? { ...p, tags: next } : p)));
+    const result = await updateContentField("Project", project.id, "tags", next);
+    if ("error" in result) {
+      alert(`Save failed: ${result.error}`);
+      router.refresh();
+    }
+  }
+
+  async function chooseImage(asset: any) {
+    const target = imageFor;
+    setImageFor(null);
+    if (!target) return;
+
+    setItems((prev) => prev.map((p) => (p.id === target.id ? { ...p, image: { url: asset.url } } : p)));
+    const result = await setProjectImage(target.id, asset.id);
+    if ("error" in result) {
+      alert(`Couldn't set image: ${result.error}`);
+      router.refresh();
+    }
+  }
+
+  async function submitCreate(e: React.FormEvent) {
+    e.preventDefault();
+    setCreating(true);
+    setCreateError("");
+    const result = await createProject(newTitle, newSlug, newTypes);
+    if ("error" in result) {
+      setCreating(false);
+      setCreateError(result.error);
+    } else {
+      // Track it in the admin's order, then open it for inline fill-in.
+      await persist({ ...cfgRef.current, projectOrder: [...cfgRef.current.projectOrder, result.slug] });
+      router.push(`/projects/${result.slug}`);
+    }
   }
 
   const drag = useDragReorder({
@@ -147,7 +348,12 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
     onCommit: (slugs) => persist({ ...cfgRef.current, projectOrder: slugs })
   });
 
-  const visible = items.filter(
+  // Archived projects (admin only) are pulled out into their own section.
+  const archivedItems = isAdmin
+    ? items.filter((p) => projectFlags(cfg, p.slug).archived)
+    : [];
+  const activeItems = items.filter((p) => !projectFlags(cfg, p.slug).archived);
+  const visible = activeItems.filter(
     project => projectType === "all" || project.projectType.includes(projectType)
   );
 
@@ -160,7 +366,7 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
                 onClick={() => changeProjectType("all")}>
           All Projects
         </button>
-        {projects["__type"].enumValues
+        {enumValues
           .map((type : any) => (
             <button key={type.name} className={projectType === type.name ? styles.selectedProjectType : ""}
               onClick={()=> changeProjectType(type.name)}>
@@ -169,8 +375,16 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
           ))}
       </div>
 
+      {isAdmin && (
+        <div className={styles.adminToolbar}>
+          <button type="button" className={styles.newProjectButton} onClick={() => setShowCreate(true)}>
+            <FontAwesomeIcon icon={faPlus} /> New Project
+          </button>
+        </div>
+      )}
+
       <div className={styles.cards}>
-        {visible.map((project, index) => (
+        {visible.map((project) => (
           project.slug === drag.draggingKey ? (
             // The lifted card leaves a gap here; the real card floats by the cursor.
             <div key={project.slug} className={styles.placeholder} style={{ height: drag.size.h }} />
@@ -179,17 +393,44 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
               project={project}
               key={project.slug}
               innerRef={drag.registerCard(project.slug)}
-              priority={index < 3}
+              priority={items.indexOf(project) < 3}
               isAdmin={isAdmin}
               flags={projectFlags(cfg, project.slug)}
+              enumValues={enumValues}
               onToggle={toggleFlag}
+              onArchive={setArchived}
+              onEditImage={setImageFor}
+              onToggleType={toggleType}
+              onTagsChange={setTags}
               onHandlePointerDown={
-                canReorder ? (e: React.PointerEvent) => drag.startDrag(index, project.slug, e) : undefined
+                canReorder ? (e: React.PointerEvent) => drag.startDrag(items.indexOf(project), project.slug, e) : undefined
               }
             />
           )
         ))}
       </div>
+
+      {isAdmin && archivedItems.length > 0 && (
+        <details className={styles.archivedSection}>
+          <summary>Archived projects ({archivedItems.length})</summary>
+          <div className={styles.cards}>
+            {archivedItems.map((project) => (
+              <ProjectCard
+                project={project}
+                key={project.slug}
+                isAdmin={isAdmin}
+                flags={projectFlags(cfg, project.slug)}
+                enumValues={enumValues}
+                onToggle={toggleFlag}
+                onArchive={setArchived}
+                onEditImage={setImageFor}
+                onToggleType={toggleType}
+                onTagsChange={setTags}
+              />
+            ))}
+          </div>
+        </details>
+      )}
 
       {draggingProject && (
         <div className={styles.floatingLayer} style={drag.floatingStyle}>
@@ -197,9 +438,84 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
             project={draggingProject}
             isAdmin={isAdmin}
             flags={projectFlags(cfg, draggingProject.slug)}
+            enumValues={enumValues}
             onToggle={() => {}}
+            onArchive={() => {}}
+            onEditImage={() => {}}
+            onToggleType={() => {}}
+            onTagsChange={() => {}}
             floating
           />
+        </div>
+      )}
+
+      {imageFor && (
+        <AssetPicker
+          title="Set project image"
+          onSelect={chooseImage}
+          onClose={() => setImageFor(null)}
+        />
+      )}
+
+      {showCreate && (
+        <div className={styles.modalOverlay} role="dialog" aria-modal="true" aria-label="New project">
+          <form className={styles.modal} onSubmit={submitCreate}>
+            <h2 className={styles.modalTitle}>New Project</h2>
+
+            <label className={styles.field}>
+              <span>Title</span>
+              <input value={newTitle} onChange={(e) => setNewTitle(e.target.value)} required autoFocus />
+            </label>
+
+            <label className={styles.field}>
+              <span>Slug</span>
+              <input
+                value={newSlug}
+                onChange={(e) => setNewSlug(e.target.value)}
+                placeholder="my-project"
+                required
+              />
+            </label>
+
+            <fieldset className={styles.field}>
+              <span>Type</span>
+              <div className={styles.typeChips}>
+                {enumValues.map((type: any) => {
+                  const active = newTypes.includes(type.name);
+                  return (
+                    <button
+                      key={type.name}
+                      type="button"
+                      className={`${styles.typeChip} ${active ? styles.typeChipActive : ""}`}
+                      onClick={() =>
+                        setNewTypes((prev) =>
+                          active ? prev.filter((t) => t !== type.name) : [...prev, type.name]
+                        )
+                      }
+                    >
+                      {camelCaseToSentence(type.name)}
+                    </button>
+                  );
+                })}
+              </div>
+            </fieldset>
+
+            {createError && <p className={styles.modalError}>{createError}</p>}
+
+            <div className={styles.modalActions}>
+              <button
+                type="button"
+                className={styles.modalCancel}
+                onClick={() => setShowCreate(false)}
+                disabled={creating}
+              >
+                Cancel
+              </button>
+              <button type="submit" className={styles.modalConfirm} disabled={creating}>
+                {creating ? "Creating…" : "Create & edit"}
+              </button>
+            </div>
+          </form>
         </div>
       )}
     </div>

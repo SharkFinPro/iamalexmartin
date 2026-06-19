@@ -85,8 +85,9 @@ export default async function Page({ params }) {
     isAuthed()
   ]);
 
-  // Hidden projects are reachable only while in admin mode.
-  if (!isAdmin && !projectFlags(config, slug.toLowerCase()).visible) {
+  // Hidden or archived projects are reachable only while in admin mode.
+  const flags = projectFlags(config, slug.toLowerCase());
+  if (!isAdmin && (!flags.visible || flags.archived)) {
     notFound();
   }
 

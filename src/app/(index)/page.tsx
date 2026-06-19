@@ -76,9 +76,9 @@ export default async function Page() {
   return <>
     <Landing className={`${styles.wrapper} ${styles.homepage}`} description={landingDescription} isAdmin={isAdmin} />
 
-    {config.homepage.showPortfolioCards && (
+    {(config.homepage.showPortfolioCards || isAdmin) && (
       <Portfolio className={`${styles.wrapper} ${styles.welcome}`} cards={portfolioCards}
-                 description={portfolioDescription} isAdmin={isAdmin} />
+                 description={portfolioDescription} config={config} isAdmin={isAdmin} />
     )}
 
     {config.homepage.showFeaturedProjects && (featured.length > 0 || isAdmin) && (
