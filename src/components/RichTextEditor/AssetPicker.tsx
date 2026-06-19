@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { listMediaAssets } from "@/app/admin/contentActions";
 import type { MediaAsset } from "@/lib/getAssets";
+import MediaUploader from "@/app/admin/media/MediaUploader";
 import styles from "./RichTextEditor.module.scss";
 
 type Props = {
@@ -65,14 +66,19 @@ export default function AssetPicker({ onSelect, onClose }: Props) {
       <div className={styles.pickerModal}>
         <div className={styles.pickerHead}>
           <h2 className={styles.pickerTitle}>Insert image</h2>
-          <button
-            type="button"
-            className={styles.pickerClose}
-            onClick={onClose}
-            aria-label="Close"
-          >
-            <FontAwesomeIcon icon={faXmark} />
-          </button>
+          <div className={styles.pickerHeadActions}>
+            {/* Reuse the Media Library's crop & upload widget — a freshly
+                uploaded asset is inserted straight into the editor. */}
+            <MediaUploader onUploaded={onSelect} />
+            <button
+              type="button"
+              className={styles.pickerClose}
+              onClick={onClose}
+              aria-label="Close"
+            >
+              <FontAwesomeIcon icon={faXmark} />
+            </button>
+          </div>
         </div>
 
         <div className={styles.pickerSearch}>

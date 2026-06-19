@@ -78,6 +78,17 @@
   }
 }
 
+// Reflects the formatting active under the caret/selection.
+.toolBtnActive {
+  background: $secondary;
+  color: #fff;
+
+  &:hover {
+    background: $secondary;
+    color: #fff;
+  }
+}
+
 .toolDivider {
   width: 1px;
   align-self: stretch;
@@ -115,6 +126,9 @@
   h1 { font-size: 1.9rem; }
   h2 { font-size: 1.6rem; color: $secondary; }
   h3 { font-size: 1.3rem; }
+  h4 { font-size: 1.15rem; }
+  h5 { font-size: 1rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  h6 { font-size: 0.9rem; color: var(--text-muted); }
 
   p {
     margin-bottom: 0.5rem;
@@ -152,22 +166,47 @@
     border-radius: 4px;
   }
 
+  pre {
+    margin-block: 1rem;
+    padding: 0.85rem 1rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+    overflow-x: auto;
+
+    code {
+      background: none;
+      padding: 0;
+    }
+  }
+
   figure {
     margin: 1rem 0;
     text-align: center;
+    cursor: pointer;
 
     img {
       max-width: 100%;
       height: auto;
       border-radius: 8px;
       outline: 2px solid transparent;
+      outline-offset: 2px;
     }
 
-    // Make the void image clearly selectable/removable in the editor.
+    // Hint that the void image is selectable.
     &:hover img {
-      outline-color: $secondary;
+      outline-color: var(--border-color);
     }
   }
+}
+
+// A clicked image: outlined to show it's selected and ready for Delete/Backspace.
+.imageSelected img {
+  outline-color: $secondary !important;
+  outline-width: 3px !important;
 }
 
 .actions {
@@ -240,6 +279,12 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+}
+
+.pickerHeadActions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .pickerTitle {
