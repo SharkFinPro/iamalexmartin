@@ -69,10 +69,82 @@
 }
 
 .thumbnail {
+  position: relative;
   aspect-ratio: 2 / 1;
   display: block;
   background: linear-gradient(25deg, $primary, $secondary);
   overflow: hidden;
+}
+
+.adminOverlay {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+
+  button {
+    width: 2rem;
+    height: 2rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.55);
+
+    &.flagActive {
+      background: $accent;
+    }
+  }
+}
+
+.dragHandle {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 6px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.55);
+  cursor: grab;
+  touch-action: none;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+.viewLink {
+  display: inline-block;
+  margin-top: 1rem;
+  color: $accent;
+  font-weight: bold;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.floatingLayer {
+  position: fixed;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.floating {
+  transform: rotate(2deg) scale(1.03);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+  cursor: grabbing;
+}
+
+.placeholder {
+  flex: 0 0 auto;
+  border: 2px dashed var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-secondary);
 }
 
 .thumbnailImage {

@@ -3,8 +3,9 @@ import Landing from "./Landing";
 import Portfolio from "./Portfolio";
 import FeaturedProjects from "./FeaturedProjects";
 import type { Metadata } from "next";
+import { isAuthed } from "@/lib/auth";
 import { getSiteConfig } from "@/lib/getSiteConfig";
-import { applyConfigToProjects, projectFlags } from "@/lib/siteConfig";
+import { featuredProjects } from "@/lib/siteConfig";
 
 export const dynamic = "force-dynamic";
 
@@ -57,12 +58,10 @@ export default async function Page() {
   const landingDescription = response.data.landingDescriptions[0];
   const portfolioCards = response.data.portfolioCards;
 
-  const { data: config } = await getSiteConfig();
+  const [{ data: config }, isAdmin] = await Promise.all([getSiteConfig(), isAuthed()]);
 
-  // Featured = flagged featured in siteConfig, ordered like the projects page,
-  // and still visible. applyConfigToProjects drops hidden ones for us.
-  const featuredProjects = applyConfigToProjects(response.data.projects || [], config)
-    .filter((project) => projectFlags(config, project.slug).featured);
+  // Visible + featured projects, in their own featured order.
+  const featured = featuredProjects(response.data.projects || [], config);
 
   return <>
     <Landing className={`${styles.wrapper} ${styles.homepage}`} description={landingDescription} />
@@ -72,8 +71,13 @@ export default async function Page() {
                  description={portfolioDescription} />
     )}
 
-    {config.homepage.showFeaturedProjects && featuredProjects.length > 0 && (
-      <FeaturedProjects className={`${styles.wrapper} ${styles.featured}`} projects={featuredProjects} />
+    {config.homepage.showFeaturedProjects && (featured.length > 0 || isAdmin) && (
+      <FeaturedProjects
+        className={`${styles.wrapper} ${styles.featured}`}
+        projects={featured}
+        config={config}
+        isAdmin={isAdmin}
+      />
     )}
   </>
 }

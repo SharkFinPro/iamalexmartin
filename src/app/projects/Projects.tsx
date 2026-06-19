@@ -8,6 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTag, faStar, faEye, faEyeSlash, faGripVertical } from "@fortawesome/free-solid-svg-icons";
 import EditableText from "@/components/EditableText";
+import { useDragReorder } from "@/components/useDragReorder";
 import { saveConfig } from "@/app/admin/contentActions";
 import { projectFlags, type SiteConfigData } from "@/lib/siteConfig";
 
@@ -94,26 +95,10 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
   const [projectType, setProjectType] = useState<string>("all");
   const [items, setItems] = useState<any[]>(projects.projects);
   const [cfg, setCfg] = useState<SiteConfigData>(config);
-
-  // Drag state: which card is "in hand", where the cursor is, the grab offset
-  // within the card, and the lifted card's size (so the placeholder + floating
-  // clone match the original).
-  const [draggingSlug, setDraggingSlug] = useState<string | null>(null);
-  const [pointer, setPointer] = useState({ x: 0, y: 0 });
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
-  const [size, setSize] = useState({ w: 0, h: 0 });
-
-  const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
-  const dragIndexRef = useRef<number | null>(null);
-  const draggingSlugRef = useRef<string | null>(null);
-  const itemsRef = useRef(items);
   const cfgRef = useRef(cfg);
-  const pointerRef = useRef({ x: 0, y: 0 });
-  const autoScrollRef = useRef<number | null>(null);
 
   useEffect(() => setItems(projects.projects), [projects.projects]);
   useEffect(() => setCfg(config), [config]);
-  useEffect(() => { itemsRef.current = items; }, [items]);
   useEffect(() => { cfgRef.current = cfg; }, [cfg]);
 
   useEffect(() => {
@@ -154,145 +139,18 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
     });
   }
 
-  function registerCard(slug: string) {
-    return (el: HTMLDivElement | null) => {
-      if (el) {
-        cardRefs.current.set(slug, el);
-      } else {
-        cardRefs.current.delete(slug);
-      }
-    };
-  }
-
-  function startDrag(index: number, slug: string, e: React.PointerEvent) {
-    if (e.button !== 0) {
-      return;
-    }
-    e.preventDefault();
-
-    const el = cardRefs.current.get(slug);
-    if (!el) {
-      return;
-    }
-    const rect = el.getBoundingClientRect();
-
-    setOffset({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-    setSize({ w: rect.width, h: rect.height });
-    setPointer({ x: e.clientX, y: e.clientY });
-
-    dragIndexRef.current = index;
-    draggingSlugRef.current = slug;
-    pointerRef.current = { x: e.clientX, y: e.clientY };
-    setDraggingSlug(slug);
-    startAutoScroll();
-  }
-
-  // Reorder the list so the lifted card moves into whichever slot the cursor is
-  // over. Driven by both pointer moves and the auto-scroll loop.
-  function reorderAt(x: number, y: number) {
-    const from = dragIndexRef.current;
-    if (from === null) {
-      return;
-    }
-    const list = itemsRef.current;
-    for (let i = 0; i < list.length; i++) {
-      if (list[i].slug === draggingSlugRef.current) {
-        continue;
-      }
-      const el = cardRefs.current.get(list[i].slug);
-      if (!el) {
-        continue;
-      }
-      const r = el.getBoundingClientRect();
-      if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) {
-        if (i !== from) {
-          const next = [...list];
-          const [moved] = next.splice(from, 1);
-          next.splice(i, 0, moved);
-          setItems(next);
-          dragIndexRef.current = i;
-        }
-        break;
-      }
-    }
-  }
-
-  // While the card is in hand: follow the cursor and reorder live.
-  function handlePointerMove(e: PointerEvent) {
-    if (draggingSlugRef.current === null) {
-      return;
-    }
-    pointerRef.current = { x: e.clientX, y: e.clientY };
-    setPointer({ x: e.clientX, y: e.clientY });
-    reorderAt(e.clientX, e.clientY);
-  }
-
-  // Scroll the page when the dragged card nears the top/bottom edge of the
-  // viewport, ramping speed with proximity. Re-checks the drop slot each frame
-  // so the order keeps updating while holding still at the edge.
-  function startAutoScroll() {
-    const EDGE = 90;        // px from edge where scrolling kicks in
-    const MAX_SPEED = 18;   // px per frame at the very edge
-
-    function step() {
-      const { y, x } = pointerRef.current;
-      const h = window.innerHeight;
-      let dy = 0;
-
-      if (y < EDGE) {
-        dy = -MAX_SPEED * ((EDGE - y) / EDGE);
-      } else if (y > h - EDGE) {
-        dy = MAX_SPEED * ((y - (h - EDGE)) / EDGE);
-      }
-
-      if (dy !== 0) {
-        window.scrollBy(0, dy);
-        reorderAt(x, y);
-      }
-
-      autoScrollRef.current = requestAnimationFrame(step);
-    }
-
-    autoScrollRef.current = requestAnimationFrame(step);
-  }
-
-  function stopAutoScroll() {
-    if (autoScrollRef.current !== null) {
-      cancelAnimationFrame(autoScrollRef.current);
-      autoScrollRef.current = null;
-    }
-  }
-
-  function handlePointerUp() {
-    if (draggingSlugRef.current === null) {
-      return;
-    }
-    stopAutoScroll();
-    draggingSlugRef.current = null;
-    dragIndexRef.current = null;
-    setDraggingSlug(null);
-    persist({ ...cfgRef.current, projectOrder: itemsRef.current.map((p) => p.slug) });
-  }
-
-  useEffect(() => {
-    if (!draggingSlug) {
-      return;
-    }
-    window.addEventListener("pointermove", handlePointerMove);
-    window.addEventListener("pointerup", handlePointerUp);
-    return () => {
-      window.removeEventListener("pointermove", handlePointerMove);
-      window.removeEventListener("pointerup", handlePointerUp);
-      stopAutoScroll();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [draggingSlug]);
+  const drag = useDragReorder({
+    items,
+    setItems,
+    getKey: (p) => p.slug,
+    onCommit: (slugs) => persist({ ...cfgRef.current, projectOrder: slugs })
+  });
 
   const visible = items.filter(
     project => projectType === "all" || project.projectType.includes(projectType)
   );
 
-  const draggingProject = draggingSlug ? items.find((p) => p.slug === draggingSlug) : null;
+  const draggingProject = drag.draggingKey ? items.find((p) => p.slug === drag.draggingKey) : null;
 
   return (
     <div className={styles.container}>
@@ -312,20 +170,20 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
 
       <div className={styles.cards}>
         {visible.map((project, index) => (
-          project.slug === draggingSlug ? (
+          project.slug === drag.draggingKey ? (
             // The lifted card leaves a gap here; the real card floats by the cursor.
-            <div key={project.slug} className={styles.placeholder} style={{ height: size.h }} />
+            <div key={project.slug} className={styles.placeholder} style={{ height: drag.size.h }} />
           ) : (
             <ProjectCard
               project={project}
               key={project.slug}
-              innerRef={registerCard(project.slug)}
+              innerRef={drag.registerCard(project.slug)}
               priority={index < 3}
               isAdmin={isAdmin}
               flags={projectFlags(cfg, project.slug)}
               onToggle={toggleFlag}
               onHandlePointerDown={
-                canReorder ? (e: React.PointerEvent) => startDrag(index, project.slug, e) : undefined
+                canReorder ? (e: React.PointerEvent) => drag.startDrag(index, project.slug, e) : undefined
               }
             />
           )
@@ -333,14 +191,7 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
       </div>
 
       {draggingProject && (
-        <div
-          className={styles.floatingLayer}
-          style={{
-            left: pointer.x - offset.x,
-            top: pointer.y - offset.y,
-            width: size.w
-          }}
-        >
+        <div className={styles.floatingLayer} style={drag.floatingStyle}>
           <ProjectCard
             project={draggingProject}
             isAdmin={isAdmin}
