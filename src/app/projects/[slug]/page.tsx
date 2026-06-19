@@ -3,6 +3,7 @@ import styles from "./Project.module.scss";
 import { Metadata } from "next";
 import Banner from "@/components/Banner";
 import RichTextWidget from "@/components/RichTextWidget";
+import EditableRichText from "@/components/RichTextEditor";
 import { isAuthed } from "@/lib/auth";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { projectFlags } from "@/lib/siteConfig";
@@ -98,7 +99,18 @@ export default async function Page({ params }) {
       />
 
       <div className={styles.container}>
-        <RichTextWidget content={project.projectPageContent.raw} />
+        {/* Admins edit the rich-text field inline; visitors get the unchanged,
+            server-rendered widget (same markup, no client cost or SEO impact). */}
+        {isAdmin ? (
+          <EditableRichText
+            model="Project"
+            id={project.id}
+            field="projectPageContent"
+            value={project.projectPageContent.raw}
+          />
+        ) : (
+          <RichTextWidget content={project.projectPageContent.raw} />
+        )}
       </div>
     </>
   );

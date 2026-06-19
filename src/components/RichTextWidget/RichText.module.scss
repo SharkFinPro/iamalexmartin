@@ -27,17 +27,52 @@
     }
   }
 
+  h1 {
+    font-size: 1.9rem;
+    margin-top: 1rem;
+  }
+
   h2 {
     font-size: 1.6rem;
     color: $secondary;
     margin-top: 1rem;
   }
 
+  h3 { font-size: 1.3rem; }
+  h4 { font-size: 1.15rem; }
+  h5 { font-size: 1rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  h6 { font-size: 0.9rem; color: var(--text-muted); }
+
   p {
     margin-bottom: 0.5rem;
 
     &:last-child {
       margin-bottom: 0;
+    }
+  }
+
+  code {
+    font-family: monospace;
+    font-size: 0.9em;
+    background-color: var(--bg-secondary);
+    padding: 0.1rem 0.35rem;
+    border-radius: 4px;
+  }
+
+  pre {
+    margin-block: 1rem;
+    padding: 0.85rem 1rem;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+    overflow-x: auto;
+
+    code {
+      background: none;
+      padding: 0;
     }
   }
 
