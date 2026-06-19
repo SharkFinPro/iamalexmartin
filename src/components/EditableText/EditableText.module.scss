@@ -1,0 +1,86 @@
+@use "@/styles/variables" as *;
+
+// display: contents so the wrapper creates no box — this lets gradient/
+// background-clip text styling on the parent (e.g. the hero title) still apply
+// to the value. The pencil is positioned as a sibling inline element.
+.wrapper {
+  display: contents;
+}
+
+.editButton {
+  background: none;
+  border: none;
+  color: $secondary;
+  // Parents using -webkit-text-fill-color: transparent (gradient text) would
+  // otherwise hide the icon; force it visible.
+  -webkit-text-fill-color: $secondary;
+  cursor: pointer;
+  padding: 0.15rem;
+  margin-left: 0.4rem;
+  font-size: 0.8em;
+  vertical-align: middle;
+  opacity: 0.7;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+// For gradient/heading titles: take the pencil out of flow so a long value
+// can't push it onto its own line. The editable element must be position:relative.
+.editButtonFloat {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  margin-left: 0.5rem;
+}
+
+.editor {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+
+  input,
+  textarea {
+    flex: 1 1 200px;
+    padding: 0.4rem 0.6rem;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    // Reset gradient-text inheritance so the input value stays visible.
+    -webkit-text-fill-color: var(--text-primary);
+    font: inherit;
+  }
+}
+
+.controls {
+  display: inline-flex;
+  gap: 0.3rem;
+
+  button {
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 0.35rem 0.5rem;
+    color: #fff;
+    background: $accent;
+
+    &:last-child {
+      background: $highlight;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+  }
+}
+
+.error {
+  flex-basis: 100%;
+  color: $highlight;
+  font-size: 0.85em;
+}

@@ -25,6 +25,11 @@
 .title {
   font-size: 1.75rem;
 
+  // inline-block + relative so the floating edit pencil anchors to the text's
+  // right edge (and can't get pushed onto a second line).
+  display: inline-block;
+  position: relative;
+
   padding-bottom: 0.25em;
   font-weight: 800;
   background: linear-gradient(to right, $accent, $secondary);

@@ -1,0 +1,194 @@
+@use "@/styles/variables" as *;
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.sectionHeader {
+  font-size: 1.5rem;
+  padding-block: 0.5em;
+  text-align: center;
+
+  @media (min-width: 800px) {
+    font-size: 1.9rem;
+  }
+
+  @media (min-width: 1024px) {
+    font-size: 2.1rem;
+  }
+}
+
+.sectionDescription {
+  font-size: 1.15rem;
+  padding-block: 0.5em;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.cards {
+  // Flexbox (not grid) so a partial last row centers its own cards instead of
+  // left-aligning them in fixed columns.
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 3rem;
+  padding-inline: 1rem;
+  // Sized so three 400px cards (+ 2rem gaps + inline padding) fit across.
+  width: min(1340px, 100%);
+  margin-inline: auto;
+  box-sizing: border-box;
+}
+
+.card {
+  flex: 0 1 400px;
+  max-width: 420px;
+
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-card);
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  text-decoration: none;
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+
+  opacity: 0;
+  animation: fadeInUp 0.6s ease-out forwards;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+
+    .thumbnailImage {
+      transform: scale(1.04);
+    }
+
+    .body h3 {
+      color: $accent;
+    }
+
+    .viewLink {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+    }
+  }
+}
+
+.thumbnail {
+  position: relative;
+  aspect-ratio: 2 / 1;
+  display: block;
+  background: linear-gradient(25deg, $primary, $secondary);
+  overflow: hidden;
+}
+
+.adminOverlay {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+
+  button {
+    width: 2rem;
+    height: 2rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.55);
+
+    &.flagActive {
+      background: $accent;
+    }
+  }
+}
+
+.dragHandle {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.55);
+  cursor: grab;
+  touch-action: none;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+.viewLink {
+  align-self: flex-start;
+  margin-top: auto;          // pin to the bottom regardless of text length
+  padding: 0.6rem 1.4rem;
+  background-color: $accent;
+  color: #fff;
+  font-weight: bold;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.floatingLayer {
+  position: fixed;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.floating {
+  // Cancel the entrance animation, whose filled transform would otherwise
+  // override the tilt below. The base .card starts at opacity 0, so restore it.
+  animation: none;
+  opacity: 1;
+  transform: rotate(2deg) scale(1.03);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+  cursor: grabbing;
+}
+
+.placeholder {
+  flex: 0 0 auto;
+  border: 2px dashed var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+}
+
+.thumbnailImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease-in-out;
+}
+
+.body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  padding: 1.75rem;
+  text-align: left;
+
+  h3 {
+    font-size: 1.35rem;
+    color: var(--text-primary);
+    margin-bottom: 0.65rem;
+    transition: color 0.3s ease-in-out;
+  }
+
+  p {
+    font-size: 1.02rem;
+    color: var(--text-secondary);
+    // Minimum gap before the button; the button's `margin-top: auto` adds the
+    // rest on shorter cards.
+    margin-bottom: 1.25rem;
+  }
+}

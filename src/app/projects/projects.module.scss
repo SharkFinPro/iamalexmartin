@@ -195,3 +195,73 @@
     }
   }
 }
+
+.floatingLayer {
+  position: fixed;
+  z-index: 1000;
+  pointer-events: none;
+  margin: 0;
+  list-style: none;
+}
+
+.floating {
+  transform: rotate(2deg) scale(1.03);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+  cursor: grabbing;
+}
+
+.placeholder {
+  border: 2px dashed var(--border-color);
+  border-radius: 0.5rem;
+  background: var(--bg-secondary);
+}
+
+.hiddenCard {
+  opacity: 0.5;
+
+  .thumbnail::after {
+    background-color: rgba($dark, 0.85);
+  }
+}
+
+.adminOverlay {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+
+  button {
+    width: 2rem;
+    height: 2rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.55);
+
+    &.flagActive {
+      background: $accent;
+    }
+  }
+}
+
+.dragHandle {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.55);
+  cursor: grab;
+  touch-action: none;
+
+  &:active {
+    cursor: grabbing;
+  }
+}

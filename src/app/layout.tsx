@@ -2,6 +2,8 @@ import { ReactNode } from "react";
 import "@/styles/global.scss";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
+import AdminBar from "@/components/AdminBar";
+import { isAuthed } from "@/lib/auth";
 
 import { config } from "@fortawesome/fontawesome-svg-core"
 import "@fortawesome/fontawesome-svg-core/styles.css"
@@ -47,11 +49,13 @@ export const metadata: Metadata = {
   }
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children
 }: {
   children: ReactNode
 }) {
+  const admin = await isAuthed();
+
   return (
     <html lang="en" className={openSans.className} suppressHydrationWarning>
       <head>
@@ -84,6 +88,7 @@ export default function RootLayout({
         <NavBar />
         {children}
         <Footer />
+        {admin && <AdminBar />}
         <SpeedInsights />
       </body>
     </html>
