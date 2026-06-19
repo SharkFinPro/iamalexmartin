@@ -66,12 +66,12 @@ function ProjectCard({ project, priority, isAdmin, flags, onToggle, onHandlePoin
 
       <div className={styles.cardContainer}>
         <h3>
-          <EditableText slug={project.slug} field="title" value={project.title} editable={isAdmin}>
+          <EditableText model="Project" id={project.id} field="title" value={project.title} editable={isAdmin}>
             {project.title}
           </EditableText>
         </h3>
         <p>
-          <EditableText slug={project.slug} field="description" value={project.description} editable={isAdmin} multiline>
+          <EditableText model="Project" id={project.id} field="description" value={project.description} editable={isAdmin} multiline>
             {project.description}
           </EditableText>
         </p>

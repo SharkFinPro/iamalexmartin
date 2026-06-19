@@ -47,12 +47,12 @@ function FeaturedCard({ project, isAdmin, innerRef, onHandlePointerDown, onUnfea
         {thumbnail}
         <div className={styles.body}>
           <h3>
-            <EditableText slug={project.slug} field="title" value={project.title} editable>
+            <EditableText model="Project" id={project.id} field="title" value={project.title} editable>
               {project.title}
             </EditableText>
           </h3>
           <p>
-            <EditableText slug={project.slug} field="description" value={project.description} editable multiline>
+            <EditableText model="Project" id={project.id} field="description" value={project.description} editable multiline>
               {project.description}
             </EditableText>
           </p>

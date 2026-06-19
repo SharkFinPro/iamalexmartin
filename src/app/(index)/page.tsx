@@ -16,14 +16,17 @@ export const metadata : Metadata = {
 const PORTFOLIO_QUERY = `
   query Portfolio {
     portfolioDescriptions: descriptions(where: { location: "Portfolio" }) {
+      id
       header
       description
     }
     landingDescriptions: descriptions(where: { location: "Landing" }) {
+      id
       header
       description
     }
     portfolioCards {
+      id
       title
       fontAwesomeIcon
       description
@@ -32,6 +35,7 @@ const PORTFOLIO_QUERY = `
       link
     }
     projects {
+      id
       title
       slug
       description
@@ -64,11 +68,11 @@ export default async function Page() {
   const featured = featuredProjects(response.data.projects || [], config);
 
   return <>
-    <Landing className={`${styles.wrapper} ${styles.homepage}`} description={landingDescription} />
+    <Landing className={`${styles.wrapper} ${styles.homepage}`} description={landingDescription} isAdmin={isAdmin} />
 
     {config.homepage.showPortfolioCards && (
       <Portfolio className={`${styles.wrapper} ${styles.welcome}`} cards={portfolioCards}
-                 description={portfolioDescription} />
+                 description={portfolioDescription} isAdmin={isAdmin} />
     )}
 
     {config.homepage.showFeaturedProjects && (featured.length > 0 || isAdmin) && (

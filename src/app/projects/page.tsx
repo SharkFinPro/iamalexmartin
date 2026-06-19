@@ -15,6 +15,7 @@ export const dynamic = "force-dynamic";
 const PROJECTS_QUERY = `
   query Projects {
     descriptions(where: { location: "Projects" }) {
+      id
       header
       description
     }
@@ -24,6 +25,7 @@ const PROJECTS_QUERY = `
       }
     }
     projects {
+      id
       title
       slug
       description
@@ -65,7 +67,11 @@ export default async function Page() {
 
   return (
     <>
-      <Banner title={description.header} description={description.description} />
+      <Banner
+        title={description.header}
+        description={description.description}
+        edit={{ isAdmin, model: "Description", id: description.id, titleField: "header", descriptionField: "description" }}
+      />
 
       <Suspense>
         <Projects

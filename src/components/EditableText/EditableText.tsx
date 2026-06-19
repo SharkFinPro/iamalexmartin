@@ -3,26 +3,28 @@
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPen, faCheck, faXmark } from "@fortawesome/free-solid-svg-icons";
-import { updateProjectField } from "@/app/admin/contentActions";
+import { updateContentField } from "@/app/admin/contentActions";
 import styles from "./EditableText.module.scss";
 
 type Props = {
-  slug: string;
+  model: string;   // Hygraph model API ID (e.g. "Project", "Description")
+  id: string;      // entry id
   field: string;
   value: string | string[];
   editable?: boolean;
   multiline?: boolean;
+  floatEdit?: boolean; // position the pencil out of flow (for headings/gradient text)
   children: React.ReactNode; // normal (non-admin) rendering of the value
 };
 
 const isList = (v: string | string[]): v is string[] => Array.isArray(v);
 
 /**
- * Wraps a project field. When `editable` is false it just renders `children`.
+ * Wraps a CMS text field. When `editable` is false it just renders `children`.
  * In admin mode it adds a pencil that swaps in an input bound to
- * updateProjectField. List fields (e.g. tags) are edited as comma-separated text.
+ * updateContentField. List fields (e.g. tags) are edited as comma-separated text.
  */
-export default function EditableText({ slug, field, value, editable, multiline, children }: Props) {
+export default function EditableText({ model, id, field, value, editable, multiline, floatEdit, children }: Props) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(isList(value) ? value.join(", ") : value);
   // Optimistic display of the saved value: the read CDN lags after a write, so
@@ -43,7 +45,7 @@ export default function EditableText({ slug, field, value, editable, multiline, 
       ? draft.split(",").map((s) => s.trim()).filter(Boolean)
       : draft;
 
-    const result = await updateProjectField(slug, field, next);
+    const result = await updateContentField(model, id, field, next);
     setSaving(false);
 
     if ("error" in result) {
@@ -54,15 +56,24 @@ export default function EditableText({ slug, field, value, editable, multiline, 
     }
   }
 
+  // Editing controls may live inside a link/card; never let them navigate.
+  function guard(fn: () => void) {
+    return (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      fn();
+    };
+  }
+
   if (!editing) {
     return (
       <span className={styles.wrapper}>
         {display === null ? children : display}
         <button
           type="button"
-          className={styles.editButton}
+          className={`${styles.editButton} ${floatEdit ? styles.editButtonFloat : ""}`}
           aria-label={`Edit ${field}`}
-          onClick={() => setEditing(true)}
+          onClick={guard(() => setEditing(true))}
         >
           <FontAwesomeIcon icon={faPen} />
         </button>
@@ -71,17 +82,17 @@ export default function EditableText({ slug, field, value, editable, multiline, 
   }
 
   return (
-    <span className={styles.editor}>
+    <span className={styles.editor} onClick={(e) => e.preventDefault()}>
       {multiline ? (
         <textarea value={draft} onChange={(e) => setDraft(e.target.value)} rows={3} />
       ) : (
         <input value={draft} onChange={(e) => setDraft(e.target.value)} />
       )}
       <span className={styles.controls}>
-        <button type="button" onClick={save} disabled={saving} aria-label="Save">
+        <button type="button" onClick={guard(save)} disabled={saving} aria-label="Save">
           <FontAwesomeIcon icon={faCheck} />
         </button>
-        <button type="button" onClick={() => setEditing(false)} disabled={saving} aria-label="Cancel">
+        <button type="button" onClick={guard(() => setEditing(false))} disabled={saving} aria-label="Cancel">
           <FontAwesomeIcon icon={faXmark} />
         </button>
       </span>

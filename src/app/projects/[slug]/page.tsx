@@ -18,6 +18,7 @@ async function getProject(slug: string) {
         query: `
           query Projects($slug: String!) {
             projects(where: { slug: $slug }) {
+              id
               title
               projectPageDescription
               projectPageContent {
@@ -90,7 +91,11 @@ export default async function Page({ params }) {
 
   return (
     <>
-      <Banner title={project.title} description={project.projectPageDescription} />
+      <Banner
+        title={project.title}
+        description={project.projectPageDescription}
+        edit={{ isAdmin, model: "Project", id: project.id, titleField: "title", descriptionField: "projectPageDescription" }}
+      />
 
       <div className={styles.container}>
         <RichTextWidget content={project.projectPageContent.raw} />

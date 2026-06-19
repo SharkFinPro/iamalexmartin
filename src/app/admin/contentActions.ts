@@ -7,9 +7,15 @@ import { normalizeConfig, type SiteConfigData } from "@/lib/siteConfig";
 
 type ActionResult = { ok: true } | { ok: false; error: string };
 
-// Only these project fields may be edited inline. Keeps writes to safe,
-// simple scalar/list fields (no rich-text, no relations).
-const EDITABLE_PROJECT_FIELDS = new Set(["title", "description", "tags", "projectPageDescription"]);
+// Per-model whitelist of inline-editable fields. Keeps writes to safe, simple
+// scalar/list fields (no rich-text, no images, no relations). Keys are Hygraph
+// model API IDs (singular, PascalCase); they're interpolated into mutation names
+// so only these exact values are ever used.
+const EDITABLE_FIELDS: Record<string, string[]> = {
+  Project: ["title", "description", "tags", "projectPageDescription"],
+  Description: ["header", "description"],
+  PortfolioCard: ["title", "description", "shortDescription", "linkText"]
+};
 
 const SAVE_CONFIG_MUTATION = `
   mutation SaveConfig($id: ID!, $data: Json!) {
@@ -54,36 +60,42 @@ export async function saveConfig(data: Partial<SiteConfigData>): Promise<ActionR
   return { ok: true };
 }
 
-const UPDATE_PROJECT_MUTATION = `
-  mutation UpdateProject($slug: String!, $data: ProjectUpdateInput!) {
-    updateProject(where: { slug: $slug }, data: $data) { id }
-  }
-`;
-
-const PUBLISH_PROJECT_MUTATION = `
-  mutation PublishProject($slug: String!) {
-    publishProject(where: { slug: $slug }, to: PUBLISHED) { id }
-  }
-`;
-
-/** Update a single simple field on a project, then publish it. */
-export async function updateProjectField(
-  slug: string,
+/**
+ * Update a single simple field on any whitelisted CMS entry (by id), then
+ * publish it. `model` is validated against EDITABLE_FIELDS before being used in
+ * the mutation name, so it can't be injected.
+ */
+export async function updateContentField(
+  model: string,
+  id: string,
   field: string,
   value: any
 ): Promise<ActionResult> {
   if (!(await isAuthed())) {
     return { ok: false, error: "Not authorized." };
   }
-  if (!EDITABLE_PROJECT_FIELDS.has(field)) {
-    return { ok: false, error: `Field "${field}" is not editable.` };
+
+  const allowed = EDITABLE_FIELDS[model];
+  if (!allowed || !allowed.includes(field)) {
+    return { ok: false, error: `Field "${field}" on "${model}" is not editable.` };
   }
 
+  const updateMutation = `
+    mutation Update($id: ID!, $data: ${model}UpdateInput!) {
+      update${model}(where: { id: $id }, data: $data) { id }
+    }
+  `;
+  const publishMutation = `
+    mutation Publish($id: ID!) {
+      publish${model}(where: { id: $id }, to: PUBLISHED) { id }
+    }
+  `;
+
   try {
-    await cmsMutate(UPDATE_PROJECT_MUTATION, { slug, data: { [field]: value } });
-    await cmsMutate(PUBLISH_PROJECT_MUTATION, { slug });
+    await cmsMutate(updateMutation, { id, data: { [field]: value } });
+    await cmsMutate(publishMutation, { id });
   } catch (e: any) {
-    return { ok: false, error: e?.message || "Failed to update project." };
+    return { ok: false, error: e?.message || "Failed to update content." };
   }
 
   // No revalidatePath: the read CDN lags after a write, so the client shows the
