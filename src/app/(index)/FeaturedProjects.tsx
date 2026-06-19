@@ -74,7 +74,7 @@ function FeaturedCard({ project, isAdmin, innerRef, onHandlePointerDown, onUnfea
   );
 }
 
-export default function FeaturedProjects({ className, projects, config, isAdmin = false }: any) {
+export default function FeaturedProjects({ className, projects, description, config, isAdmin = false }: any) {
   const router = useRouter();
   const [items, setItems] = useState<any[]>(projects);
   const [cfg, setCfg] = useState<SiteConfigData>(config);
@@ -113,8 +113,16 @@ export default function FeaturedProjects({ className, projects, config, isAdmin 
 
   return (
     <div className={className}>
-      <h2 className={styles.sectionHeader}>Featured Projects</h2>
-      <p className={styles.sectionDescription}>A selection of work I&apos;m most proud of.</p>
+      <h2 className={styles.sectionHeader}>
+        <EditableText model="Description" id={description.id} field="header" value={description.header} editable={isAdmin}>
+          {description.header}
+        </EditableText>
+      </h2>
+      <p className={styles.sectionDescription}>
+        <EditableText model="Description" id={description.id} field="description" value={description.description} editable={isAdmin} multiline>
+          {description.description}
+        </EditableText>
+      </p>
 
       <div className={styles.cards}>
         {items.map((project, index) => (

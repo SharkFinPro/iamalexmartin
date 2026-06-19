@@ -25,6 +25,11 @@ const PORTFOLIO_QUERY = `
       header
       description
     }
+    featuredDescriptions: descriptions(where: { location: "FeaturedProjects" }) {
+      id
+      header
+      description
+    }
     portfolioCards {
       id
       title
@@ -60,6 +65,7 @@ export default async function Page() {
   const response = await request.json();
   const portfolioDescription = response.data.portfolioDescriptions[0];
   const landingDescription = response.data.landingDescriptions[0];
+  const featuredDescription = response.data.featuredDescriptions[0];
   const portfolioCards = response.data.portfolioCards;
 
   const [{ data: config }, isAdmin] = await Promise.all([getSiteConfig(), isAuthed()]);
@@ -79,6 +85,7 @@ export default async function Page() {
       <FeaturedProjects
         className={`${styles.wrapper} ${styles.featured}`}
         projects={featured}
+        description={featuredDescription}
         config={config}
         isAdmin={isAdmin}
       />
