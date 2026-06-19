@@ -1,0 +1,100 @@
+@use "@/styles/variables" as *;
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.sectionHeader {
+  font-size: 1.5rem;
+  padding-block: 0.5em;
+  text-align: center;
+
+  @media (min-width: 800px) {
+    font-size: 1.9rem;
+  }
+
+  @media (min-width: 1024px) {
+    font-size: 2.1rem;
+  }
+}
+
+.sectionDescription {
+  font-size: 1.15rem;
+  padding-block: 0.5em;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.cards {
+  // Flexbox (not grid) so a partial last row centers its own cards instead of
+  // left-aligning them in fixed columns.
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 3rem;
+  padding-inline: 1rem;
+  // Sized so three 400px cards (+ 2rem gaps + inline padding) fit across.
+  width: min(1340px, 100%);
+  margin-inline: auto;
+  box-sizing: border-box;
+}
+
+.card {
+  flex: 0 1 400px;
+  max-width: 420px;
+
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-card);
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  text-decoration: none;
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+
+  opacity: 0;
+  animation: fadeInUp 0.6s ease-out forwards;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+
+    .thumbnailImage {
+      transform: scale(1.04);
+    }
+  }
+}
+
+.thumbnail {
+  aspect-ratio: 2 / 1;
+  display: block;
+  background: linear-gradient(25deg, $primary, $secondary);
+  overflow: hidden;
+}
+
+.thumbnailImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease-in-out;
+}
+
+.body {
+  padding: 1.75rem;
+  text-align: left;
+
+  h3 {
+    font-size: 1.35rem;
+    color: var(--text-primary);
+    margin-bottom: 0.65rem;
+  }
+
+  p {
+    font-size: 1.02rem;
+    color: var(--text-secondary);
+  }
+}

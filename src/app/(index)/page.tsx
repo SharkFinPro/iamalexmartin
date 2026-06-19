@@ -1,8 +1,10 @@
 import styles from "./index.module.scss";
 import Landing from "./Landing";
 import Portfolio from "./Portfolio";
+import FeaturedProjects from "./FeaturedProjects";
 import type { Metadata } from "next";
 import { getSiteConfig } from "@/lib/getSiteConfig";
+import { applyConfigToProjects, projectFlags } from "@/lib/siteConfig";
 
 export const dynamic = "force-dynamic";
 
@@ -28,6 +30,14 @@ const PORTFOLIO_QUERY = `
       linkText
       link
     }
+    projects {
+      title
+      slug
+      description
+      image {
+        url
+      }
+    }
   }
 `;
 
@@ -49,12 +59,21 @@ export default async function Page() {
 
   const { data: config } = await getSiteConfig();
 
+  // Featured = flagged featured in siteConfig, ordered like the projects page,
+  // and still visible. applyConfigToProjects drops hidden ones for us.
+  const featuredProjects = applyConfigToProjects(response.data.projects || [], config)
+    .filter((project) => projectFlags(config, project.slug).featured);
+
   return <>
     <Landing className={`${styles.wrapper} ${styles.homepage}`} description={landingDescription} />
 
     {config.homepage.showPortfolioCards && (
       <Portfolio className={`${styles.wrapper} ${styles.welcome}`} cards={portfolioCards}
                  description={portfolioDescription} />
+    )}
+
+    {config.homepage.showFeaturedProjects && featuredProjects.length > 0 && (
+      <FeaturedProjects className={`${styles.wrapper} ${styles.featured}`} projects={featuredProjects} />
     )}
   </>
 }
