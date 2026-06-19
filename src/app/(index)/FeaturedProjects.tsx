@@ -68,6 +68,7 @@ function FeaturedCard({ project, isAdmin, innerRef, onHandlePointerDown, onUnfea
       <div className={styles.body}>
         <h3>{project.title}</h3>
         <p>{project.description}</p>
+        <span className={styles.viewLink}>View Details</span>
       </div>
     </Link>
   );
