@@ -144,6 +144,10 @@
 }
 
 .floating {
+  // Cancel the entrance animation, whose filled transform would otherwise
+  // override the tilt below. The base .card starts at opacity 0, so restore it.
+  animation: none;
+  opacity: 1;
   transform: rotate(2deg) scale(1.03);
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
   cursor: grabbing;
