@@ -108,6 +108,8 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
   const draggingSlugRef = useRef<string | null>(null);
   const itemsRef = useRef(items);
   const cfgRef = useRef(cfg);
+  const pointerRef = useRef({ x: 0, y: 0 });
+  const autoScrollRef = useRef<number | null>(null);
 
   useEffect(() => setItems(projects.projects), [projects.projects]);
   useEffect(() => setCfg(config), [config]);
@@ -180,22 +182,18 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
 
     dragIndexRef.current = index;
     draggingSlugRef.current = slug;
+    pointerRef.current = { x: e.clientX, y: e.clientY };
     setDraggingSlug(slug);
+    startAutoScroll();
   }
 
-  // While the card is in hand: follow the cursor and, when it hovers a different
-  // card, slide that card's slot open by reordering the list live.
-  function handlePointerMove(e: PointerEvent) {
-    if (draggingSlugRef.current === null) {
-      return;
-    }
-    setPointer({ x: e.clientX, y: e.clientY });
-
+  // Reorder the list so the lifted card moves into whichever slot the cursor is
+  // over. Driven by both pointer moves and the auto-scroll loop.
+  function reorderAt(x: number, y: number) {
     const from = dragIndexRef.current;
     if (from === null) {
       return;
     }
-
     const list = itemsRef.current;
     for (let i = 0; i < list.length; i++) {
       if (list[i].slug === draggingSlugRef.current) {
@@ -206,9 +204,7 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
         continue;
       }
       const r = el.getBoundingClientRect();
-      const inside =
-        e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
-      if (inside) {
+      if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) {
         if (i !== from) {
           const next = [...list];
           const [moved] = next.splice(from, 1);
@@ -221,10 +217,57 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
     }
   }
 
+  // While the card is in hand: follow the cursor and reorder live.
+  function handlePointerMove(e: PointerEvent) {
+    if (draggingSlugRef.current === null) {
+      return;
+    }
+    pointerRef.current = { x: e.clientX, y: e.clientY };
+    setPointer({ x: e.clientX, y: e.clientY });
+    reorderAt(e.clientX, e.clientY);
+  }
+
+  // Scroll the page when the dragged card nears the top/bottom edge of the
+  // viewport, ramping speed with proximity. Re-checks the drop slot each frame
+  // so the order keeps updating while holding still at the edge.
+  function startAutoScroll() {
+    const EDGE = 90;        // px from edge where scrolling kicks in
+    const MAX_SPEED = 18;   // px per frame at the very edge
+
+    function step() {
+      const { y, x } = pointerRef.current;
+      const h = window.innerHeight;
+      let dy = 0;
+
+      if (y < EDGE) {
+        dy = -MAX_SPEED * ((EDGE - y) / EDGE);
+      } else if (y > h - EDGE) {
+        dy = MAX_SPEED * ((y - (h - EDGE)) / EDGE);
+      }
+
+      if (dy !== 0) {
+        window.scrollBy(0, dy);
+        reorderAt(x, y);
+      }
+
+      autoScrollRef.current = requestAnimationFrame(step);
+    }
+
+    autoScrollRef.current = requestAnimationFrame(step);
+  }
+
+  function stopAutoScroll() {
+    if (autoScrollRef.current !== null) {
+      cancelAnimationFrame(autoScrollRef.current);
+      autoScrollRef.current = null;
+    }
+  }
+
   function handlePointerUp() {
     if (draggingSlugRef.current === null) {
       return;
     }
+    stopAutoScroll();
     draggingSlugRef.current = null;
     dragIndexRef.current = null;
     setDraggingSlug(null);
@@ -240,6 +283,7 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
     return () => {
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("pointerup", handlePointerUp);
+      stopAutoScroll();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [draggingSlug]);
