@@ -19,11 +19,13 @@ export default function DashboardControls({ config }: { config: SiteConfigData }
   const [status, setStatus] = useState("");
 
   async function toggle(key: keyof SiteConfigData["homepage"]) {
+    const prev = cfg;
     const next = { ...cfg, homepage: { ...cfg.homepage, [key]: !cfg.homepage[key] } };
     setCfg(next);
     setStatus("Saving...");
     const result = await saveConfig(next);
     if ("error" in result) {
+      setCfg(prev);
       setStatus(`Error: ${result.error}`);
     } else {
       setStatus("Saved.");

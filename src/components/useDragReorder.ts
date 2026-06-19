@@ -59,6 +59,7 @@ export function useDragReorder<T>({ items, setItems, getKey, onCommit }: Options
           const next = [...list];
           const [moved] = next.splice(from, 1);
           next.splice(i, 0, moved);
+          itemsRef.current = next;
           setItems(next);
           dragIndexRef.current = i;
         }

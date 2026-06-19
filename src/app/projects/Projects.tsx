@@ -36,13 +36,14 @@ function ProjectCard({ project, priority, isAdmin, flags, onToggle, onHandlePoin
         {isAdmin && (
           <div className={styles.adminOverlay}>
             {onHandlePointerDown && (
-              <span
+              <button
+                type="button"
                 className={styles.dragHandle}
                 aria-label="Drag to reorder"
                 onPointerDown={onHandlePointerDown}
               >
                 <FontAwesomeIcon icon={faGripVertical} />
-              </span>
+              </button>
             )}
             <button
               type="button"

@@ -27,9 +27,14 @@ function FeaturedCard({ project, isAdmin, innerRef, onHandlePointerDown, onUnfea
       {isAdmin && (
         <div className={styles.adminOverlay}>
           {onHandlePointerDown && (
-            <span className={styles.dragHandle} aria-label="Drag to reorder" onPointerDown={onHandlePointerDown}>
+            <button
+              type="button"
+              className={styles.dragHandle}
+              aria-label="Drag to reorder"
+              onPointerDown={onHandlePointerDown}
+            >
               <FontAwesomeIcon icon={faGripVertical} />
-            </span>
+            </button>
           )}
           <button type="button" className={styles.flagActive} aria-label="Remove from featured" onClick={onUnfeature}>
             <FontAwesomeIcon icon={faStar} />
