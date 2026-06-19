@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { saveConfig } from "./contentActions";
 import { logout } from "./actions";
@@ -41,6 +42,13 @@ export default function DashboardControls({ config }: { config: SiteConfigData }
           </label>
         ))}
         {status && <p className={styles.status}>{status}</p>}
+      </section>
+
+      <section className={styles.panel}>
+        <h2>Media</h2>
+        <Link href="/admin/media" className={styles.link}>
+          Open Media Library
+        </Link>
       </section>
 
       <section className={styles.panel}>

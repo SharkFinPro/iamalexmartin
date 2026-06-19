@@ -14,6 +14,9 @@ type Props = {
   editable?: boolean;
   multiline?: boolean;
   floatEdit?: boolean; // position the pencil out of flow (for headings/gradient text)
+  // Override the default updateContentField write (e.g. assets, which publish
+  // stage-aware). When set, model/id/field are used only for the label.
+  action?: (next: string | string[]) => Promise<{ ok: true } | { error: string }>;
   children: React.ReactNode; // normal (non-admin) rendering of the value
 };
 
@@ -24,7 +27,7 @@ const isList = (v: string | string[]): v is string[] => Array.isArray(v);
  * In admin mode it adds a pencil that swaps in an input bound to
  * updateContentField. List fields (e.g. tags) are edited as comma-separated text.
  */
-export default function EditableText({ model, id, field, value, editable, multiline, floatEdit, children }: Props) {
+export default function EditableText({ model, id, field, value, editable, multiline, floatEdit, action, children }: Props) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(isList(value) ? value.join(", ") : value);
   // Optimistic display of the saved value: the read CDN lags after a write, so
@@ -45,7 +48,9 @@ export default function EditableText({ model, id, field, value, editable, multil
       ? draft.split(",").map((s) => s.trim()).filter(Boolean)
       : draft;
 
-    const result = await updateContentField(model, id, field, next);
+    const result = action
+      ? await action(next)
+      : await updateContentField(model, id, field, next);
     setSaving(false);
 
     if ("error" in result) {

@@ -32,6 +32,14 @@ export function cmsQuery(query: string, variables: GraphQLVariables = {}) {
   return cmsRequest(query, variables);
 }
 
+/**
+ * Authenticated read using the mutation token. Needed to read DRAFT-stage
+ * content (the public endpoint only serves PUBLISHED). Server-only.
+ */
+export function cmsQueryAuthed(query: string, variables: GraphQLVariables = {}) {
+  return cmsRequest(query, variables, process.env.HYGRAPH_MUTATION_TOKEN);
+}
+
 /** Write to the CMS using the server-only mutation token. */
 export function cmsMutate(query: string, variables: GraphQLVariables = {}) {
   return cmsRequest(query, variables, process.env.HYGRAPH_MUTATION_TOKEN);

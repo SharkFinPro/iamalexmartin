@@ -1,0 +1,253 @@
+@use "@/styles/variables" as *;
+
+.container {
+  background-color: var(--bg-primary);
+  padding-block: 2rem;
+  padding-inline: 1rem;
+  min-height: 50vh;
+}
+
+.count {
+  max-width: 1200px;
+  margin: 0 auto 1rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.grid {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  max-width: 1200px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.25rem;
+}
+
+.card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+
+  &:hover {
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.12);
+    transform: translateY(-2px);
+  }
+}
+
+.cardDraft {
+  border-color: $highlight;
+  box-shadow: 0 0 0 1px rgba($highlight, 0.35);
+}
+
+.thumb {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background-color: var(--bg-primary);
+  // Divider that ties the preview to the card body so they read as one unit.
+  border-bottom: 1px solid var(--border-color);
+}
+
+.img {
+  object-fit: contain;
+}
+
+.video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background-color: #000;
+}
+
+.placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: var(--text-muted);
+}
+
+.placeholderIcon {
+  font-size: 2.5rem;
+}
+
+.placeholderExt {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+
+.statusRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-top: 0.1rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.badge {
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.badgePublished {
+  background-color: rgba(34, 197, 94, 0.15);
+  color: #15803d;
+  border: 1px solid rgba(34, 197, 94, 0.4);
+}
+
+.badgeDraft {
+  background-color: rgba($highlight, 0.18);
+  color: $highlight;
+  border: 1px solid rgba($highlight, 0.5);
+}
+
+.meta {
+  padding: 0.85rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.fileName {
+  margin: 0;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.subName {
+  margin: -0.3rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.specs {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem 0.75rem;
+
+  div {
+    min-width: 0;
+  }
+
+  dt {
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  dd {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.publishBtn,
+.unpublishBtn {
+  padding: 0.35rem 0.9rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.82rem;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+}
+
+.publishBtn {
+  border: none;
+  color: #fff;
+  background: $highlight;
+}
+
+.unpublishBtn {
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  background: transparent;
+
+  &:hover:not(:disabled) {
+    border-color: var(--text-muted);
+    color: var(--text-primary);
+  }
+}
+
+.actionError {
+  display: block;
+  margin-top: 0.5rem;
+  color: #dc2626;
+  font-size: 0.78rem;
+}
+
+.state {
+  max-width: 600px;
+  margin: 3rem auto;
+  text-align: center;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 2.5rem 2rem;
+}
+
+.stateTitle {
+  margin: 0 0 0.5rem;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.stateBody {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.skeleton {
+  border-radius: 12px;
+  aspect-ratio: 4 / 3;
+  background: linear-gradient(
+    90deg,
+    var(--bg-card) 25%,
+    var(--border-color) 50%,
+    var(--bg-card) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

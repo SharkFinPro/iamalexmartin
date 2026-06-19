@@ -18,9 +18,10 @@ The site has a lightweight, **database-free admin editor**: log in with an env-v
 ## Key directories & modules
 
 - `src/app/` — routes (App Router). `(index)/` home, `projects/`, `projects/[slug]/`, `about/`, `contact/`, `admin/`.
-- `src/app/admin/` — login/logout (`actions.ts`), the write Server Actions (`contentActions.ts`), and a minimal dashboard (`page.tsx`, `DashboardControls.tsx`) for site-wide toggles only.
+- `src/app/admin/` — login/logout (`actions.ts`), the write Server Actions (`contentActions.ts`), a minimal dashboard (`page.tsx`, `DashboardControls.tsx`) for site-wide toggles, and a read-only **Media Library** (`media/`) listing all Hygraph assets (any type, draft + published) with a per-asset publish action.
 - `src/lib/` — core, framework-light logic:
-  - `cms.ts` — `cmsQuery` (read) / `cmsMutate` (authenticated write). Honors optional `CMS_MUTATION_ENDPOINT`.
+  - `cms.ts` — `cmsQuery` (public read) / `cmsQueryAuthed` (token read, needed for DRAFT-stage content) / `cmsMutate` (authenticated write). Honors optional `CMS_MUTATION_ENDPOINT`.
+  - `getAssets.ts` — Media Library data layer; reads all assets at DRAFT stage and derives `status` ("published"/"draft") from `documentInStages`.
   - `session.ts` — pure Web-Crypto HMAC session sign/verify + `checkAdminKey` (Edge-safe; no `next/headers`).
   - `auth.ts` — cookie-store helpers (`setSession`/`clearSession`/`isAuthed`); imports `next/headers`, server-only.
   - `siteConfig.ts` — pure config types/helpers (ordering, flags, featured). Safe to import in client code.
@@ -36,7 +37,7 @@ Presentation state lives in one **`SiteConfig`** entry (a single JSON `data` fie
 
 ## Conventions & patterns
 
-- **Inline editing**: wrap a CMS text value in `<EditableText model="<Model>" id={entry.id} field="<field>" value={...} editable={isAdmin}>{...}</EditableText>`. Any query feeding an editable field must also fetch the entry `id`. `Banner` takes an optional `edit` prop to make its title/description editable.
+- **Inline editing**: wrap a CMS text value in `<EditableText model="<Model>" id={entry.id} field="<field>" value={...} editable={isAdmin}>{...}</EditableText>`. Any query feeding an editable field must also fetch the entry `id`. `Banner` takes an optional `edit` prop to make its title/description editable. `EditableText` also accepts an optional `action` prop to override the default `updateContentField` write — used by the Media Library to rename assets stage-aware (it keeps a draft a draft instead of auto-publishing). Asset renaming writes a custom **`title`** field on the Asset model (Hygraph won't edit `fileName` in place); the UI falls back to the filename minus extension when `title` is empty.
 - **Writes are optimistic**: actions do **not** call `revalidatePath` — the read CDN lags briefly after a write, and a refetch would clobber the optimistic UI. Client components hold local state and show the saved value immediately. Don't reintroduce revalidation here without accounting for that.
 - **Styling**: SCSS modules + CSS custom properties from `src/styles/_themes.scss` (light/dark via `data-theme`); SCSS color literals in `src/styles/variables.scss`. Match surrounding files.
 - **Edge constraint**: `proxy.ts` and anything it imports must use Web Crypto only (no Node `crypto`, no `next/headers`) — that's why session crypto lives in `session.ts`, separate from `auth.ts`.
@@ -53,7 +54,7 @@ Server-only env vars (`.env.local` + Vercel): `CMS_ENDPOINT`, `ADMIN_KEY`, `HYGR
 
 ## Cautions / non-obvious behavior
 
-- **Hygraph permissions**: the mutation token needs **Update (Draft) + Publish** on every editable model (`SiteConfig`, `Project`, `Description`, `PortfolioCard`). A "Mutation failed due to permission errors" message means the token scope is missing, not a code bug.
+- **Hygraph permissions**: the mutation token needs **Update (Draft) + Publish** on every editable model (`SiteConfig`, `Project`, `Description`, `PortfolioCard`), plus **Read (Draft) + Update (Draft) + Publish + Unpublish** on `Asset` for the Media Library (display, rename via the custom `title` field, and publish/unpublish). A "Mutation failed due to permission errors" message means the token scope is missing, not a code bug.
 - **Mutation endpoint**: if `CMS_ENDPOINT` is the read CDN (`*.cdn.hygraph.com`), writes may be rejected — set `CMS_MUTATION_ENDPOINT` to the regular Content API host.
 - **Gradient/heading text + EditableText**: gradient titles use `-webkit-text-fill-color: transparent`. `EditableText`'s wrapper is `display: contents` (so it doesn't break the clip) and resets fill color on the input; headings pass `floatEdit` so the pencil doesn't wrap a line. Be careful changing these.
 - **Hidden projects**: filtered for visitors in list/detail/sitemap but visible (dimmed) to admins; detail pages `notFound()` for non-admins.

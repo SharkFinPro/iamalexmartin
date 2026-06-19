@@ -60,6 +60,86 @@ export async function saveConfig(data: Partial<SiteConfigData>): Promise<ActionR
   return { ok: true };
 }
 
+const PUBLISH_ASSET_MUTATION = `
+  mutation PublishAsset($id: ID!) {
+    publishAsset(where: { id: $id }, to: PUBLISHED) { id }
+  }
+`;
+
+const UNPUBLISH_ASSET_MUTATION = `
+  mutation UnpublishAsset($id: ID!) {
+    unpublishAsset(where: { id: $id }, from: PUBLISHED) { id }
+  }
+`;
+
+/** Publish a single media asset (DRAFT -> PUBLISHED) from the admin UI. */
+export async function publishAsset(id: string): Promise<ActionResult> {
+  if (!(await isAuthed())) {
+    return { ok: false, error: "Not authorized." };
+  }
+
+  try {
+    await cmsMutate(PUBLISH_ASSET_MUTATION, { id });
+  } catch (e: any) {
+    return { ok: false, error: e?.message || "Failed to publish asset." };
+  }
+
+  return { ok: true };
+}
+
+// Hygraph won't let `fileName` be edited in place (it's bound to the uploaded
+// binary), so the display name is a custom `title` field added to the Asset
+// model. An empty value clears the title (the UI falls back to fileName).
+const RENAME_ASSET_MUTATION = `
+  mutation RenameAsset($id: ID!, $title: String) {
+    updateAsset(where: { id: $id }, data: { title: $title }) { id }
+  }
+`;
+
+/**
+ * Set a media asset's display name (the custom `title` field). Mirrors the
+ * site's inline-edit flow (write the DRAFT, then publish) but is stage-aware:
+ * an already-published asset is re-published so the change goes live, while a
+ * draft-only asset stays a draft — renaming must not silently publish it.
+ */
+export async function renameAsset(
+  id: string,
+  title: string,
+  republish: boolean
+): Promise<ActionResult> {
+  if (!(await isAuthed())) {
+    return { ok: false, error: "Not authorized." };
+  }
+
+  const trimmed = title.trim();
+
+  try {
+    await cmsMutate(RENAME_ASSET_MUTATION, { id, title: trimmed || null });
+    if (republish) {
+      await cmsMutate(PUBLISH_ASSET_MUTATION, { id });
+    }
+  } catch (e: any) {
+    return { ok: false, error: e?.message || "Failed to rename asset." };
+  }
+
+  return { ok: true };
+}
+
+/** Unpublish a single media asset (remove it from the PUBLISHED stage). */
+export async function unpublishAsset(id: string): Promise<ActionResult> {
+  if (!(await isAuthed())) {
+    return { ok: false, error: "Not authorized." };
+  }
+
+  try {
+    await cmsMutate(UNPUBLISH_ASSET_MUTATION, { id });
+  } catch (e: any) {
+    return { ok: false, error: e?.message || "Failed to unpublish asset." };
+  }
+
+  return { ok: true };
+}
+
 /**
  * Update a single simple field on any whitelisted CMS entry (by id), then
  * publish it. `model` is validated against EDITABLE_FIELDS before being used in
