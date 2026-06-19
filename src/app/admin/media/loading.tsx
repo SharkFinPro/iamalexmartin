@@ -7,7 +7,7 @@ export default function Loading() {
     <>
       <Banner
         title="Media Library"
-        description="All images stored in the CMS. Viewing only for now."
+        description="All images stored in the CMS. Upload, crop, and publish assets."
       />
       <div className={styles.container}>
         <div className={styles.grid} aria-hidden>

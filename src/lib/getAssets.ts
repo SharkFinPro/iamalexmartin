@@ -24,25 +24,38 @@ export type MediaAsset = {
   status: MediaStatus;
 };
 
+// Shared field selection so the list query and single-asset lookup stay in sync.
+// `documentInStages` tells us whether each draft also has a published counterpart.
+const ASSET_FIELDS = `
+  id
+  fileName
+  title
+  url
+  mimeType
+  width
+  height
+  size
+  createdAt
+  updatedAt
+  documentInStages(stages: [PUBLISHED]) {
+    stage
+  }
+`;
+
 // Hygraph caps a single `assets` page at 100; bump to cursor pagination here if
-// the library outgrows that. `documentInStages` tells us whether each draft
-// also has a published counterpart.
+// the library outgrows that.
 const ASSETS_QUERY = `
   query MediaAssets {
     assets(stage: DRAFT, first: 100, orderBy: createdAt_DESC) {
-      id
-      fileName
-      title
-      url
-      mimeType
-      width
-      height
-      size
-      createdAt
-      updatedAt
-      documentInStages(stages: [PUBLISHED]) {
-        stage
-      }
+      ${ASSET_FIELDS}
+    }
+  }
+`;
+
+const ASSET_BY_ID_QUERY = `
+  query MediaAsset($id: ID!) {
+    asset(stage: DRAFT, where: { id: $id }) {
+      ${ASSET_FIELDS}
     }
   }
 `;
@@ -51,15 +64,29 @@ type RawAsset = Omit<MediaAsset, "status"> & {
   documentInStages: { stage: string }[];
 };
 
-/** Fetch all media assets (any type, draft + published), newest first. */
-export async function getMediaAssets(): Promise<MediaAsset[]> {
-  const data = await cmsQueryAuthed(ASSETS_QUERY);
-  const assets: RawAsset[] = data?.assets ?? [];
-
-  return assets.map(({ documentInStages, ...asset }) => ({
+/** Derive a `MediaAsset` (with status) from a raw Hygraph asset record. */
+function toMediaAsset({ documentInStages, ...asset }: RawAsset): MediaAsset {
+  return {
     ...asset,
     status: documentInStages?.some((s) => s.stage === "PUBLISHED")
       ? "published"
       : "draft"
-  }));
+  };
+}
+
+/** Fetch all media assets (any type, draft + published), newest first. */
+export async function getMediaAssets(): Promise<MediaAsset[]> {
+  const data = await cmsQueryAuthed(ASSETS_QUERY);
+  const assets: RawAsset[] = data?.assets ?? [];
+  return assets.map(toMediaAsset);
+}
+
+/**
+ * Fetch a single asset by id at the DRAFT stage (so freshly uploaded, not-yet-
+ * published assets resolve). Used to return full metadata after an upload.
+ */
+export async function getAssetById(id: string): Promise<MediaAsset | null> {
+  const data = await cmsQueryAuthed(ASSET_BY_ID_QUERY, { id });
+  const raw: RawAsset | null = data?.asset ?? null;
+  return raw ? toMediaAsset(raw) : null;
 }

@@ -14,6 +14,7 @@ import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import type { MediaAsset } from "@/lib/getAssets";
 import EditableText from "@/components/EditableText";
 import { publishAsset, unpublishAsset, renameAsset } from "../contentActions";
+import MediaUploader from "./MediaUploader";
 import styles from "./media.module.scss";
 
 function formatBytes(bytes: number | null): string {
@@ -203,30 +204,37 @@ export default function MediaGallery({ assets }: { assets: MediaAsset[] }) {
     setItems((prev) => prev.map((a) => (a.id === id ? { ...a, status } : a)));
   }
 
-  if (items.length === 0) {
-    return (
-      <div className={styles.state}>
-        <p className={styles.stateTitle}>No media yet</p>
-        <p className={styles.stateBody}>
-          Assets uploaded to the CMS will appear here.
-        </p>
-      </div>
-    );
+  // Newly uploaded assets are prepended (Hygraph orders the library newest-first).
+  function addAsset(asset: MediaAsset) {
+    setItems((prev) => [asset, ...prev.filter((a) => a.id !== asset.id)]);
   }
 
   const draftCount = items.filter((a) => a.status === "draft").length;
 
   return (
     <>
-      <p className={styles.count}>
-        {items.length} {items.length === 1 ? "asset" : "assets"}
-        {draftCount > 0 && ` · ${draftCount} draft${draftCount === 1 ? "" : "s"}`}
-      </p>
-      <ul className={styles.grid}>
-        {items.map((asset) => (
-          <MediaCard key={asset.id} asset={asset} onStatusChange={setStatus} />
-        ))}
-      </ul>
+      <div className={styles.toolbar}>
+        <p className={styles.count}>
+          {items.length} {items.length === 1 ? "asset" : "assets"}
+          {draftCount > 0 && ` · ${draftCount} draft${draftCount === 1 ? "" : "s"}`}
+        </p>
+        <MediaUploader onUploaded={addAsset} />
+      </div>
+
+      {items.length === 0 ? (
+        <div className={styles.state}>
+          <p className={styles.stateTitle}>No media yet</p>
+          <p className={styles.stateBody}>
+            Upload an image above, or add assets directly in the CMS.
+          </p>
+        </div>
+      ) : (
+        <ul className={styles.grid}>
+          {items.map((asset) => (
+            <MediaCard key={asset.id} asset={asset} onStatusChange={setStatus} />
+          ))}
+        </ul>
+      )}
     </>
   );
 }

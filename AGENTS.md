@@ -18,7 +18,7 @@ The site has a lightweight, **database-free admin editor**: log in with an env-v
 ## Key directories & modules
 
 - `src/app/` — routes (App Router). `(index)/` home, `projects/`, `projects/[slug]/`, `about/`, `contact/`, `admin/`.
-- `src/app/admin/` — login/logout (`actions.ts`), the write Server Actions (`contentActions.ts`), a minimal dashboard (`page.tsx`, `DashboardControls.tsx`) for site-wide toggles, and a read-only **Media Library** (`media/`) listing all Hygraph assets (any type, draft + published) with a per-asset publish action.
+- `src/app/admin/` — login/logout (`actions.ts`), the write Server Actions (`contentActions.ts`), a minimal dashboard (`page.tsx`, `DashboardControls.tsx`) for site-wide toggles, and a **Media Library** (`media/`) listing all Hygraph assets (any type, draft + published) with per-asset publish/rename and a **crop-and-upload** flow (`MediaUploader.tsx`, using `react-advanced-cropper`: a 2:1 preset matching how project images render, plus an always-available free-form mode). Uploads land as DRAFT; the admin publishes them with the existing button.
 - `src/lib/` — core, framework-light logic:
   - `cms.ts` — `cmsQuery` (public read) / `cmsQueryAuthed` (token read, needed for DRAFT-stage content) / `cmsMutate` (authenticated write). Honors optional `CMS_MUTATION_ENDPOINT`.
   - `getAssets.ts` — Media Library data layer; reads all assets at DRAFT stage and derives `status` ("published"/"draft") from `documentInStages`.
@@ -54,7 +54,7 @@ Server-only env vars (`.env.local` + Vercel): `CMS_ENDPOINT`, `ADMIN_KEY`, `HYGR
 
 ## Cautions / non-obvious behavior
 
-- **Hygraph permissions**: the mutation token needs **Update (Draft) + Publish** on every editable model (`SiteConfig`, `Project`, `Description`, `PortfolioCard`), plus **Read (Draft) + Update (Draft) + Publish + Unpublish** on `Asset` for the Media Library (display, rename via the custom `title` field, and publish/unpublish). A "Mutation failed due to permission errors" message means the token scope is missing, not a code bug.
+- **Hygraph permissions**: the mutation token needs **Update (Draft) + Publish** on every editable model (`SiteConfig`, `Project`, `Description`, `PortfolioCard`), plus **Create + Read (Draft) + Update (Draft) + Publish + Unpublish** on `Asset` for the Media Library (upload, display, rename via the custom `title` field, and publish/unpublish). Uploads use Hygraph's direct-upload flow — `createAsset` returns a pre-signed S3 POST, then the binary is uploaded to storage (`cmsUpload` in `cms.ts`; the legacy `<host>/upload` endpoint is disabled on this project). The cropped image is exported client-side from a `<canvas>` and sent through the `uploadAsset` Server Action. A "Mutation failed due to permission errors" message means the token scope is missing, not a code bug.
 - **Mutation endpoint**: if `CMS_ENDPOINT` is the read CDN (`*.cdn.hygraph.com`), writes may be rejected — set `CMS_MUTATION_ENDPOINT` to the regular Content API host.
 - **Gradient/heading text + EditableText**: gradient titles use `-webkit-text-fill-color: transparent`. `EditableText`'s wrapper is `display: contents` (so it doesn't break the clip) and resets fill color on the input; headings pass `floatEdit` so the pencil doesn't wrap a line. Be careful changing these.
 - **Hidden projects**: filtered for visitors in list/detail/sitemap but visible (dimmed) to admins; detail pages `notFound()` for non-admins.

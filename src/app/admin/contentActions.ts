@@ -1,7 +1,8 @@
 "use server";
 
 import { isAuthed } from "@/lib/auth";
-import { cmsMutate } from "@/lib/cms";
+import { cmsMutate, cmsUpload } from "@/lib/cms";
+import { getAssetById, type MediaAsset } from "@/lib/getAssets";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { normalizeConfig, type SiteConfigData } from "@/lib/siteConfig";
 
@@ -123,6 +124,55 @@ export async function renameAsset(
   }
 
   return { ok: true };
+}
+
+type UploadResult = { ok: true; asset: MediaAsset } | { ok: false; error: string };
+
+/**
+ * Upload a new media asset (typically a client-cropped image) to Hygraph. The
+ * asset lands as a DRAFT — consistent with the rest of the library, the admin
+ * publishes it explicitly afterward. An optional display name is written to the
+ * custom `title` field. Returns the fully-resolved asset so the gallery can
+ * insert it without a full refetch.
+ */
+export async function uploadAsset(formData: FormData): Promise<UploadResult> {
+  if (!(await isAuthed())) {
+    return { ok: false, error: "Not authorized." };
+  }
+
+  const file = formData.get("file");
+  if (!(file instanceof File) || file.size === 0) {
+    return { ok: false, error: "No file provided." };
+  }
+
+  const rawTitle = formData.get("title");
+  const title = typeof rawTitle === "string" ? rawTitle.trim() : "";
+
+  try {
+    const { id } = await cmsUpload(file);
+
+    if (title) {
+      await cmsMutate(RENAME_ASSET_MUTATION, { id, title });
+    }
+
+    // Hygraph ingests the uploaded binary asynchronously: the asset record
+    // exists immediately but its `url`/dimensions aren't ready until processing
+    // finishes. Poll until `size` populates so the returned asset renders right
+    // away (no manual refresh). Bounded so the action can't hang.
+    let asset = await getAssetById(id);
+    for (let attempt = 0; attempt < 12 && asset && asset.size == null; attempt++) {
+      await new Promise((resolve) => setTimeout(resolve, 750));
+      asset = await getAssetById(id);
+    }
+
+    if (!asset) {
+      return { ok: false, error: "Upload succeeded but the asset could not be loaded." };
+    }
+
+    return { ok: true, asset };
+  } catch (e: any) {
+    return { ok: false, error: e?.message || "Failed to upload asset." };
+  }
 }
 
 /** Unpublish a single media asset (remove it from the PUBLISHED stage). */
