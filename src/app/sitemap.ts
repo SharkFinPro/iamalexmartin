@@ -55,7 +55,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { data: config } = await getSiteConfig();
 
   const dynamicProjectPages = json.data.projects
-    .filter(({ slug }) => projectFlags(config, slug).visible)
+    .filter(({ slug }) => {
+      const flags = projectFlags(config, slug);
+      return flags.visible && !flags.archived;
+    })
     .map(({ slug }) => ({
       url: `${baseUrl}/projects/${slug}`,
       lastModified: currentDate,

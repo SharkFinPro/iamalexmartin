@@ -14,9 +14,9 @@ type ActionResult = { ok: true } | { ok: false; error: string };
 // model API IDs (singular, PascalCase); they're interpolated into mutation names
 // so only these exact values are ever used.
 const EDITABLE_FIELDS: Record<string, string[]> = {
-  Project: ["title", "description", "tags", "projectPageDescription"],
+  Project: ["title", "description", "tags", "projectPageDescription", "projectType"],
   Description: ["header", "description"],
-  PortfolioCard: ["title", "description", "shortDescription", "linkText"]
+  PortfolioCard: ["title", "description", "shortDescription", "linkText", "link", "fontAwesomeIcon"]
 };
 
 // Rich-text (RichTextAST) fields the inline editor may write. Kept separate from
@@ -338,4 +338,251 @@ export async function listMediaAssets(): Promise<ListAssetsResult> {
   } catch (e: any) {
     return { error: e?.message || "Failed to load media." };
   }
+}
+
+// --- Portfolio cards ---------------------------------------------------------
+
+export type PortfolioCard = {
+  id: string;
+  title: string;
+  fontAwesomeIcon: string;
+  description: string;
+  shortDescription: string;
+  linkText: string;
+  link: string;
+};
+
+const PORTFOLIO_CARD_FIELDS = `
+  id
+  title
+  fontAwesomeIcon
+  description
+  shortDescription
+  linkText
+  link
+`;
+
+const CREATE_PORTFOLIO_CARD_MUTATION = `
+  mutation CreatePortfolioCard($data: PortfolioCardCreateInput!) {
+    createPortfolioCard(data: $data) {
+      ${PORTFOLIO_CARD_FIELDS}
+    }
+  }
+`;
+
+const PUBLISH_PORTFOLIO_CARD_MUTATION = `
+  mutation PublishPortfolioCard($id: ID!) {
+    publishPortfolioCard(where: { id: $id }, to: PUBLISHED) { id }
+  }
+`;
+
+const UNPUBLISH_PORTFOLIO_CARD_MUTATION = `
+  mutation UnpublishPortfolioCard($id: ID!) {
+    unpublishPortfolioCard(where: { id: $id }, from: PUBLISHED) { id }
+  }
+`;
+
+const DELETE_PORTFOLIO_CARD_MUTATION = `
+  mutation DeletePortfolioCard($id: ID!) {
+    deletePortfolioCard(where: { id: $id }) { id }
+  }
+`;
+
+/**
+ * Permanently delete a portfolio card. A published card must be unpublished first,
+ * so we always attempt an unpublish (ignoring the error when it isn't published)
+ * before deleting. Irreversible — the UI confirms with the user beforehand. The
+ * caller also drops the card from siteConfig (order + flags).
+ */
+export async function deletePortfolioCard(id: string): Promise<ActionResult> {
+  if (!(await isAuthed())) {
+    return { ok: false, error: "Not authorized." };
+  }
+
+  try {
+    try {
+      await cmsMutate(UNPUBLISH_PORTFOLIO_CARD_MUTATION, { id });
+    } catch {
+      // Not published (or already unpublished) — nothing to undo before delete.
+    }
+    await cmsMutate(DELETE_PORTFOLIO_CARD_MUTATION, { id });
+  } catch (e: any) {
+    return { ok: false, error: e?.message || "Failed to delete card." };
+  }
+
+  return { ok: true };
+}
+
+type CreateCardResult = { ok: true; card: PortfolioCard } | { ok: false; error: string };
+
+/**
+ * Create a new portfolio card from the admin's form values and publish it so it
+ * shows on the homepage right away. Fields are filtered against the PortfolioCard
+ * whitelist. Returns the full card so the client can append + order it without a
+ * refetch. Visibility/order are tracked in siteConfig by the caller.
+ */
+export async function createPortfolioCard(
+  data: Record<string, string>
+): Promise<CreateCardResult> {
+  if (!(await isAuthed())) {
+    return { ok: false, error: "Not authorized." };
+  }
+
+  const allowed = EDITABLE_FIELDS.PortfolioCard;
+  const clean: Record<string, string> = {};
+  for (const key of allowed) {
+    if (typeof data?.[key] === "string") clean[key] = data[key];
+  }
+
+  try {
+    const result = await cmsMutate(CREATE_PORTFOLIO_CARD_MUTATION, { data: clean });
+    const card = result?.createPortfolioCard;
+    if (!card?.id) {
+      return { ok: false, error: "Card was not created." };
+    }
+    await cmsMutate(PUBLISH_PORTFOLIO_CARD_MUTATION, { id: card.id });
+    return { ok: true, card };
+  } catch (e: any) {
+    return { ok: false, error: e?.message || "Failed to create card." };
+  }
+}
+
+const UPDATE_PORTFOLIO_CARD_MUTATION = `
+  mutation UpdatePortfolioCard($id: ID!, $data: PortfolioCardUpdateInput!) {
+    updatePortfolioCard(where: { id: $id }, data: $data) { id }
+  }
+`;
+
+/**
+ * Update any subset of a portfolio card's editable fields in one write, then
+ * publish. Fields are filtered against the PortfolioCard whitelist, so only the
+ * known simple fields are ever sent. Backs the card edit modal.
+ */
+export async function updatePortfolioCard(
+  id: string,
+  data: Record<string, string>
+): Promise<ActionResult> {
+  if (!(await isAuthed())) {
+    return { ok: false, error: "Not authorized." };
+  }
+
+  const allowed = EDITABLE_FIELDS.PortfolioCard;
+  const clean: Record<string, string> = {};
+  for (const key of allowed) {
+    if (typeof data?.[key] === "string") clean[key] = data[key];
+  }
+
+  try {
+    await cmsMutate(UPDATE_PORTFOLIO_CARD_MUTATION, { id, data: clean });
+    await cmsMutate(PUBLISH_PORTFOLIO_CARD_MUTATION, { id });
+  } catch (e: any) {
+    return { ok: false, error: e?.message || "Failed to update card." };
+  }
+
+  return { ok: true };
+}
+
+// --- Projects ----------------------------------------------------------------
+
+const CREATE_PROJECT_MUTATION = `
+  mutation CreateProject($data: ProjectCreateInput!) {
+    createProject(data: $data) { id slug }
+  }
+`;
+
+const PUBLISH_PROJECT_MUTATION = `
+  mutation PublishProject($id: ID!) {
+    publishProject(where: { id: $id }, to: PUBLISHED) { id }
+  }
+`;
+
+type CreateProjectResult = { ok: true; id: string; slug: string } | { ok: false; error: string };
+
+// Placeholder text fields a fresh project gets so the (required) CMS fields are
+// satisfied; the admin overwrites them inline. An empty paragraph keeps the
+// rich-text body valid so the project page (which reads `projectPageContent.raw`)
+// renders right after the post-create redirect.
+const NEW_PROJECT_DESCRIPTION = "Add a description for this project.";
+const EMPTY_RICH_TEXT = { children: [{ type: "paragraph", children: [{ text: "" }] }] };
+
+/**
+ * Create a minimal project stub (title, slug, type) and publish it. Required text
+ * fields get placeholders the admin overwrites inline afterward (image too). Slug
+ * is lowercased to match how project pages look themselves up (see
+ * projects/[slug]/page.tsx).
+ */
+export async function createProject(
+  title: string,
+  slug: string,
+  projectType: string[],
+  imageId: string
+): Promise<CreateProjectResult> {
+  if (!(await isAuthed())) {
+    return { ok: false, error: "Not authorized." };
+  }
+
+  const cleanTitle = title.trim();
+  const cleanSlug = slug.trim().toLowerCase();
+
+  if (!cleanTitle || !cleanSlug) {
+    return { ok: false, error: "Title and slug are required." };
+  }
+  if (!/^[a-z0-9-]+$/.test(cleanSlug)) {
+    return { ok: false, error: "Slug may only contain lowercase letters, numbers, and hyphens." };
+  }
+  if (!imageId) {
+    return { ok: false, error: "An image is required." };
+  }
+
+  try {
+    const data = await cmsMutate(CREATE_PROJECT_MUTATION, {
+      data: {
+        title: cleanTitle,
+        slug: cleanSlug,
+        projectType,
+        description: NEW_PROJECT_DESCRIPTION,
+        projectPageDescription: NEW_PROJECT_DESCRIPTION,
+        projectPageContent: EMPTY_RICH_TEXT,
+        image: { connect: { id: imageId } }
+      }
+    });
+    const project = data?.createProject;
+    if (!project?.id) {
+      return { ok: false, error: "Project was not created." };
+    }
+    // Publish the asset too, so the connected image resolves on the public stage.
+    await cmsMutate(PUBLISH_ASSET_MUTATION, { id: imageId });
+    await cmsMutate(PUBLISH_PROJECT_MUTATION, { id: project.id });
+    return { ok: true, id: project.id, slug: project.slug };
+  } catch (e: any) {
+    return { ok: false, error: e?.message || "Failed to create project." };
+  }
+}
+
+const SET_PROJECT_IMAGE_MUTATION = `
+  mutation SetProjectImage($id: ID!, $assetId: ID!) {
+    updateProject(where: { id: $id }, data: { image: { connect: { id: $assetId } } }) { id }
+  }
+`;
+
+/**
+ * Point a project's `image` relation at an existing media asset, then publish
+ * both: the asset must be published for the public (PUBLISHED-stage) read to
+ * resolve its URL. Replaces any current image (to-one relation).
+ */
+export async function setProjectImage(id: string, assetId: string): Promise<ActionResult> {
+  if (!(await isAuthed())) {
+    return { ok: false, error: "Not authorized." };
+  }
+
+  try {
+    await cmsMutate(SET_PROJECT_IMAGE_MUTATION, { id, assetId });
+    // Make sure the linked asset is live, otherwise `image { url }` is null publicly.
+    await cmsMutate(PUBLISH_ASSET_MUTATION, { id: assetId });
+    await cmsMutate(PUBLISH_PROJECT_MUTATION, { id });
+  } catch (e: any) {
+    return { ok: false, error: e?.message || "Failed to set project image." };
+  }
+
+  return { ok: true };
 }

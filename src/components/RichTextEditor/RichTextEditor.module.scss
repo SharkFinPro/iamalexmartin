@@ -252,7 +252,9 @@
 .pickerOverlay {
   position: fixed;
   inset: 0;
-  z-index: 1000;
+  // Above the admin modals (z 1100) so the picker can be opened from within the
+  // New Project dialog to choose its image.
+  z-index: 1200;
   display: flex;
   align-items: center;
   justify-content: center;
