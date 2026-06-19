@@ -1,0 +1,355 @@
+@use "@/styles/variables" as *;
+
+// ---- Display wrapper (admin view of a rich-text field) --------------------
+
+.displayWrap {
+  position: relative;
+}
+
+.editLaunch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--text-primary);
+    border-color: $secondary;
+  }
+}
+
+// ---- Editor ---------------------------------------------------------------
+
+.editor {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  text-align: left;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--bg-card);
+}
+
+.blockSelect {
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.toolBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+  }
+}
+
+.toolDivider {
+  width: 1px;
+  align-self: stretch;
+  margin: 0.15rem 0.25rem;
+  background: var(--border-color);
+}
+
+// The editable surface mirrors RichTextWidget's prose styling so editing looks
+// like the published result.
+.surface {
+  min-height: 280px;
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  line-height: 1.6;
+  font-size: 1rem;
+  outline: none;
+
+  &:focus {
+    border-color: $secondary;
+  }
+
+  > :first-child {
+    margin-top: 0;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    line-height: 1.3;
+    margin: 1rem 0 0.5rem;
+  }
+
+  h1 { font-size: 1.9rem; }
+  h2 { font-size: 1.6rem; color: $secondary; }
+  h3 { font-size: 1.3rem; }
+
+  p {
+    margin-bottom: 0.5rem;
+  }
+
+  ul, ol {
+    margin-bottom: 0.75rem;
+    padding-left: 1.75rem;
+  }
+
+  ul { list-style-type: disc; }
+  ol { list-style-type: decimal; }
+
+  li {
+    margin-bottom: 0.25rem;
+  }
+
+  blockquote {
+    margin-block: 1rem;
+    padding: 0.75rem 1rem;
+    background-color: var(--bg-secondary);
+    border-left: 3px solid $accent;
+    border-radius: 4px;
+  }
+
+  a {
+    color: $secondary;
+    text-decoration: underline;
+  }
+
+  code {
+    font-family: monospace;
+    background: var(--bg-secondary);
+    padding: 0.1rem 0.3rem;
+    border-radius: 4px;
+  }
+
+  figure {
+    margin: 1rem 0;
+    text-align: center;
+
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      outline: 2px solid transparent;
+    }
+
+    // Make the void image clearly selectable/removable in the editor.
+    &:hover img {
+      outline-color: $secondary;
+    }
+  }
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
+.saveBtn,
+.cancelBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+}
+
+.saveBtn {
+  background: $accent;
+}
+
+.cancelBtn {
+  background: $highlight;
+}
+
+.error {
+  margin: 0;
+  color: $highlight;
+  font-size: 0.9rem;
+}
+
+// ---- Asset picker modal ---------------------------------------------------
+
+.pickerOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.pickerModal {
+  width: 100%;
+  max-width: 760px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+  border-radius: 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.35);
+}
+
+.pickerHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.pickerTitle {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.pickerClose {
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--text-primary);
+  }
+}
+
+.pickerSearch {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  input {
+    width: 100%;
+    padding: 0.5rem 0.7rem 0.5rem 2.2rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font: inherit;
+    font-size: 0.9rem;
+  }
+}
+
+.pickerSearchIcon {
+  position: absolute;
+  left: 0.75rem;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.pickerState {
+  margin: 0;
+  padding: 2rem 0;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.pickerGrid {
+  list-style: none;
+  margin: 0;
+  padding: 0.25rem;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.85rem;
+}
+
+.pickerItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 0.4rem;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  cursor: pointer;
+  text-align: left;
+
+  &:hover {
+    border-color: $secondary;
+  }
+}
+
+.pickerThumb {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--bg-secondary);
+}
+
+.pickerImg {
+  object-fit: cover;
+}
+
+.pickerBadge {
+  position: absolute;
+  top: 0.35rem;
+  left: 0.35rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #fff;
+  background: $highlight;
+}
+
+.pickerName {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

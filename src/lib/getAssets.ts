@@ -14,6 +14,9 @@ export type MediaAsset = {
   /** Custom Asset field (added in Hygraph): human-friendly display name. */
   title: string | null;
   url: string;
+  /** Hygraph storage handle — kept so embedded rich-text images mirror the
+   *  data structure Hygraph's own editor stores for inserted assets. */
+  handle: string | null;
   mimeType: string | null;
   width: number | null;
   height: number | null;
@@ -31,6 +34,7 @@ const ASSET_FIELDS = `
   fileName
   title
   url
+  handle
   mimeType
   width
   height

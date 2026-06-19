@@ -2,7 +2,7 @@
 
 import { isAuthed } from "@/lib/auth";
 import { cmsMutate, cmsUpload } from "@/lib/cms";
-import { getAssetById, type MediaAsset } from "@/lib/getAssets";
+import { getAssetById, getMediaAssets, type MediaAsset } from "@/lib/getAssets";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { normalizeConfig, type SiteConfigData } from "@/lib/siteConfig";
 
@@ -16,6 +16,13 @@ const EDITABLE_FIELDS: Record<string, string[]> = {
   Project: ["title", "description", "tags", "projectPageDescription"],
   Description: ["header", "description"],
   PortfolioCard: ["title", "description", "shortDescription", "linkText"]
+};
+
+// Rich-text (RichTextAST) fields the inline editor may write. Kept separate from
+// EDITABLE_FIELDS because the value is the AST JSON, not a simple scalar/list.
+const EDITABLE_RICH_TEXT_FIELDS: Record<string, string[]> = {
+  Project: ["projectPageContent"],
+  RichTextWidget: ["content"]
 };
 
 const SAVE_CONFIG_MUTATION = `
@@ -261,4 +268,69 @@ export async function updateContentField(
   // No revalidatePath: the read CDN lags after a write, so the client shows the
   // saved value optimistically instead of refetching stale data.
   return { ok: true };
+}
+
+type RichTextAST = { children: any[] };
+
+/**
+ * Update a whitelisted RichText field (by id) with a full AST, then publish it.
+ * `model`/`field` are validated against EDITABLE_RICH_TEXT_FIELDS before being
+ * interpolated, so they can't be injected. The AST is passed straight through as
+ * the field value — Hygraph RichText fields accept the `{ children }` shape.
+ */
+export async function updateRichTextField(
+  model: string,
+  id: string,
+  field: string,
+  content: RichTextAST
+): Promise<ActionResult> {
+  if (!(await isAuthed())) {
+    return { ok: false, error: "Not authorized." };
+  }
+
+  const allowed = EDITABLE_RICH_TEXT_FIELDS[model];
+  if (!allowed || !allowed.includes(field)) {
+    return { ok: false, error: `Field "${field}" on "${model}" is not editable.` };
+  }
+
+  const updateMutation = `
+    mutation Update($id: ID!, $data: ${model}UpdateInput!) {
+      update${model}(where: { id: $id }, data: $data) { id }
+    }
+  `;
+  const publishMutation = `
+    mutation Publish($id: ID!) {
+      publish${model}(where: { id: $id }, to: PUBLISHED) { id }
+    }
+  `;
+
+  try {
+    await cmsMutate(updateMutation, { id, data: { [field]: content } });
+    await cmsMutate(publishMutation, { id });
+  } catch (e: any) {
+    return { ok: false, error: e?.message || "Failed to update content." };
+  }
+
+  // No revalidatePath: consistent with the other writes — the client renders the
+  // saved AST optimistically rather than refetching stale CDN data.
+  return { ok: true };
+}
+
+type ListAssetsResult = { assets: MediaAsset[] } | { error: string };
+
+/**
+ * List all media assets for the in-editor asset picker. Reuses the Media
+ * Library's exact data layer (`getMediaAssets`) and permission check, so the
+ * picker sees the same assets — there's no separate media source.
+ */
+export async function listMediaAssets(): Promise<ListAssetsResult> {
+  if (!(await isAuthed())) {
+    return { error: "Not authorized." };
+  }
+
+  try {
+    return { assets: await getMediaAssets() };
+  } catch (e: any) {
+    return { error: e?.message || "Failed to load media." };
+  }
 }
