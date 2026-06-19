@@ -175,6 +175,36 @@ export async function uploadAsset(formData: FormData): Promise<UploadResult> {
   }
 }
 
+const DELETE_ASSET_MUTATION = `
+  mutation DeleteAsset($id: ID!) {
+    deleteAsset(where: { id: $id }) { id }
+  }
+`;
+
+/**
+ * Permanently delete a media asset. A published asset must be unpublished first,
+ * so we always attempt an unpublish (ignoring the error when it isn't published)
+ * before deleting. Irreversible — the UI confirms with the user beforehand.
+ */
+export async function deleteAsset(id: string): Promise<ActionResult> {
+  if (!(await isAuthed())) {
+    return { ok: false, error: "Not authorized." };
+  }
+
+  try {
+    try {
+      await cmsMutate(UNPUBLISH_ASSET_MUTATION, { id });
+    } catch {
+      // Not published (or already unpublished) — nothing to undo before delete.
+    }
+    await cmsMutate(DELETE_ASSET_MUTATION, { id });
+  } catch (e: any) {
+    return { ok: false, error: e?.message || "Failed to delete asset." };
+  }
+
+  return { ok: true };
+}
+
 /** Unpublish a single media asset (remove it from the PUBLISHED stage). */
 export async function unpublishAsset(id: string): Promise<ActionResult> {
   if (!(await isAuthed())) {

@@ -41,6 +41,93 @@
   }
 }
 
+.bulkBar {
+  max-width: 1200px;
+  margin: 0 auto 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--bg-card);
+}
+
+.bulkCount {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.bulkActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.bulkErrorText {
+  max-width: 1200px;
+  margin-inline: auto;
+}
+
+.cardActions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.deleteBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 0.6rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.82rem;
+
+  &:hover:not(:disabled) {
+    border-color: #dc2626;
+    color: #dc2626;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+}
+
+.dangerBtn {
+  padding: 0.35rem 0.9rem;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  background: #dc2626;
+  font-weight: 600;
+  font-size: 0.82rem;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: #b91c1c;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+}
+
+.confirmModal {
+  max-width: 420px;
+  gap: 0.75rem;
+}
+
 // --- Crop & upload modal ---
 
 .modalOverlay {
@@ -190,6 +277,59 @@
   box-shadow: 0 0 0 1px rgba($highlight, 0.35);
 }
 
+.cardSelected {
+  border-color: $highlight;
+  box-shadow: 0 0 0 2px $highlight;
+}
+
+.cardSelectable {
+  cursor: pointer;
+}
+
+.selectCheckbox {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 2;
+  display: flex;
+
+  input {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin: 0;
+    display: grid;
+    place-content: center;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--bg-card);
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.25);
+    cursor: pointer;
+    transition: background 0.12s ease, border-color 0.12s ease;
+
+    &::after {
+      content: "";
+      width: 0.34rem;
+      height: 0.62rem;
+      margin-top: -2px;
+      border: solid #fff;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+      opacity: 0;
+    }
+
+    &:checked {
+      background: $highlight;
+      border-color: $highlight;
+    }
+
+    &:checked::after {
+      opacity: 1;
+    }
+  }
+}
+
 .thumb {
   position: relative;
   width: 100%;
@@ -239,6 +379,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.6rem;
+  flex-wrap: wrap;
   margin-top: 0.1rem;
   padding-top: 0.7rem;
   border-top: 1px solid var(--border-color);
