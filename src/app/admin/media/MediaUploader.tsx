@@ -163,7 +163,7 @@ export default function MediaUploader({
                 ref={cropperRef}
                 src={source.url}
                 className={styles.cropper}
-                // Source is a local object URL: skip the cross-origin handling
+                // Source is a local data URL: skip the cross-origin handling
                 // and the EXIF-orientation fetch the cropper does by default —
                 // either can reject and leave the canvas blank/unreadable.
                 crossOrigin={false}

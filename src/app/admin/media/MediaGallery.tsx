@@ -653,7 +653,7 @@ export default function MediaGallery({ assets }: { assets: MediaAsset[] }) {
         <div className={styles.state}>
           <p className={styles.stateTitle}>No media yet</p>
           <p className={styles.stateBody}>
-            Upload an image above, or add assets directly in the CMS.
+            Upload an asset above, or add assets directly in the CMS.
           </p>
         </div>
       ) : visibleItems.length === 0 ? (
@@ -693,10 +693,10 @@ export default function MediaGallery({ assets }: { assets: MediaAsset[] }) {
         >
           <div className={`${styles.modal} ${styles.confirmModal}`}>
             <h2 className={styles.modalTitle}>
-              Delete {deleteCount} {deleteCount === 1 ? "image" : "images"}?
+              Delete {deleteCount} {deleteCount === 1 ? "asset" : "assets"}?
             </h2>
             <p className={styles.stateBody}>
-              This permanently removes {deleteCount === 1 ? "the image" : "these images"} from
+              This permanently removes {deleteCount === 1 ? "the asset" : "these assets"} from
               the CMS. This can&apos;t be undone.
             </p>
             <div className={styles.modalActions}>

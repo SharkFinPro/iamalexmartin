@@ -30,8 +30,8 @@ const PUBLISH_CONFIG_MUTATION = `
   }
 `;
 
-/** Persist the full siteConfig JSON. Merges over current to fill any gaps. */
-export async function saveConfig(data: Partial<SiteConfigData>): Promise<ActionResult> {
+/** Persist the full siteConfig JSON (normalized to fill any missing keys). */
+export async function saveConfig(data: SiteConfigData): Promise<ActionResult> {
   if (!(await isAuthed())) {
     return { ok: false, error: "Not authorized." };
   }

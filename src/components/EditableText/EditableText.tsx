@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPen, faCheck, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { updateContentField } from "@/app/admin/contentActions";
@@ -35,6 +35,15 @@ export default function EditableText({ model, id, field, value, editable, multil
   const [display, setDisplay] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  // Re-sync from the server value when it changes (e.g. after router.refresh()
+  // or navigating to another entry), but never while the user is mid-edit. A
+  // fresh server value supersedes the optimistic `display`, so clear it.
+  useEffect(() => {
+    if (editing) return;
+    setDraft(isList(value) ? value.join(", ") : value);
+    setDisplay(null);
+  }, [editing, value]);
 
   if (!editable) {
     return <>{children}</>;
