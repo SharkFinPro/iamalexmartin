@@ -195,3 +195,46 @@
     }
   }
 }
+
+.hiddenCard {
+  opacity: 0.5;
+
+  .thumbnail::after {
+    background-color: rgba($dark, 0.85);
+  }
+}
+
+.adminOverlay {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+
+  button {
+    width: 2rem;
+    height: 2rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.55);
+
+    &.flagActive {
+      background: $accent;
+    }
+  }
+}
+
+.dragHandle {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 6px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.55);
+  cursor: grab;
+}

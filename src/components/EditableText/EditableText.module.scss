@@ -1,0 +1,70 @@
+@use "@/styles/variables" as *;
+
+.wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.editButton {
+  background: none;
+  border: none;
+  color: $secondary;
+  cursor: pointer;
+  padding: 0.15rem;
+  font-size: 0.8em;
+  opacity: 0.7;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.editor {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+
+  input,
+  textarea {
+    flex: 1 1 200px;
+    padding: 0.4rem 0.6rem;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font: inherit;
+  }
+}
+
+.controls {
+  display: inline-flex;
+  gap: 0.3rem;
+
+  button {
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 0.35rem 0.5rem;
+    color: #fff;
+    background: $accent;
+
+    &:last-child {
+      background: $highlight;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+  }
+}
+
+.error {
+  flex-basis: 100%;
+  color: $highlight;
+  font-size: 0.85em;
+}

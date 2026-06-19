@@ -3,6 +3,9 @@ import styles from "./Project.module.scss";
 import { Metadata } from "next";
 import Banner from "@/components/Banner";
 import RichTextWidget from "@/components/RichTextWidget";
+import { isAuthed } from "@/lib/auth";
+import { getSiteConfig } from "@/lib/getSiteConfig";
+import { projectFlags } from "@/lib/siteConfig";
 
 async function getProject(slug: string) {
   try {
@@ -74,7 +77,16 @@ async function getProjectMetadata(slug: string) {
 export default async function Page({ params }) {
   const { slug } = await params;
 
-  const project = await getProject(slug);
+  const [project, { data: config }, isAdmin] = await Promise.all([
+    getProject(slug),
+    getSiteConfig(),
+    isAuthed()
+  ]);
+
+  // Hidden projects are reachable only while in admin mode.
+  if (!isAdmin && !projectFlags(config, slug.toLowerCase()).visible) {
+    notFound();
+  }
 
   return (
     <>

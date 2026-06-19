@@ -2,6 +2,9 @@ import Banner from "@/components/Banner";
 import Projects from "./Projects";
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import { isAuthed } from "@/lib/auth";
+import { getSiteConfig } from "@/lib/getSiteConfig";
+import { applyConfigToProjects } from "@/lib/siteConfig";
 
 export const metadata : Metadata = {
   title: "Projects"
@@ -49,15 +52,27 @@ async function getProjects() {
 }
 
 export default async function Page() {
-  const projects = await getProjects();
+  const [projects, { data: config }, isAdmin] = await Promise.all([
+    getProjects(),
+    getSiteConfig(),
+    isAuthed()
+  ]);
+
   const description = projects.descriptions[0];
+
+  // Order by config; admins also see hidden projects (dimmed in the UI).
+  const orderedProjects = applyConfigToProjects(projects.projects, config, isAdmin);
 
   return (
     <>
       <Banner title={description.header} description={description.description} />
 
       <Suspense>
-        <Projects projects={projects} />
+        <Projects
+          projects={{ ...projects, projects: orderedProjects }}
+          config={config}
+          isAdmin={isAdmin}
+        />
       </Suspense>
     </>
   );

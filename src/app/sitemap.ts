@@ -1,4 +1,6 @@
 import type { MetadataRoute } from "next";
+import { getSiteConfig } from "@/lib/getSiteConfig";
+import { projectFlags } from "@/lib/siteConfig";
 
 const SLUGS_QUERY = `
   query Slugs {
@@ -50,12 +52,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   });
   const json = await response.json();
 
-  const dynamicProjectPages = json.data.projects.map(({ slug }) => ({
-    url: `${baseUrl}/projects/${slug}`,
-    lastModified: currentDate,
-    changeFrequency: "monthly",
-    priority: 0.7,
-  }))
+  const { data: config } = await getSiteConfig();
+
+  const dynamicProjectPages = json.data.projects
+    .filter(({ slug }) => projectFlags(config, slug).visible)
+    .map(({ slug }) => ({
+      url: `${baseUrl}/projects/${slug}`,
+      lastModified: currentDate,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    }))
 
   // @ts-ignore
   return [

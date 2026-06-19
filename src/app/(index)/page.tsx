@@ -2,6 +2,7 @@ import styles from "./index.module.scss";
 import Landing from "./Landing";
 import Portfolio from "./Portfolio";
 import type { Metadata } from "next";
+import { getSiteConfig } from "@/lib/getSiteConfig";
 
 export const dynamic = "force-dynamic";
 
@@ -46,10 +47,14 @@ export default async function Page() {
   const landingDescription = response.data.landingDescriptions[0];
   const portfolioCards = response.data.portfolioCards;
 
+  const { data: config } = await getSiteConfig();
+
   return <>
     <Landing className={`${styles.wrapper} ${styles.homepage}`} description={landingDescription} />
 
-    <Portfolio className={`${styles.wrapper} ${styles.welcome}`} cards={portfolioCards}
-               description={portfolioDescription} />
+    {config.homepage.showPortfolioCards && (
+      <Portfolio className={`${styles.wrapper} ${styles.welcome}`} cards={portfolioCards}
+                 description={portfolioDescription} />
+    )}
   </>
 }
