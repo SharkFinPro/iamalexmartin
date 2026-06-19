@@ -18,7 +18,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import type { MediaAsset } from "@/lib/getAssets";
-import { astToHtml, htmlToAst, assetToImageNode, imageNodeHtml } from "./richTextAst";
+import { astToHtml, htmlToAst, assetToImageNode, imageNodeHtml, isSafeUrl } from "./richTextAst";
 import AssetPicker from "./AssetPicker";
 import styles from "./RichTextEditor.module.scss";
 
@@ -198,8 +198,13 @@ export default function RichTextEditor({ initialContent, onSave, onCancel }: Pro
   }
 
   function addLink() {
-    const url = window.prompt("Link URL");
-    if (url) exec("createLink", url);
+    const url = (window.prompt("Link URL") || "").trim();
+    if (!url) return;
+    if (!isSafeUrl(url)) {
+      setError("Links must start with http(s)://, mailto:, /, or #.");
+      return;
+    }
+    exec("createLink", url);
   }
 
   // Inline code has no execCommand; wrap the selection in <code>, or unwrap the
@@ -265,10 +270,15 @@ export default function RichTextEditor({ initialContent, onSave, onCancel }: Pro
     if (!editorRef.current) return;
     setSaving(true);
     setError("");
-    const content = htmlToAst(editorRef.current);
-    const result = await onSave(content);
-    setSaving(false);
-    if ("error" in result) setError(result.error);
+    try {
+      const content = htmlToAst(editorRef.current);
+      const result = await onSave(content);
+      if ("error" in result) setError(result.error);
+    } catch (e: any) {
+      setError(e?.message || "Failed to save content.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   // Toolbar buttons must not steal the selection from the editor.

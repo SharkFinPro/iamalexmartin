@@ -27,11 +27,16 @@ export default function AssetPicker({ onSelect, onClose }: Props) {
 
   useEffect(() => {
     let active = true;
-    listMediaAssets().then((result) => {
-      if (!active) return;
-      if ("error" in result) setError(result.error);
-      else setAssets(result.assets);
-    });
+    listMediaAssets()
+      .then((result) => {
+        if (!active) return;
+        if ("error" in result) setError(result.error);
+        else setAssets(result.assets);
+      })
+      .catch((e) => {
+        if (!active) return;
+        setError(e?.message || "Failed to load media.");
+      });
     return () => {
       active = false;
     };

@@ -4,6 +4,7 @@ import { isAuthed } from "@/lib/auth";
 import { cmsMutate, cmsUpload } from "@/lib/cms";
 import { getAssetById, getMediaAssets, type MediaAsset } from "@/lib/getAssets";
 import { getSiteConfig } from "@/lib/getSiteConfig";
+import { sanitizeRichTextAst } from "@/components/RichTextEditor/richTextAst";
 import { normalizeConfig, type SiteConfigData } from "@/lib/siteConfig";
 
 type ActionResult = { ok: true } | { ok: false; error: string };
@@ -304,8 +305,12 @@ export async function updateRichTextField(
     }
   `;
 
+  // Defense in depth: strip unsafe link schemes (javascript:/data:, etc.) before
+  // persisting, so a bypassed client can't store click-XSS into public content.
+  const safeContent = sanitizeRichTextAst(content);
+
   try {
-    await cmsMutate(updateMutation, { id, data: { [field]: content } });
+    await cmsMutate(updateMutation, { id, data: { [field]: safeContent } });
     await cmsMutate(publishMutation, { id });
   } catch (e: any) {
     return { ok: false, error: e?.message || "Failed to update content." };

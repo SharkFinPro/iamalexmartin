@@ -12,6 +12,39 @@ import type { MediaAsset } from "@/lib/getAssets";
 type AstNode = { [key: string]: any };
 type Marks = { bold?: boolean; italic?: boolean; underline?: boolean; code?: boolean };
 
+// ---------------------------------------------------------------------------
+// Link safety
+// ---------------------------------------------------------------------------
+
+// Only allow link hrefs that can't trigger script execution when rendered for
+// visitors: absolute http(s)/mailto URLs, site-relative paths, and anchors.
+// Blocks javascript:/data:/vbscript: and other active schemes (click-XSS).
+export function isSafeUrl(url: string): boolean {
+  return /^(https?:\/\/|mailto:|\/|#)/i.test(url.trim());
+}
+
+/**
+ * Recursively strip unsafe link hrefs from a rich-text AST. Used server-side as
+ * a defense-in-depth check so unsafe links can't be persisted even if the
+ * client editor is bypassed. Unsafe links are unwrapped to their child content.
+ */
+export function sanitizeRichTextAst<T extends { children?: any[] }>(node: T): T {
+  function walk(nodes: any[]): any[] {
+    const out: any[] = [];
+    for (const n of nodes) {
+      const kids = Array.isArray(n?.children) ? walk(n.children) : n?.children;
+      if (n?.type === "link" && !isSafeUrl(String(n.href ?? ""))) {
+        // Drop the unsafe link wrapper, keep its (sanitized) children inline.
+        out.push(...(Array.isArray(kids) ? kids : []));
+        continue;
+      }
+      out.push(kids === n?.children ? n : { ...n, children: kids });
+    }
+    return out;
+  }
+  return { ...node, children: Array.isArray(node.children) ? walk(node.children) : node.children };
+}
+
 // Marks a figure as an editor-managed image so it can be round-tripped losslessly.
 const IMAGE_ATTR = "data-rt-image";
 
