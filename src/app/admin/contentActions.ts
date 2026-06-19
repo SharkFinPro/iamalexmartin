@@ -498,15 +498,24 @@ const PUBLISH_PROJECT_MUTATION = `
 
 type CreateProjectResult = { ok: true; id: string; slug: string } | { ok: false; error: string };
 
+// Placeholder text fields a fresh project gets so the (required) CMS fields are
+// satisfied; the admin overwrites them inline. An empty paragraph keeps the
+// rich-text body valid so the project page (which reads `projectPageContent.raw`)
+// renders right after the post-create redirect.
+const NEW_PROJECT_DESCRIPTION = "Add a description for this project.";
+const EMPTY_RICH_TEXT = { children: [{ type: "paragraph", children: [{ text: "" }] }] };
+
 /**
- * Create a minimal project stub (title, slug, type) and publish it. The admin
- * fills in image/description/rich-text inline afterward. Slug is lowercased to
- * match how project pages look themselves up (see projects/[slug]/page.tsx).
+ * Create a minimal project stub (title, slug, type) and publish it. Required text
+ * fields get placeholders the admin overwrites inline afterward (image too). Slug
+ * is lowercased to match how project pages look themselves up (see
+ * projects/[slug]/page.tsx).
  */
 export async function createProject(
   title: string,
   slug: string,
-  projectType: string[]
+  projectType: string[],
+  imageId: string
 ): Promise<CreateProjectResult> {
   if (!(await isAuthed())) {
     return { ok: false, error: "Not authorized." };
@@ -521,15 +530,28 @@ export async function createProject(
   if (!/^[a-z0-9-]+$/.test(cleanSlug)) {
     return { ok: false, error: "Slug may only contain lowercase letters, numbers, and hyphens." };
   }
+  if (!imageId) {
+    return { ok: false, error: "An image is required." };
+  }
 
   try {
     const data = await cmsMutate(CREATE_PROJECT_MUTATION, {
-      data: { title: cleanTitle, slug: cleanSlug, projectType }
+      data: {
+        title: cleanTitle,
+        slug: cleanSlug,
+        projectType,
+        description: NEW_PROJECT_DESCRIPTION,
+        projectPageDescription: NEW_PROJECT_DESCRIPTION,
+        projectPageContent: EMPTY_RICH_TEXT,
+        image: { connect: { id: imageId } }
+      }
     });
     const project = data?.createProject;
     if (!project?.id) {
       return { ok: false, error: "Project was not created." };
     }
+    // Publish the asset too, so the connected image resolves on the public stage.
+    await cmsMutate(PUBLISH_ASSET_MUTATION, { id: imageId });
     await cmsMutate(PUBLISH_PROJECT_MUTATION, { id: project.id });
     return { ok: true, id: project.id, slug: project.slug };
   } catch (e: any) {

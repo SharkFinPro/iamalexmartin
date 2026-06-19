@@ -237,6 +237,8 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
   const [newTitle, setNewTitle] = useState("");
   const [newSlug, setNewSlug] = useState("");
   const [newTypes, setNewTypes] = useState<string[]>([]);
+  const [newImage, setNewImage] = useState<{ id: string; url: string } | null>(null);
+  const [newImagePicker, setNewImagePicker] = useState(false);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState("");
 
@@ -328,9 +330,13 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
 
   async function submitCreate(e: React.FormEvent) {
     e.preventDefault();
+    if (!newImage) {
+      setCreateError("Please choose an image.");
+      return;
+    }
     setCreating(true);
     setCreateError("");
-    const result = await createProject(newTitle, newSlug, newTypes);
+    const result = await createProject(newTitle, newSlug, newTypes, newImage.id);
     if ("error" in result) {
       setCreating(false);
       setCreateError(result.error);
@@ -457,6 +463,17 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
         />
       )}
 
+      {newImagePicker && (
+        <AssetPicker
+          title="Choose project image"
+          onSelect={(asset) => {
+            setNewImage({ id: asset.id, url: asset.url });
+            setNewImagePicker(false);
+          }}
+          onClose={() => setNewImagePicker(false)}
+        />
+      )}
+
       {showCreate && (
         <div className={styles.modalOverlay} role="dialog" aria-modal="true" aria-label="New project">
           <form className={styles.modal} onSubmit={submitCreate}>
@@ -500,13 +517,37 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
               </div>
             </fieldset>
 
+            <div className={styles.field}>
+              <span>Image</span>
+              <button
+                type="button"
+                className={styles.imageChoice}
+                onClick={() => setNewImagePicker(true)}
+              >
+                {newImage ? (
+                  <img src={newImage.url} alt="Selected project image" />
+                ) : (
+                  <span className={styles.imageChoicePlaceholder}>
+                    <FontAwesomeIcon icon={faImage} /> Choose image
+                  </span>
+                )}
+              </button>
+            </div>
+
             {createError && <p className={styles.modalError}>{createError}</p>}
 
             <div className={styles.modalActions}>
               <button
                 type="button"
                 className={styles.modalCancel}
-                onClick={() => setShowCreate(false)}
+                onClick={() => {
+                  setShowCreate(false);
+                  setNewTitle("");
+                  setNewSlug("");
+                  setNewTypes([]);
+                  setNewImage(null);
+                  setCreateError("");
+                }}
                 disabled={creating}
               >
                 Cancel
