@@ -3,9 +3,17 @@
 
 .container {
   color: var(--text-primary);
-  max-width: 600px;
+  max-width: 640px;
   padding: 0 1rem;
   margin: 0 auto;
+  text-align: center;
+
+  // Fill more of the viewport so the hero reads as a composed first screen
+  // rather than a small block of text floating in empty space.
+  min-height: min(70vh, 620px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 
   @media (min-width: 768px) {
     padding: 0 2rem;
@@ -29,6 +37,7 @@
   // right edge (and can't get pushed onto a second line).
   display: inline-block;
   position: relative;
+  align-self: center;
 
   padding-bottom: 0.25em;
   font-weight: 800;
@@ -50,7 +59,9 @@
 .description {
   font-size: 1rem;
   padding-bottom: 2em;
-  max-width: 85%;
+  max-width: 90%;
+  margin-inline: auto;
+  color: var(--text-secondary);
 
   opacity: 0;
   animation: fadeIn 1s ease-out forwards;
@@ -70,6 +81,7 @@
   padding-block: 1em;
   display: flex;
   gap: 1em;
+  justify-content: center;
 
   @media (max-width: 400px) {
     flex-direction: column;
@@ -94,7 +106,7 @@
 }
 
 .viewProjects {
-  background: linear-gradient(135deg, $accent, color.mix($accent, $secondary, 50%));
+  background: $accent;
   color: var(--text-on-accent);
   border: 2px solid $accent;
   animation: buttonSlideIn 0.5s ease-out forwards;

@@ -3,7 +3,8 @@
 
 .container {
   background-color: var(--bg-primary);
-  place-items: center;
+  display: grid;
+  justify-items: center;
   padding-block: var(--section-padding);
   padding-inline: 1rem;
 

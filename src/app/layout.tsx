@@ -9,13 +9,23 @@ import { config } from "@fortawesome/fontawesome-svg-core"
 import "@fortawesome/fontawesome-svg-core/styles.css"
 config.autoAddCss = false
 
-import { Open_Sans } from "next/font/google";
+import { Open_Sans, Space_Grotesk } from "next/font/google";
 import { Metadata } from "next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const openSans = Open_Sans({
   subsets: ["latin"],
-  display: "swap"
+  display: "swap",
+  variable: "--font-body"
+})
+
+// Display face for headings — a geometric grotesk that gives the site a
+// distinct, more memorable voice than body Open Sans alone.
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["500", "600", "700"],
+  variable: "--font-display"
 })
 
 export const metadata: Metadata = {
@@ -57,7 +67,7 @@ export default async function RootLayout({
   const admin = await isAuthed();
 
   return (
-    <html lang="en" className={openSans.className} suppressHydrationWarning>
+    <html lang="en" className={`${openSans.variable} ${spaceGrotesk.variable}`} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{

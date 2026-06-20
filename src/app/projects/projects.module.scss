@@ -71,8 +71,7 @@
 
   .thumbnail {
     aspect-ratio: 2/1;
-    display: grid;
-    place-items: center;
+    display: block;
     background: var(--thumb-gradient);
     color: var(--text-on-accent);
     font-size: 1.2em;
@@ -83,43 +82,38 @@
     .thumbnailImage {
       height: 100%;
       width: 100%;
-      object-fit: contain;
-      max-width: 100%;
-      max-height: 100%;
+      // `cover` lets the actual project visual fill the frame instead of
+      // letterboxing it inside a dark box.
+      object-fit: cover;
+      transition: transform 0.4s ease-in-out;
     }
 
+    // Bottom-only gradient: keeps the title legible while leaving the upper
+    // ~60% of the image fully visible (was a full dark scrim).
     &::after {
       content: "";
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: var(--overlay-thumb);
-      transition: background-color 0.5s ease-in-out;
+      inset: 0;
+      background: linear-gradient(
+        to top,
+        rgba(15, 23, 42, 0.78) 0%,
+        rgba(15, 23, 42, 0.25) 38%,
+        transparent 65%
+      );
       z-index: 1;
     }
 
     & > h2 {
       position: absolute;
-      top: 0;
       left: 0;
-      width: 100%;
-      height: 100%;
-      display: grid;
-      place-content: center;
-      color: var(--text-on-accent);
+      right: 0;
+      bottom: 0;
+      padding: 0.85rem 1rem;
+      color: #fff;
       z-index: 2;
-      $shadowWidth: 1px;
-      text-shadow:
-        ($shadowWidth) (-$shadowWidth) 0 $dark,
-        $shadowWidth (-$shadowWidth) 0 $dark,
-        (-$shadowWidth) $shadowWidth 0 $dark,
-        $shadowWidth $shadowWidth 0 $dark;
-      opacity: 1;
-      transition: opacity 0.3s ease-in-out;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
       cursor: default;
-      font-size: 1.4rem;
+      font-size: 1.3rem;
     }
   }
 
@@ -186,12 +180,8 @@
     transform: translateY(-5px);
     box-shadow: var(--shadow-md);
 
-    .thumbnail::after {
-      background-color: var(--overlay-thumb-hover);
-    }
-
-    .thumbnail > h2 {
-      opacity: 0;
+    .thumbnailImage {
+      transform: scale(1.04);
     }
   }
 }
