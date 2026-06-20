@@ -5,6 +5,7 @@ import { cmsMutate, cmsUpload } from "@/lib/cms";
 import { getAssetById, getMediaAssets, type MediaAsset } from "@/lib/getAssets";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { sanitizeRichTextAst } from "@/components/RichTextEditor/richTextAst";
+import { sanitizeProjectPage, type Block } from "@/components/ProjectBlocks/blocks";
 import { normalizeConfig, type SiteConfigData } from "@/lib/siteConfig";
 
 type ActionResult = { ok: true } | { ok: false; error: string };
@@ -310,6 +311,37 @@ export async function updateRichTextField(
   // No revalidatePath: consistent with the other writes — the client renders the
   // saved AST optimistically rather than refetching stale CDN data.
   return { ok: true };
+}
+
+type SaveBlocksResult = { ok: true; blocks: Block[] } | { ok: false; error: string };
+
+/**
+ * Persist a project's case-study block list to the `projectPage` JSON field, then
+ * publish. The incoming array is run through `sanitizeProjectPage` (defense in
+ * depth): invalid/unknown blocks are dropped, link/image URLs are checked, and
+ * rich-text sub-trees are sanitized — so a bypassed client can't store a broken
+ * layout or click-XSS into public content. Returns the cleaned blocks so the
+ * editor can adopt exactly what was stored (optimistic, no refetch).
+ */
+export async function updateProjectPage(
+  id: string,
+  blocks: unknown
+): Promise<SaveBlocksResult> {
+  const denied = await requireAuth();
+  if (denied) return denied;
+
+  const clean = sanitizeProjectPage(blocks);
+
+  try {
+    // Json field: store [] (not null) so the saved state is explicit.
+    await updateAndPublish("Project", id, { projectPage: clean });
+  } catch (e: any) {
+    return { ok: false, error: e?.message || "Failed to save page." };
+  }
+
+  // No revalidatePath: consistent with the other writes — the client renders the
+  // saved blocks optimistically rather than refetching stale CDN data.
+  return { ok: true, blocks: clean };
 }
 
 type ListAssetsResult = { assets: MediaAsset[] } | { error: string };

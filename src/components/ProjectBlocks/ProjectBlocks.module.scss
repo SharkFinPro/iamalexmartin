@@ -1,0 +1,841 @@
+// Project case-study blocks — an "engineering spec-sheet / editorial" system:
+// monospace technical labels, emerald accent ticks, hairline rules, confident
+// display type and numerals. All colours come from the theme tokens, so every
+// block works in light + dark. The frontend owns layout; multi-column areas
+// auto-reflow on smaller screens.
+
+$mono: ui-monospace, "Cascadia Code", "JetBrains Mono", "Source Code Pro", Menlo, Consolas, monospace;
+
+.blocks {
+  width: 100%;
+  max-width: 1080px;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(3rem, 6vw, 5rem);
+}
+
+// Reading measure for prose-width sections; .wide for bands (stats, tech, media).
+.measure {
+  width: 100%;
+  max-width: 720px;
+  margin-inline: auto;
+}
+
+.wide {
+  width: 100%;
+  max-width: 960px;
+  margin-inline: auto;
+}
+
+.block {
+  width: 100%;
+}
+
+// Shared section heading — identical to the rich-text <h2> so prose and blocks
+// read as one continuous page: a short accent rule, then a confident display line.
+.blockHeading {
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin: 0 0 1.75rem;
+
+  &::before {
+    content: "";
+    display: block;
+    width: 2.25rem;
+    height: 3px;
+    margin-bottom: 0.9rem;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Hero
+// ---------------------------------------------------------------------------
+
+.hero {
+  display: grid;
+  gap: clamp(1.75rem, 4vw, 3rem);
+  align-items: center;
+}
+
+.heroSplit {
+  @media (min-width: 820px) {
+    grid-template-columns: 1fr 0.82fr;
+  }
+}
+
+.heroBody {
+  min-width: 0;
+}
+
+.heroEyebrow {
+  display: flex;
+  align-items: center;
+  font-family: $mono;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.78rem;
+  color: var(--accent-text);
+  margin: 0 0 1.25rem;
+}
+
+.heroEyebrowTick {
+  width: 1.75rem;
+  height: 2px;
+  margin-right: 0.85rem;
+  border-radius: 2px;
+  background-color: var(--accent);
+}
+
+.heroHeadline {
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(2.4rem, 6vw, 3.6rem);
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.heroSummary {
+  font-size: 1.15rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  max-width: 46ch;
+  margin: 1.25rem 0 0;
+}
+
+.heroFacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem 1.75rem;
+  margin: 2rem 0 0;
+}
+
+.heroFact {
+  padding-left: 0.85rem;
+  border-left: 2px solid var(--accent);
+}
+
+.heroFactLabel {
+  font-family: $mono;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+}
+
+.heroFactValue {
+  margin: 0.2rem 0 0;
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  margin-top: 2.25rem;
+}
+
+.heroActionPrimary,
+.heroActionSecondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 44px;
+  padding: 0.65rem 1.35rem;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform var(--transition-fast, 0.2s ease), box-shadow var(--transition-fast, 0.2s ease),
+    background-color var(--transition-fast, 0.2s ease);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+
+    .heroActionIcon {
+      transform: translateX(3px);
+    }
+  }
+}
+
+.heroActionPrimary {
+  background-color: var(--accent);
+  color: var(--text-on-accent);
+}
+
+.heroActionSecondary {
+  background-color: transparent;
+  color: var(--accent-text);
+  border: 1px solid var(--border-color);
+
+  &:hover {
+    background-color: var(--bg-secondary);
+    border-color: var(--accent);
+  }
+}
+
+.heroActionIcon {
+  font-size: 0.8em;
+  transition: transform var(--transition-fast, 0.2s ease);
+}
+
+.heroMedia {
+  position: relative;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 2 / 1;
+    object-fit: cover;
+  }
+
+  // Single bold accent: a solid bar along the bottom edge that grounds the
+  // image and ties it to the page's accent without framing it like a card.
+  &::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 4px;
+    background-color: var(--accent);
+    z-index: 1;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Feature grid — styled alternative to a bullet list
+// ---------------------------------------------------------------------------
+
+.featureGrid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.featureTiles {
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+
+.featureCards {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.featureItem {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 1.15rem 1.2rem;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: transform var(--transition-fast, 0.2s ease), border-color var(--transition-fast, 0.2s ease),
+    box-shadow var(--transition-fast, 0.2s ease);
+
+  &:hover {
+    border-color: var(--accent);
+    box-shadow: var(--shadow-sm);
+  }
+}
+
+// Top accent hairline carries the hierarchy in place of an icon/numeral —
+// a quiet, static marker rather than an animated one.
+.featureAccent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2.25rem;
+  height: 3px;
+  border-radius: 0 2px 2px 0;
+  background-color: var(--accent);
+}
+
+.featureBody {
+  min-width: 0;
+  margin-top: 0.55rem;
+}
+
+.featureTitle {
+  font-family: var(--font-display), sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.featureCards .featureTitle {
+  font-size: 1.1rem;
+}
+
+.featureDesc {
+  margin: 0.45rem 0 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+// ---------------------------------------------------------------------------
+// Stats — spec band
+// ---------------------------------------------------------------------------
+
+.statsRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 1.75rem 2.5rem;
+  margin: 0;
+}
+
+.statItem {
+  position: relative;
+  padding-top: 1.15rem;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 2.5rem;
+    height: 3px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+    transition: width var(--transition, 0.3s ease);
+  }
+
+  &:hover::before {
+    width: 100%;
+  }
+}
+
+.statValue {
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(2.4rem, 5vw, 3.4rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--accent-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.statLabel {
+  margin: 0.7rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.statLabelText {
+  font-size: 0.98rem;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--text-primary);
+}
+
+.statCaption {
+  font-family: $mono;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+// ---------------------------------------------------------------------------
+// Tech stack — spec table (label column + wrapping chips per row)
+// ---------------------------------------------------------------------------
+
+.techTable {
+  margin: 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.techRow {
+  display: grid;
+  grid-template-columns: minmax(120px, 200px) 1fr;
+  gap: 1.5rem 2rem;
+  align-items: baseline;
+  padding: 1.15rem 0;
+  border-bottom: 1px solid var(--border-color);
+
+  @media (max-width: 560px) {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+  }
+}
+
+.techRowLabel {
+  font-family: $mono;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent-text);
+}
+
+.techChips {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0;
+  margin: 0;
+}
+
+.techChip {
+  font-family: $mono;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 0.35rem 0.7rem;
+  transition: color var(--transition-fast, 0.2s ease), border-color var(--transition-fast, 0.2s ease),
+    transform var(--transition-fast, 0.2s ease);
+
+  &:hover {
+    color: var(--accent-text);
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Callout / pull quote
+// ---------------------------------------------------------------------------
+
+.calloutQuote {
+  position: relative;
+  margin: 0;
+  padding: 0.25rem 0 0.25rem 3.75rem;
+}
+
+.quoteMark {
+  position: absolute;
+  left: -0.25rem;
+  top: -0.85rem;
+  font-family: var(--font-display), serif;
+  font-size: 5rem;
+  line-height: 1;
+  color: var(--accent);
+  opacity: 0.5;
+}
+
+.calloutQuote .calloutText {
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(1.3rem, 2.8vw, 1.75rem);
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.calloutCite {
+  display: block;
+  margin-top: 1rem;
+  font-family: $mono;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-style: normal;
+  color: var(--text-muted);
+
+  &::before {
+    content: "— ";
+  }
+}
+
+// Note variants (info / success / warning)
+.callout {
+  display: flex;
+  gap: 1rem;
+  padding: 1.1rem 1.35rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  border-left-width: 3px;
+  align-items: flex-start;
+}
+
+.calloutIcon {
+  flex-shrink: 0;
+  font-size: 1.1rem;
+  margin-top: 0.15rem;
+}
+
+.calloutLabel {
+  margin: 0 0 0.25rem;
+  font-family: $mono;
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.callout .calloutText {
+  margin: 0;
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+.calloutInfo {
+  background-color: var(--bg-secondary);
+  border-left-color: var(--accent-secondary);
+
+  .calloutIcon,
+  .calloutLabel {
+    color: var(--accent-secondary);
+  }
+}
+
+.calloutSuccess {
+  background-color: var(--success-bg);
+  border-color: var(--success-border);
+  border-left-color: var(--success-border);
+
+  .calloutIcon,
+  .calloutLabel {
+    color: var(--accent-text);
+  }
+
+  .calloutText {
+    color: #173d17;
+  }
+}
+
+.calloutWarning {
+  background-color: color-mix(in srgb, var(--accent-highlight) 16%, var(--bg-card));
+  border-left-color: var(--accent-highlight);
+
+  .calloutIcon,
+  .calloutLabel {
+    color: color-mix(in srgb, var(--accent-highlight) 75%, #000);
+  }
+}
+
+:global([data-theme="dark"]) .calloutSuccess .calloutText {
+  color: var(--text-primary);
+}
+
+// ---------------------------------------------------------------------------
+// Call to action
+// ---------------------------------------------------------------------------
+
+.cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem 2rem;
+  padding: clamp(1.5rem, 3vw, 2.25rem);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(
+      130deg,
+      color-mix(in srgb, var(--accent) 10%, var(--bg-card)),
+      var(--bg-card) 65%
+    );
+}
+
+.ctaBody {
+  min-width: 0;
+}
+
+.ctaHeading {
+  font-family: var(--font-display), sans-serif;
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.ctaText {
+  margin: 0.35rem 0 0;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.ctaButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-shrink: 0;
+  min-height: 44px;
+  padding: 0.7rem 1.5rem;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  text-decoration: none;
+  background-color: var(--accent);
+  color: var(--text-on-accent);
+  transition: transform var(--transition-fast, 0.2s ease), box-shadow var(--transition-fast, 0.2s ease);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+
+    .ctaButtonIcon {
+      transform: translateX(3px);
+    }
+  }
+}
+
+.ctaButtonIcon {
+  font-size: 0.8em;
+  transition: transform var(--transition-fast, 0.2s ease);
+}
+
+// ---------------------------------------------------------------------------
+// Video
+// ---------------------------------------------------------------------------
+
+.videoFigure {
+  margin: 0;
+}
+
+.video {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+  background-color: #000;
+}
+
+.videoCaption {
+  margin-top: 0.75rem;
+  font-family: $mono;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+// ---------------------------------------------------------------------------
+// Gallery
+// ---------------------------------------------------------------------------
+
+.galleryGrid {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.galleryWide {
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+}
+
+.galleryItem {
+  min-width: 0;
+}
+
+.galleryFigure {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+// The button is the image frame: hover zoom is clipped here so it can never
+// bleed over the caption, and only this element is the modal trigger.
+.galleryThumbBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background-color: var(--bg-secondary);
+  cursor: pointer;
+  line-height: 0;
+  transition: border-color var(--transition-fast, 0.2s ease),
+    box-shadow var(--transition-fast, 0.2s ease);
+
+  // Keep each image's natural orientation, but cap the largest dimension so tall
+  // portraits don't dominate — landscapes fill the width, portraits cap by height.
+  img {
+    max-width: 100%;
+    max-height: clamp(240px, 30vw, 340px);
+    width: auto;
+    height: auto;
+    display: block;
+    transition: transform var(--transition, 0.3s ease);
+  }
+
+  &:hover {
+    border-color: var(--accent);
+    box-shadow: var(--shadow-sm);
+
+    img {
+      transform: scale(1.05);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+}
+
+// Sibling of the button — normal, selectable content.
+.galleryCaption {
+  font-family: $mono;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+  text-align: left;
+}
+
+// Lightbox (reuses Modal for focus-trap / Escape / focus restore)
+.lightboxOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1rem, 4vw, 3rem);
+  background-color: var(--overlay-scrim);
+}
+
+.lightboxBox {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: min(1100px, 100%);
+  max-height: 100%;
+}
+
+.lightboxFigure {
+  position: relative;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: clamp(0.85rem, 2vw, 1.25rem);
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+
+  img {
+    max-width: 100%;
+    max-height: 78vh;
+    width: auto;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    border-radius: var(--radius-sm);
+  }
+}
+
+.lightboxCaption {
+  text-align: center;
+  color: var(--text-secondary);
+  font-family: $mono;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.lightboxNav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  background-color: rgba(15, 23, 42, 0.7);
+  font-size: 1.1rem;
+
+  &:hover {
+    background-color: rgba(15, 23, 42, 0.9);
+  }
+}
+
+// Header bar at the top of the panel — counter on the left, close on the right.
+.lightboxHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  margin-bottom: -0.25rem;
+}
+
+.lightboxCounter {
+  font-family: $mono;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.lightboxClose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  min-height: 36px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 1rem;
+  transition: color var(--transition-fast, 0.2s ease),
+    border-color var(--transition-fast, 0.2s ease),
+    background-color var(--transition-fast, 0.2s ease);
+
+  &:hover {
+    color: var(--text-primary);
+    border-color: var(--accent);
+    background-color: var(--bg-card);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .galleryThumbBtn:hover img,
+  .featureItem:hover,
+  .techChip:hover,
+  .heroActionPrimary:hover,
+  .heroActionSecondary:hover,
+  .heroActionPrimary:hover .heroActionIcon,
+  .heroActionSecondary:hover .heroActionIcon,
+  .ctaButton:hover,
+  .ctaButton:hover .ctaButtonIcon {
+    transform: none;
+  }
+
+  .statItem::before,
+  .featureAccent {
+    transition: none;
+  }
+}

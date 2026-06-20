@@ -1,122 +1,185 @@
+$mono: ui-monospace, "Cascadia Code", "JetBrains Mono", "Source Code Pro", Menlo, Consolas, monospace;
 
+// Typography only — shared by the boxed "card" variant (About page) and the
+// "bare" variant used inside project case-study blocks.
 .container {
-  background-color: var(--bg-card);
-  line-height: 1.7;
-  font-size: 1.05rem;
-  color: var(--text-primary);
-  max-width: 760px;
+  line-height: 1.75;
+  font-size: 1.06rem;
+  color: var(--text-secondary);
+  max-width: 720px;
   margin-inline: auto;
-  padding: clamp(1.75rem, 4vw, 3rem) clamp(1.5rem, 4vw, 2.75rem);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-sm);
 
   & > * {
     max-width: 100%;
     height: auto;
   }
 
-  h2, h3, h4, h5, h6 {
-    font-weight: 600;
-    line-height: 1.3;
-    margin-top: 2rem;
-    margin-bottom: 0.65rem;
-    color: var(--text-primary);
+  & > *:first-child {
+    margin-top: 0;
+  }
 
-    &:first-child {
+  h2, h3, h4, h5, h6 {
+    font-family: var(--font-display), var(--font-body), sans-serif;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+  }
+
+  // Section-level heading: a short accent rule above sets each section apart and
+  // matches the standalone block headings, so prose and blocks read as one page.
+  h2 {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    margin-top: 3rem;
+    margin-bottom: 1rem;
+
+    &::before {
+      content: "";
+      display: block;
+      width: 2.25rem;
+      height: 3px;
+      margin-bottom: 0.9rem;
+      border-radius: 2px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+    }
+
+    &:first-child::before {
       margin-top: 0;
     }
   }
 
-  h1 {
-    font-size: 1.9rem;
-    margin-top: 1rem;
+  h3 {
+    font-size: 1.3rem;
+    margin-top: 2rem;
+    margin-bottom: 0.6rem;
   }
 
-  h2 {
-    font-size: 1.6rem;
-    color: var(--accent-secondary);
-    margin-top: 1rem;
+  h4 {
+    font-size: 1.1rem;
+    margin-top: 1.75rem;
+    margin-bottom: 0.5rem;
   }
 
-  h3 { font-size: 1.3rem; }
-  h4 { font-size: 1.15rem; }
-  h5 { font-size: 1rem; text-transform: uppercase; letter-spacing: 0.04em; }
-  h6 { font-size: 0.9rem; color: var(--text-muted); }
+  h5 {
+    font-family: $mono;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent-text);
+    margin-top: 1.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  h6 {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
 
   p {
-    margin-bottom: 1rem;
+    margin-bottom: 1.1rem;
 
     &:last-child {
       margin-bottom: 0;
     }
   }
 
-  code {
-    font-family: monospace;
-    font-size: 0.9em;
-    background-color: var(--bg-secondary);
-    padding: 0.1rem 0.35rem;
-    border-radius: 4px;
+  strong {
+    color: var(--text-primary);
+    font-weight: 600;
   }
 
-  pre {
-    margin-block: 1rem;
-    padding: 0.85rem 1rem;
-    background-color: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    font-family: monospace;
-    font-size: 0.9rem;
-    white-space: pre-wrap;
-    overflow-x: auto;
-
-    code {
-      background: none;
-      padding: 0;
-    }
-  }
-
+  // Custom technical list markers: a small emerald diamond for bullets, a
+  // monospace accent counter for ordered lists.
   ul, ol {
-    margin-bottom: 0.75rem;
-    padding-left: 1.5rem;
-
-    @media (min-width: 768px) {
-      padding-left: 2rem;
-    }
-
-    li {
-      margin-bottom: 0.25rem;
-
-      &:last-child {
-        margin-bottom: 0;
-      }
-
-      ul, ol {
-        margin: 0.5rem 0;
-      }
-    }
+    margin-bottom: 1.1rem;
+    padding-left: 1.6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
   }
 
   ul {
-    list-style-type: disc;
+    list-style: none;
 
-    ul {
-      list-style-type: circle;
+    & > li {
+      position: relative;
+      padding-left: 1.5rem;
 
-      ul {
-        list-style-type: square;
+      &::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0.62em;
+        width: 0.45rem;
+        height: 0.45rem;
+        border-radius: 1px;
+        transform: rotate(45deg);
+        background-color: var(--accent);
       }
+    }
+  }
+
+  ol {
+    list-style: decimal;
+
+    & > li::marker {
+      font-family: $mono;
+      font-weight: 600;
+      color: var(--accent-text);
+    }
+  }
+
+  li {
+    ul, ol {
+      margin: 0.5rem 0 0;
+    }
+  }
+
+  code {
+    font-family: $mono;
+    font-size: 0.88em;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    color: var(--accent-text);
+  }
+
+  pre {
+    margin-block: 1.5rem;
+    padding: 1.1rem 1.25rem;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius-sm);
+    font-family: $mono;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    overflow-x: auto;
+    color: var(--text-primary);
+
+    code {
+      background: none;
+      border: none;
+      padding: 0;
+      color: inherit;
     }
   }
 
   blockquote {
-    margin-block: 1rem;
-    padding: 0.75rem 1rem;
-    background-color: var(--bg-secondary);
+    margin-block: 1.5rem;
+    padding: 0.5rem 0 0.5rem 1.25rem;
     border-left: 3px solid var(--accent);
     color: var(--text-primary);
-    border-radius: 4px;
+    font-size: 1.1rem;
+    font-style: italic;
+  }
+
+  img {
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
   }
 
   a {
@@ -124,7 +187,7 @@
     text-decoration: none;
     position: relative;
     font-weight: 500;
-    transition: all 0.3s ease-in-out;
+    transition: color 0.3s ease-in-out;
 
     &::after {
       content: '';
@@ -144,5 +207,22 @@
         width: 100%;
       }
     }
+  }
+}
+
+// The standalone bordered surface (About page).
+.card {
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  padding: clamp(1.75rem, 4vw, 3rem) clamp(1.5rem, 4vw, 2.75rem);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .container a,
+  .container a::after {
+    transition: none;
   }
 }

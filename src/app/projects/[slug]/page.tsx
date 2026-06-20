@@ -2,7 +2,10 @@ import { notFound } from 'next/navigation'
 import styles from "./Project.module.scss";
 import { Metadata } from "next";
 import Banner from "@/components/Banner";
-import RichTextField from "@/components/RichTextField";
+import RichTextWidget from "@/components/RichTextWidget";
+import ProjectBlocks from "@/components/ProjectBlocks/ProjectBlocks";
+import ProjectPageEditor from "@/components/ProjectBlocks/editor/ProjectPageEditor";
+import { sanitizeProjectPage } from "@/components/ProjectBlocks/blocks";
 import { cmsQuery } from "@/lib/cms";
 import { isAuthed } from "@/lib/auth";
 import { getSiteConfig } from "@/lib/getSiteConfig";
@@ -17,6 +20,7 @@ async function getProject(slug: string) {
             id
             title
             projectPageDescription
+            projectPage
             projectPageContent {
               raw
             }
@@ -71,6 +75,11 @@ export default async function Page({ params }) {
     notFound();
   }
 
+  // projectPage is the case-study block list (nullable — coerced to []). While a
+  // project hasn't been migrated to blocks, visitors fall back to the legacy
+  // projectPageContent rich text.
+  const blocks = sanitizeProjectPage(project.projectPage);
+
   return (
     <>
       <Banner
@@ -80,7 +89,17 @@ export default async function Page({ params }) {
       />
 
       <main className={styles.container} id="main-content" tabIndex={-1}>
-        <RichTextField model="Project" id={project.id} field="projectPageContent" raw={project.projectPageContent.raw} isAdmin={isAdmin} />
+        {isAdmin ? (
+          <ProjectPageEditor
+            projectId={project.id}
+            projectTitle={project.title}
+            initialBlocks={blocks}
+          />
+        ) : blocks.length > 0 ? (
+          <ProjectBlocks blocks={blocks} />
+        ) : (
+          <RichTextWidget content={project.projectPageContent?.raw} />
+        )}
       </main>
     </>
   );
