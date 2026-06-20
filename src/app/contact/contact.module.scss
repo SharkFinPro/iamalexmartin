@@ -20,11 +20,10 @@
 
 .container {
   background-color: var(--bg-primary);
-  padding-block: 2rem;
+  padding-block: var(--section-padding);
   padding-inline: 1rem;
 
   @media (max-width: 480px) {
-    padding-block: 1rem;
     padding-inline: 0.5rem;
   }
 }
@@ -33,19 +32,20 @@
   background-color: var(--bg-card);
   width: min(800px, 100%);
   margin-inline: auto;
-  border-radius: 15px;
+  border-radius: var(--radius-lg);
   padding: 3rem;
   position: relative;
   overflow: hidden;
+  animation: pageFadeIn 0.5s ease-out 0.1s both;
 
   @media (max-width: 768px) {
     padding: 2rem;
-    border-radius: 10px;
+    border-radius: var(--radius-md);
   }
 
   @media (max-width: 480px) {
     padding: 1.5rem;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
   }
 
   &:before {
@@ -55,7 +55,7 @@
     left: 0;
     right: 0;
     height: 6px;
-    background: linear-gradient(90deg, $accent, $secondary, $highlight, $accent);
+    background: linear-gradient(90deg, var(--accent), var(--accent-secondary), $highlight, var(--accent));
     background-size: 300% 100%;
     animation: gradientShift 5s ease infinite;
   }
@@ -68,7 +68,7 @@
     & > h2 {
       color: var(--text-primary);
       font-weight: 800;
-      font-size: 2.1rem;
+      font-size: var(--fs-title);
       position: relative;
 
       &:after {
@@ -79,7 +79,7 @@
         transform: translateX(-50%);
         width: 60px;
         height: 3px;
-        background: linear-gradient(90deg, $accent, $secondary);
+        background: linear-gradient(90deg, var(--accent), var(--accent-secondary));
         border-radius: 2px;
       }
     }
@@ -92,19 +92,19 @@
 
   .formSubmitSuccess, .formSubmitFailure {
     padding: 1rem;
-    border-radius: 0.5rem;
+    border-radius: var(--radius-sm);
     border: 1px solid;
     animation: fade-in 0.5s ease-out;
   }
 
   .formSubmitSuccess {
-    background-color: color.mix(#2abf2a, $light, 15%);
-    border-color: color.mix(#2abf2a, $light, 45%);
+    background-color: var(--success-bg);
+    border-color: var(--success-border);
   }
 
   .formSubmitFailure {
-    background-color: color.mix(#bf2a2a, $light, 15%);
-    border-color: color.mix(#bf2a2a, $light, 45%);
+    background-color: var(--error-bg);
+    border-color: var(--error-border);
   }
 
   .formContent {
@@ -126,14 +126,14 @@
 
     & > input, & > textarea {
       padding: 0.8rem;
-      border-radius: 1rem;
+      border-radius: var(--radius-md);
       border: 2px solid var(--border-color);
       background-color: var(--bg-primary);
       color: var(--text-primary);
-      transition: all 0.3s ease-in-out;
+      transition: all var(--transition);
 
       &:focus {
-        border-color: $accent;
+        border-color: var(--accent);
         outline: none;
         box-shadow:
                 0 0 0 4px rgba(16, 185, 129, 0.15),
@@ -157,19 +157,19 @@
 
   .formSubmit {
     border: none;
-    border-radius: 1rem;
-    background: linear-gradient(135deg, $accent 0%, $secondary 100%);
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-secondary) 100%);
     width: 100%;
     padding: 1rem;
     margin-block: 1rem;
-    color: white;
+    color: var(--text-on-accent);
     font-weight: 500;
     font-size: 1.1rem;
-    transition: all 0.3s ease-in-out;
+    transition: all var(--transition);
 
     &:hover {
       translate: 0 -3px;
-      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+      box-shadow: var(--shadow-md);
     }
 
     &:disabled {

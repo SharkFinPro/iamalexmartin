@@ -11,7 +11,7 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 0.5rem 1rem;
-  background: linear-gradient(90deg, $accent, $secondary);
+  background: linear-gradient(90deg, var(--accent), var(--accent-secondary));
   color: #fff;
   box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.25);
 }

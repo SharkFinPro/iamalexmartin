@@ -1,15 +1,44 @@
-@use "@/styles/variables" as *;
-@use "sass:color";
 
 .container {
+  // Sit above the homepage's grid/glow backdrop.
+  position: relative;
+  z-index: 1;
+
   color: var(--text-primary);
-  max-width: 600px;
+  max-width: 720px;
   padding: 0 1rem;
   margin: 0 auto;
+
+  // Fill more of the viewport so the hero reads as a composed first screen
+  // rather than a small block of text floating in empty space.
+  min-height: min(70vh, 620px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 
   @media (min-width: 768px) {
     padding: 0 2rem;
   }
+}
+
+// Glass panel: a defined, intentional barrier between the hero copy and the
+// grid backdrop. Semi-transparent so the grid still reads faintly through it,
+// with a blur + hairline border + soft shadow to lift it off the background.
+.panel {
+  text-align: center;
+  max-width: 600px;
+  width: 100%;
+  padding: clamp(2rem, 5vw, 3.25rem) clamp(1.5rem, 5vw, 3rem);
+  border-radius: 28px;
+  // Intentional glass surface: enough tint, blur, and elevation to read as a
+  // deliberate element, with a deliberately faint border so the edge is felt
+  // rather than drawn. Softer tint + shadow with generous rounding.
+  background: color-mix(in srgb, var(--bg-card) 52%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border-color) 45%, transparent);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 @keyframes fadeIn {
@@ -29,10 +58,11 @@
   // right edge (and can't get pushed onto a second line).
   display: inline-block;
   position: relative;
+  align-self: center;
 
   padding-bottom: 0.25em;
   font-weight: 800;
-  background: linear-gradient(to right, $accent, $secondary);
+  background: linear-gradient(to right, var(--accent), var(--accent-secondary));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 
@@ -43,14 +73,16 @@
   margin-top: clamp(1rem, 3vw, 2rem);
 
   @media (min-width: 400px) {
-    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    font-size: var(--fs-hero);
   }
 }
 
 .description {
   font-size: 1rem;
   padding-bottom: 2em;
-  max-width: 85%;
+  max-width: 90%;
+  margin-inline: auto;
+  color: var(--text-secondary);
 
   opacity: 0;
   animation: fadeIn 1s ease-out forwards;
@@ -70,6 +102,7 @@
   padding-block: 1em;
   display: flex;
   gap: 1em;
+  justify-content: center;
 
   @media (max-width: 400px) {
     flex-direction: column;
@@ -78,10 +111,10 @@
 
 .homepageButton {
   padding: 1em 2em;
-  border-radius: 0.5em;
+  border-radius: var(--radius-sm);
   border: none;
   font-size: 1rem;
-  transition: all 0.3s ease-in-out;
+  transition: all var(--transition);
   text-decoration: none;
   display: grid;
   place-content: center;
@@ -90,13 +123,13 @@
 
 .homepageButton:hover {
   transform: translateY(-2.5px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-md);
 }
 
 .viewProjects {
-  background: linear-gradient(135deg, $accent, color.mix($accent, $secondary, 50%));
-  color: white;
-  border: 2px solid $accent;
+  background: var(--accent);
+  color: var(--text-on-accent);
+  border: 2px solid var(--accent);
   animation: buttonSlideIn 0.5s ease-out forwards;
   animation-delay: 1.2s;
 }

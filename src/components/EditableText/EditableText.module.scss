@@ -10,10 +10,10 @@
 .editButton {
   background: none;
   border: none;
-  color: $secondary;
+  color: var(--accent-secondary);
   // Parents using -webkit-text-fill-color: transparent (gradient text) would
   // otherwise hide the icon; force it visible.
-  -webkit-text-fill-color: $secondary;
+  -webkit-text-fill-color: var(--accent-secondary);
   cursor: pointer;
   padding: 0.15rem;
   margin-left: 0.4rem;
@@ -66,7 +66,7 @@
     cursor: pointer;
     padding: 0.35rem 0.5rem;
     color: #fff;
-    background: $accent;
+    background: var(--accent);
 
     &:last-child {
       background: $highlight;
