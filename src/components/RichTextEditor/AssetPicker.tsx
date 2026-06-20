@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { listMediaAssets } from "@/app/admin/contentActions";
 import type { MediaAsset } from "@/lib/getAssets";
 import MediaUploader from "@/app/admin/media/MediaUploader";
+import Modal from "@/components/Modal";
 import styles from "./RichTextEditor.module.scss";
 
 type Props = {
@@ -26,6 +27,7 @@ export default function AssetPicker({ onSelect, onClose, title = "Insert image" 
   const [assets, setAssets] = useState<MediaAsset[] | null>(null);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
+  const titleId = useId();
 
   useEffect(() => {
     let active = true;
@@ -44,15 +46,6 @@ export default function AssetPicker({ onSelect, onClose, title = "Insert image" 
     };
   }, []);
 
-  // Close on Escape, matching the other admin dialogs.
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
-
   const images = useMemo(() => {
     const list = (assets ?? []).filter((a) => (a.mimeType ?? "").startsWith("image/"));
     const q = query.trim().toLowerCase();
@@ -61,18 +54,10 @@ export default function AssetPicker({ onSelect, onClose, title = "Insert image" 
   }, [assets, query]);
 
   return (
-    <div
-      className={styles.pickerOverlay}
-      role="dialog"
-      aria-modal="true"
-      aria-label={title}
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
-    >
+    <Modal onClose={onClose} labelledBy={titleId} overlayClassName={styles.pickerOverlay}>
       <div className={styles.pickerModal}>
         <div className={styles.pickerHead}>
-          <h2 className={styles.pickerTitle}>{title}</h2>
+          <h2 className={styles.pickerTitle} id={titleId}>{title}</h2>
           <div className={styles.pickerHeadActions}>
             {/* Reuse the Media Library's crop & upload widget — a freshly
                 uploaded asset is inserted straight into the editor. */}
@@ -142,6 +127,6 @@ export default function AssetPicker({ onSelect, onClose, title = "Insert image" 
           </ul>
         )}
       </div>
-    </div>
+    </Modal>
   );
 }

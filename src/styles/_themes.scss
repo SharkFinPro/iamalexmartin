@@ -37,7 +37,8 @@ $themes: (
     bg-navbar: rgba(10, 16, 26, 0.98),
     text-primary: #eef2f7,
     text-secondary: #98adc6,
-    text-muted: #647a93,
+    // Lightened from #647a93 (4.20:1) to clear WCAG AA 4.5:1 on --bg-primary.
+    text-muted: #6e849c,
     text-light: #eef2f7,
     text-on-accent: #ffffff,
     // Brighter emerald so the accent pops against the near-black background.

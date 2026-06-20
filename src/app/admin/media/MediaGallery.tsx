@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useId, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -25,6 +25,7 @@ import {
   deleteAsset
 } from "../contentActions";
 import MediaUploader from "./MediaUploader";
+import Modal from "@/components/Modal";
 import styles from "./media.module.scss";
 
 function formatBytes(bytes: number | null): string {
@@ -493,6 +494,7 @@ export default function MediaGallery({ assets }: { assets: MediaAsset[] }) {
   const draftCount = items.filter((a) => a.status === "draft").length;
   const selectedCount = selectedIds.length;
   const deleteCount = pendingDelete?.length ?? 0;
+  const deleteTitleId = useId();
 
   return (
     <>
@@ -685,14 +687,14 @@ export default function MediaGallery({ assets }: { assets: MediaAsset[] }) {
       )}
 
       {pendingDelete && (
-        <div
-          className={styles.modalOverlay}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Confirm delete"
+        <Modal
+          onClose={() => { if (!bulkBusy) setPendingDelete(null); }}
+          labelledBy={deleteTitleId}
+          overlayClassName={styles.modalOverlay}
+          closeOnOverlayClick={!bulkBusy}
         >
           <div className={`${styles.modal} ${styles.confirmModal}`}>
-            <h2 className={styles.modalTitle}>
+            <h2 className={styles.modalTitle} id={deleteTitleId}>
               Delete {deleteCount} {deleteCount === 1 ? "asset" : "assets"}?
             </h2>
             <p className={styles.stateBody}>
@@ -718,7 +720,7 @@ export default function MediaGallery({ assets }: { assets: MediaAsset[] }) {
               </button>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
     </>
   );

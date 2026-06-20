@@ -187,7 +187,7 @@
       z-index: 1;
     }
 
-    & > h2 {
+    & > .thumbTitle {
       position: absolute;
       inset: 0;
       display: grid;
@@ -276,7 +276,7 @@
       background-color: rgba($dark, 0.1);
     }
 
-    .thumbnail > h2 {
+    .thumbnail > .thumbTitle {
       opacity: 0;
     }
 
