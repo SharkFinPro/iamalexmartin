@@ -72,6 +72,22 @@ function rgb([r, g, b]: [number, number, number], a: number) {
   return `rgba(${r}, ${g}, ${b}, ${a})`;
 }
 
+type Theme = "light" | "dark";
+
+function readTheme(): Theme {
+  const attr = document.documentElement.getAttribute("data-theme");
+  if (attr === "light" || attr === "dark") return attr;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+// Per-theme backdrop tuning. On the light background the accent lines need more
+// opacity to read and the glow has to come down (a heavy glow turns muddy on
+// light); on the dark background the glow can shine and lines stay subtler.
+const TUNING: Record<Theme, { link: number; pointer: number; node: number; glow: number; glowA: number }> = {
+  light: { link: 0.55, pointer: 0.7, node: 1.0, glow: 3, glowA: 0.35 },
+  dark: { link: 0.42, pointer: 0.6, node: 0.85, glow: 9, glowA: 0.6 }
+};
+
 /* --- constellation -------------------------------------------------------- */
 
 // `ang`/`spd` are the node's own perpetual drift (steered slowly over time so
@@ -92,7 +108,11 @@ function Constellation({ onUnsupported }: { onUnsupported: () => void }) {
     }
 
     let palette = readPalette();
-    const themeObserver = new MutationObserver(() => { palette = readPalette(); });
+    let tune = TUNING[readTheme()];
+    const themeObserver = new MutationObserver(() => {
+      palette = readPalette();
+      tune = TUNING[readTheme()];
+    });
     themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -199,7 +219,7 @@ function Constellation({ onUnsupported }: { onUnsupported: () => void }) {
           const dy = a.y - b.y;
           const dist = Math.hypot(dx, dy);
           if (dist < ld) {
-            ctx.strokeStyle = rgb(palette.c1, (1 - dist / ld) * 0.45);
+            ctx.strokeStyle = rgb(palette.c1, (1 - dist / ld) * tune.link);
             ctx.lineWidth = 1;
             ctx.beginPath();
             ctx.moveTo(a.x, a.y);
@@ -216,7 +236,7 @@ function Constellation({ onUnsupported }: { onUnsupported: () => void }) {
           const dy = p.y - pointer.y;
           const dist = Math.hypot(dx, dy);
           if (dist < pointerR) {
-            ctx.strokeStyle = rgb(palette.c2, (1 - dist / pointerR) * 0.6);
+            ctx.strokeStyle = rgb(palette.c2, (1 - dist / pointerR) * tune.pointer);
             ctx.lineWidth = 1.1;
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
@@ -226,12 +246,12 @@ function Constellation({ onUnsupported }: { onUnsupported: () => void }) {
         }
       }
 
-      // Nodes with a soft glow + gentle twinkle.
-      ctx.shadowBlur = 8;
-      ctx.shadowColor = rgb(palette.c1, 0.6);
+      // Nodes with a soft glow + gentle twinkle (glow tuned per theme).
+      ctx.shadowBlur = tune.glow;
+      ctx.shadowColor = rgb(palette.c1, tune.glowA);
       for (const p of nodes) {
         const tw = 0.7 + 0.3 * Math.sin(t * 1.6 + p.ph);
-        ctx.fillStyle = rgb(palette.c1, 0.85 * tw);
+        ctx.fillStyle = rgb(palette.c1, tune.node * tw);
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx.fill();
