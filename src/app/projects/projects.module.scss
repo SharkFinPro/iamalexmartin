@@ -2,6 +2,9 @@
 
 .container {
   background-color: var(--bg-primary);
+  // Match the body's theme transition so this strip eases in sync with the rest
+  // of the page rather than snapping instantly.
+  transition: background-color 0.3s ease, color 0.3s ease;
   min-width: 100%;
   color: var(--text-primary);
   max-width: 600px;
@@ -14,38 +17,112 @@
 }
 
 .projectTypeSelector {
+  // Segmented control: a single rounded track holding pill buttons, with an
+  // animated thumb sliding behind the active one.
+  position: relative;
   display: flex;
-  gap: 1em;
-  place-content: center;
-  padding-block: 2em 1em;
+  gap: 0.25em;
+  margin-inline: auto;
+  margin-block: 2em 1em;
+  padding: 0.35em;
+  width: max-content;
+  max-width: 100%;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm) inset;
 
   & > button {
-    padding: 1em;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.6em 1.1em;
+    line-height: 1;
     border: none;
-    background: var(--bg-tertiary);
-    color: var(--text-primary);
+    // Each unselected pill carries a faint fill so the options read as separate
+    // segments rather than blending into the track.
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
     border-radius: var(--radius-sm);
     font-size: 0.9rem;
-    transition: background var(--transition-fast);
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
 
     &:hover {
-      background: var(--bg-secondary);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
     }
   }
 
   & > .selectedProjectType {
-    background: var(--accent-secondary);
+    // Transparent so the sliding accent thumb shows through behind it.
+    background: transparent;
     color: var(--text-on-accent);
+    font-weight: 600;
 
     &:hover {
-      background: color-mix(in srgb, var(--accent-secondary) 90%, #000);
+      background: transparent;
+      color: var(--text-on-accent);
     }
   }
 
   @media (max-width: 500px) {
+    // Stack vertically into a full-width list; the horizontal thumb doesn't
+    // apply here, so the active pill carries its own fill instead.
     flex-direction: column;
-    gap: 0.5em;
-    padding-block: 1em 0.5em;
+    width: 100%;
+    border-radius: var(--radius-md);
+    margin-block: 1em 0.5em;
+
+    & > button {
+      width: 100%;
+      transform: none;
+    }
+
+    & > .selectedProjectType {
+      background: var(--accent-secondary);
+      transform: none;
+    }
+  }
+}
+
+// The sliding highlight that sits behind the active button. Positioned from the
+// measured box exposed as CSS vars on the track.
+.indicator {
+  position: absolute;
+  top: 0.35em;
+  bottom: 0.35em;
+  left: 0;
+  width: var(--indicator-width, 0);
+  transform: translateX(var(--indicator-left, 0));
+  background: var(--accent-secondary);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+              width 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: 0;
+  pointer-events: none;
+
+  @media (max-width: 500px) {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .projectTypeSelector > button {
+    transition: none;
+  }
+
+  .indicator {
+    transition: none;
   }
 }
 

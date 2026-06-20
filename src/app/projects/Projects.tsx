@@ -3,7 +3,7 @@ import { camelCaseToSentence } from "@/utils/string";
 import styles from "./projects.module.scss";
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -270,6 +270,51 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
     setProjectType(type);
   }
 
+  // Sliding indicator for the type filter: measure the active button's box and
+  // expose it as CSS vars on the track so the thumb can transition between them.
+  const selectorRef = useRef<HTMLDivElement>(null);
+  const [indicator, setIndicator] = useState<{ left: number; width: number } | null>(null);
+
+  useLayoutEffect(() => {
+    const track = selectorRef.current;
+    if (!track) return;
+
+    function measure() {
+      const trackEl = selectorRef.current;
+      if (!trackEl) return;
+      const active = trackEl.querySelector<HTMLButtonElement>("[data-active='true']");
+      if (!active) return;
+      setIndicator({ left: active.offsetLeft, width: active.offsetWidth });
+    }
+
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(track);
+    return () => observer.disconnect();
+  }, [projectType, enumValues]);
+
+  // Ordered list of filter values for roving keyboard navigation.
+  const typeValues: string[] = ["all", ...enumValues.map((t: any) => t.name)];
+
+  function onSelectorKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+    const keys = ["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp", "Home", "End"];
+    if (!keys.includes(e.key)) return;
+    e.preventDefault();
+
+    const current = typeValues.indexOf(projectType);
+    let next = current;
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") next = (current + 1) % typeValues.length;
+    else if (e.key === "ArrowLeft" || e.key === "ArrowUp") next = (current - 1 + typeValues.length) % typeValues.length;
+    else if (e.key === "Home") next = 0;
+    else if (e.key === "End") next = typeValues.length - 1;
+
+    const value = typeValues[next];
+    changeProjectType(value);
+    selectorRef.current
+      ?.querySelector<HTMLButtonElement>(`[data-value='${value}']`)
+      ?.focus();
+  }
+
   // Reordering is only meaningful (and unambiguous) when viewing all projects.
   const canReorder = isAdmin && projectType === "all";
 
@@ -373,14 +418,37 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
 
   return (
     <div className={styles.container}>
-      <div className={styles.projectTypeSelector}>
-        <button className={projectType === "all" ? styles.selectedProjectType : ""}
-                onClick={() => changeProjectType("all")}>
+      <div
+        ref={selectorRef}
+        className={styles.projectTypeSelector}
+        role="tablist"
+        aria-label="Filter projects by type"
+        onKeyDown={onSelectorKeyDown}
+        style={indicator ? {
+          ["--indicator-left" as any]: `${indicator.left}px`,
+          ["--indicator-width" as any]: `${indicator.width}px`
+        } : undefined}
+      >
+        {indicator && <span className={styles.indicator} aria-hidden="true" />}
+        <button
+          role="tab"
+          data-value="all"
+          data-active={projectType === "all"}
+          aria-selected={projectType === "all"}
+          tabIndex={projectType === "all" ? 0 : -1}
+          className={projectType === "all" ? styles.selectedProjectType : ""}
+          onClick={() => changeProjectType("all")}>
           All Projects
         </button>
         {enumValues
           .map((type : any) => (
-            <button key={type.name} className={projectType === type.name ? styles.selectedProjectType : ""}
+            <button key={type.name}
+              role="tab"
+              data-value={type.name}
+              data-active={projectType === type.name}
+              aria-selected={projectType === type.name}
+              tabIndex={projectType === type.name ? 0 : -1}
+              className={projectType === type.name ? styles.selectedProjectType : ""}
               onClick={()=> changeProjectType(type.name)}>
               {camelCaseToSentence(type.name)}
             </button>
