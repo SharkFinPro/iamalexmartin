@@ -34,14 +34,18 @@ export default function HeroBackground({ isAdmin = false }: { isAdmin?: boolean 
 
   return (
     <>
-      {showGrid ? (
-        <>
-          <div className={styles.grid} aria-hidden="true" />
-          <div className={styles.wash} aria-hidden="true" />
-        </>
-      ) : (
-        <Constellation onUnsupported={() => setFallback(true)} />
-      )}
+      {/*
+        Always render the CSS grid + wash as the persistent backdrop. It
+        ships in the SSR HTML, so the very first paint already shows the
+        hero — no flash of empty/black background while the JS constellation
+        hydrates. The constellation canvas paints on top of this layer once
+        its effect runs, replacing the visible backdrop without unmounting
+        the SSR layer underneath.
+      */}
+      <div className={styles.grid} aria-hidden="true" />
+      <div className={styles.wash} aria-hidden="true" />
+
+      {!showGrid && <Constellation onUnsupported={() => setFallback(true)} />}
 
       {isAdmin && (
         <button type="button" className={styles.adminToggle} onClick={toggle}>

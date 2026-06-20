@@ -44,17 +44,16 @@
 .canvas {
   position: absolute;
   inset: 0;
-  z-index: 0;
+  z-index: 1;
   display: block;
   width: 100%;
   height: 100%;
-  // The canvas itself is drawn by JS in a useEffect, so the first paint can
-  // be transparent. Give it a faint accent wash so the hero doesn't go
-  // pitch-black for a frame in screenshots / slow loads.
-  background:
-    radial-gradient(ellipse 60% 50% at 50% 35%,
-      color-mix(in srgb, var(--accent) 14%, transparent) 0%,
-      transparent 70%);
+  // The canvas draws on top of the persistent CSS grid backdrop (rendered by
+  // HeroBackground alongside this canvas). Leave the canvas background
+  // transparent so the SSR grid stays visible wherever the JS constellation
+  // hasn't painted yet — and stays faintly visible through any future
+  // translucency in the constellation itself.
+  background: transparent;
   pointer-events: none;
 }
 
