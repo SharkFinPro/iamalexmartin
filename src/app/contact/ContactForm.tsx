@@ -43,15 +43,22 @@ export default function ContactForm() {
 
   return (
     <form className={styles.formContent} onSubmit={handleMessageSubmit} ref={contactFormRef}>
-      {shouldShowStatus && (status ? (
-        <p className={styles.formSubmitSuccess}>
-          <FontAwesomeIcon icon={faSquareCheck} /> Message sent! A copy has been sent to {sentEmail}!
-          <br />
-          <span>Check your spam folder if you did not receive a confirmation email.</span>
-        </p>
-      ) : (
-        <p className={styles.formSubmitFailure}>Message failed to send. Please try again.</p>
-      ))}
+      {/* Persistent polite live region: success + "sending" are announced without
+          stealing focus. */}
+      <div role="status" aria-live="polite" aria-atomic="true">
+        {isSubmitting && <p className="srOnly">Sending your message…</p>}
+        {shouldShowStatus && status && (
+          <p className={styles.formSubmitSuccess}>
+            <FontAwesomeIcon icon={faSquareCheck} /> Message sent! A copy has been sent to {sentEmail}!
+            <br />
+            <span>Check your spam folder if you did not receive a confirmation email.</span>
+          </p>
+        )}
+      </div>
+      {/* Failures are assertive so the visitor hears them immediately. */}
+      {shouldShowStatus && !status && (
+        <p className={styles.formSubmitFailure} role="alert">Message failed to send. Please try again.</p>
+      )}
       <div className={styles.twoColumns}>
         <div className={styles.formGroup}>
           <label htmlFor="name">Full Name</label>

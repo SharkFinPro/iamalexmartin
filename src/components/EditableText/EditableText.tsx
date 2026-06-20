@@ -102,9 +102,9 @@ export default function EditableText({ model, id, field, value, editable, multil
   return (
     <span className={styles.editor} onClick={(e) => e.preventDefault()}>
       {multiline ? (
-        <textarea value={draft} onChange={(e) => setDraft(e.target.value)} rows={3} />
+        <textarea value={draft} onChange={(e) => setDraft(e.target.value)} rows={3} aria-label={`Edit ${field}`} />
       ) : (
-        <input value={draft} onChange={(e) => setDraft(e.target.value)} />
+        <input value={draft} onChange={(e) => setDraft(e.target.value)} aria-label={`Edit ${field}`} />
       )}
       <span className={styles.controls}>
         <button type="button" onClick={guard(save)} disabled={saving} aria-label="Save">

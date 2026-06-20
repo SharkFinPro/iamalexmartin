@@ -95,6 +95,7 @@ export default async function RootLayout({
         />
       </head>
       <body>
+        <a href="#main-content" className="skipLink">Skip to main content</a>
         <NavBar />
         {children}
         <Footer />

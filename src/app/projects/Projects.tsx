@@ -405,7 +405,7 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
   const draggingProject = drag.draggingKey ? items.find((p) => p.slug === drag.draggingKey) : null;
 
   return (
-    <div className={styles.container}>
+    <main className={styles.container} id="main-content" tabIndex={-1}>
       <div
         ref={selectorRef}
         className={styles.projectTypeSelector}
@@ -621,6 +621,6 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
           </form>
         </div>
       )}
-    </div>
+    </main>
   );
 }

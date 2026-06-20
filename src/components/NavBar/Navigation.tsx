@@ -101,6 +101,7 @@ export default function Navigation() {
           key={item.label}
           href={item.path}
           className={`${styles.nav_item} ${pathname === item.path ? styles.active : ""}`}
+          aria-current={pathname === item.path ? "page" : undefined}
         >
           <span>{item.label}</span>
         </Link>
@@ -127,6 +128,7 @@ export default function Navigation() {
               key={item.label}
               href={item.path}
               className={`${styles.dropdownItem} ${pathname === item.path ? styles.active : ""}`}
+              aria-current={pathname === item.path ? "page" : undefined}
               onClick={toggleDropdown}
             >
               {item.label}

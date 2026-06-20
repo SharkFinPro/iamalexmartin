@@ -105,7 +105,7 @@ export default function AssetPicker({ onSelect, onClose, title = "Insert image" 
             {error}
           </p>
         ) : assets === null ? (
-          <p className={styles.pickerState}>Loading media…</p>
+          <p className={styles.pickerState} role="status" aria-live="polite">Loading media…</p>
         ) : images.length === 0 ? (
           <p className={styles.pickerState}>
             {query.trim() ? "No images match your search." : "No images in the library yet."}

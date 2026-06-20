@@ -79,9 +79,9 @@ export default async function Page({ params }) {
         edit={{ isAdmin, model: "Project", id: project.id, titleField: "title", descriptionField: "projectPageDescription" }}
       />
 
-      <div className={styles.container}>
+      <main className={styles.container} id="main-content" tabIndex={-1}>
         <RichTextField model="Project" id={project.id} field="projectPageContent" raw={project.projectPageContent.raw} isAdmin={isAdmin} />
-      </div>
+      </main>
     </>
   );
 }
