@@ -2,6 +2,7 @@ import Banner from "@/components/Banner";
 import Projects from "./Projects";
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import { cmsQuery } from "@/lib/cms";
 import { isAuthed } from "@/lib/auth";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { applyConfigToProjects } from "@/lib/siteConfig";
@@ -38,24 +39,9 @@ const PROJECTS_QUERY = `
   }
 `;
 
-async function getProjects() {
-  const response = await fetch(process.env.CMS_ENDPOINT, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      query: PROJECTS_QUERY
-    })
-  });
-  const json = await response.json();
-
-  return json.data;
-}
-
 export default async function Page() {
   const [projects, { data: config }, isAdmin] = await Promise.all([
-    getProjects(),
+    cmsQuery(PROJECTS_QUERY),
     getSiteConfig(),
     isAuthed()
   ]);

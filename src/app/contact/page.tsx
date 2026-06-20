@@ -3,6 +3,7 @@ import Banner from "@/components/Banner";
 import type { Metadata } from "next";
 import ContactForm from "./ContactForm";
 import EditableText from "@/components/EditableText";
+import { cmsQuery } from "@/lib/cms";
 import { isAuthed } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
@@ -27,20 +28,9 @@ const QUERY = `
 `;
 
 export default async function Page() {
-  const request = await fetch(process.env.CMS_ENDPOINT, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      query: QUERY
-    })
-  });
-
-  const response = await request.json();
-  const description = response.data.descriptions[0];
-  const contactFormDescription = response.data.contactFormDescriptions[0];
-  const isAdmin = await isAuthed();
+  const [data, isAdmin] = await Promise.all([cmsQuery(QUERY), isAuthed()]);
+  const description = data.descriptions[0];
+  const contactFormDescription = data.contactFormDescriptions[0];
 
   return <>
     <Banner

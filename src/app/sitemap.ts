@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { cmsQuery } from "@/lib/cms";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { projectFlags } from "@/lib/siteConfig";
 
@@ -41,20 +42,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   ];
 
-  const response = await fetch(process.env.CMS_ENDPOINT, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      query: SLUGS_QUERY
-    })
-  });
-  const json = await response.json();
+  const [data, { data: config }] = await Promise.all([cmsQuery(SLUGS_QUERY), getSiteConfig()]);
 
-  const { data: config } = await getSiteConfig();
-
-  const dynamicProjectPages = json.data.projects
+  const dynamicProjectPages = data.projects
     .filter(({ slug }) => {
       const flags = projectFlags(config, slug);
       return flags.visible && !flags.archived;

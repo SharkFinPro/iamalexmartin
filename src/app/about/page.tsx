@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import styles from "./About.module.scss";
 import RichTextWidget from "@/components/RichTextWidget";
 import EditableRichText from "@/components/RichTextEditor";
+import { cmsQuery } from "@/lib/cms";
 import { isAuthed } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
@@ -28,20 +29,9 @@ const QUERY = `
 `;
 
 export default async function Page() {
-  const request = await fetch(process.env.CMS_ENDPOINT, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      query: QUERY
-    })
-  });
-
-  const response = await request.json();
-  const description = response.data.descriptions[0];
-  const widget = response.data.richTextWidgets[0];
-  const isAdmin = await isAuthed();
+  const [data, isAdmin] = await Promise.all([cmsQuery(QUERY), isAuthed()]);
+  const description = data.descriptions[0];
+  const widget = data.richTextWidgets[0];
 
   return <>
     <Banner

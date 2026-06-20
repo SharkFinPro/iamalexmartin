@@ -3,6 +3,7 @@ import Landing from "./Landing";
 import Portfolio from "./Portfolio";
 import FeaturedProjects from "./FeaturedProjects";
 import type { Metadata } from "next";
+import { cmsQuery } from "@/lib/cms";
 import { isAuthed } from "@/lib/auth";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { featuredProjects } from "@/lib/siteConfig";
@@ -52,26 +53,19 @@ const PORTFOLIO_QUERY = `
 `;
 
 export default async function Page() {
-  const request = await fetch(process.env.CMS_ENDPOINT, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      query: PORTFOLIO_QUERY
-    })
-  });
+  const [data, { data: config }, isAdmin] = await Promise.all([
+    cmsQuery(PORTFOLIO_QUERY),
+    getSiteConfig(),
+    isAuthed()
+  ]);
 
-  const response = await request.json();
-  const portfolioDescription = response.data.portfolioDescriptions[0];
-  const landingDescription = response.data.landingDescriptions[0];
-  const featuredDescription = response.data.featuredDescriptions[0];
-  const portfolioCards = response.data.portfolioCards;
-
-  const [{ data: config }, isAdmin] = await Promise.all([getSiteConfig(), isAuthed()]);
+  const portfolioDescription = data.portfolioDescriptions[0];
+  const landingDescription = data.landingDescriptions[0];
+  const featuredDescription = data.featuredDescriptions[0];
+  const portfolioCards = data.portfolioCards;
 
   // Visible + featured projects, in their own featured order.
-  const featured = featuredProjects(response.data.projects || [], config);
+  const featured = featuredProjects(data.projects || [], config);
 
   return <>
     <Landing className={`${styles.wrapper} ${styles.homepage}`} description={landingDescription} isAdmin={isAdmin} />

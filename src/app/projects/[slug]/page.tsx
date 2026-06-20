@@ -4,39 +4,30 @@ import { Metadata } from "next";
 import Banner from "@/components/Banner";
 import RichTextWidget from "@/components/RichTextWidget";
 import EditableRichText from "@/components/RichTextEditor";
+import { cmsQuery } from "@/lib/cms";
 import { isAuthed } from "@/lib/auth";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { projectFlags } from "@/lib/siteConfig";
 
 async function getProject(slug: string) {
   try {
-    const response = await fetch(process.env.CMS_ENDPOINT, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: `
-          query Projects($slug: String!) {
-            projects(where: { slug: $slug }) {
-              id
-              title
-              projectPageDescription
-              projectPageContent {
-                raw
-              }
+    const data = await cmsQuery(
+      `
+        query Projects($slug: String!) {
+          projects(where: { slug: $slug }) {
+            id
+            title
+            projectPageDescription
+            projectPageContent {
+              raw
             }
           }
-        `,
-        variables: {
-          slug: slug.toLowerCase()
         }
-      })
-    });
+      `,
+      { slug: slug.toLowerCase() }
+    );
 
-    const json = await response.json();
-
-    return json.data.projects[0];
+    return data.projects[0];
   } catch (error) {
     notFound();
   }
@@ -44,33 +35,23 @@ async function getProject(slug: string) {
 
 async function getProjectMetadata(slug: string) {
   try {
-    const response = await fetch(process.env.CMS_ENDPOINT, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: `
-          query Projects($slug: String!) {
-            projects(where: { slug: $slug }) {
-              title
-              description
-              tags
-              image {
-                url
-              }
+    const data = await cmsQuery(
+      `
+        query Projects($slug: String!) {
+          projects(where: { slug: $slug }) {
+            title
+            description
+            tags
+            image {
+              url
             }
           }
-        `,
-        variables: {
-          slug: slug.toLowerCase()
         }
-      })
-    });
+      `,
+      { slug: slug.toLowerCase() }
+    );
 
-    const json = await response.json();
-
-    return json.data.projects[0];
+    return data.projects[0];
   } catch (error) {
     notFound();
   }
