@@ -48,6 +48,13 @@
   display: block;
   width: 100%;
   height: 100%;
+  // The canvas itself is drawn by JS in a useEffect, so the first paint can
+  // be transparent. Give it a faint accent wash so the hero doesn't go
+  // pitch-black for a frame in screenshots / slow loads.
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 35%,
+      color-mix(in srgb, var(--accent) 14%, transparent) 0%,
+      transparent 70%);
   pointer-events: none;
 }
 

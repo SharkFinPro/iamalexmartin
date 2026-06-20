@@ -66,11 +66,19 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 
-  opacity: 0;
-  animation: fadeIn 1s ease-out forwards;
+  // Start visible. Screenshot/SEO bots don't always wait for CSS keyframes
+  // and would otherwise capture a blank hero. The entrance animation is
+  // layered as a transform on the wrapper, not an opacity gate, so we never
+  // hide the text.
+  opacity: 1;
+  animation: fadeIn 1s ease-out both;
 
   line-height: 1.2;
   margin-top: clamp(1rem, 3vw, 2rem);
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
 
   @media (min-width: 400px) {
     font-size: var(--fs-hero);
@@ -84,10 +92,14 @@
   margin-inline: auto;
   color: var(--text-secondary);
 
-  opacity: 0;
-  animation: fadeIn 1s ease-out forwards;
+  opacity: 1;
+  animation: fadeIn 1s ease-out both;
   animation-delay: 0.7s;
   line-height: 1.5;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
 
   @media (min-width: 400px) {
     font-size: clamp(1rem, 2vw, 1.2rem);
@@ -118,7 +130,10 @@
   text-decoration: none;
   display: grid;
   place-content: center;
-  opacity: 0;
+  // Visible by default. The slide-in is layered on top via the per-button
+  // animation, but reduced-motion / headless renderers skip it so the
+  // buttons always read in static screenshots and first paint.
+  opacity: 1;
   // Keep each button label on one line — "View My Work" / "Contact Me" wrapping
   // mid-phrase looks broken. The pair can still wrap as a whole thanks to
   // .buttons { flex-wrap: wrap }.
@@ -134,14 +149,22 @@
   background: var(--accent);
   color: var(--text-on-accent);
   border: 2px solid var(--accent);
-  animation: buttonSlideIn 0.5s ease-out forwards;
+  animation: buttonSlideIn 0.5s ease-out both;
   animation-delay: 1.2s;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
 }
 
 .contactMe {
   background-color: var(--bg-card);
   color: var(--text-primary);
   border: 2px solid var(--border-color);
-  animation: buttonSlideIn 0.5s ease-out forwards;
+  animation: buttonSlideIn 0.5s ease-out both;
   animation-delay: 1.5s;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
 }
