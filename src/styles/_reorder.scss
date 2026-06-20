@@ -1,0 +1,61 @@
+// Shared visuals for the pointer-drag reorder UI (useDragReorder). Included by
+// the projects grid, featured section, and portfolio cards so the admin overlay,
+// drag handle, floating clone, and gap placeholder stay consistent. Class names
+// remain locally scoped per module; these mixins only dedupe the declarations.
+
+// Small square control used in admin overlays and as the drag-handle base.
+@mixin overlay-button {
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+// Floating cluster of admin controls pinned to a card's top-right corner.
+@mixin admin-overlay {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+
+  button {
+    @include overlay-button;
+
+    &.flagActive {
+      background: var(--accent);
+    }
+  }
+}
+
+@mixin drag-handle {
+  @include overlay-button;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  cursor: grab;
+  touch-action: none;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+// Fixed layer that hosts the card clone following the cursor mid-drag.
+@mixin floating-layer {
+  position: fixed;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+// The lifted card clone itself.
+@mixin floating-card {
+  transform: rotate(2deg) scale(1.03);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+  cursor: grabbing;
+}

@@ -1,4 +1,5 @@
 @use "@/styles/variables" as *;
+@use "@/styles/reorder" as r;
 
 // Entrance animates `translate`/opacity (not `transform`) so it never collides
 // with the pointer-tilt transform applied on hover.
@@ -85,45 +86,11 @@
 }
 
 .adminOverlay {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  z-index: 3;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-
-  button {
-    width: 2rem;
-    height: 2rem;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    color: #fff;
-    background: rgba(0, 0, 0, 0.55);
-
-    &.flagActive {
-      background: var(--accent);
-    }
-  }
+  @include r.admin-overlay;
 }
 
 .dragHandle {
-  display: grid;
-  place-items: center;
-  width: 2rem;
-  height: 2rem;
-  padding: 0;
-  border: none;
-  border-radius: 6px;
-  color: #fff;
-  background: rgba(0, 0, 0, 0.55);
-  cursor: grab;
-  touch-action: none;
-
-  &:active {
-    cursor: grabbing;
-  }
+  @include r.drag-handle;
 }
 
 .viewLink {
@@ -139,9 +106,7 @@
 }
 
 .floatingLayer {
-  position: fixed;
-  z-index: 1000;
-  pointer-events: none;
+  @include r.floating-layer;
 }
 
 .floating {
@@ -149,9 +114,7 @@
   // override the tilt below. The base .card starts at opacity 0, so restore it.
   animation: none;
   opacity: 1;
-  transform: rotate(2deg) scale(1.03);
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
-  cursor: grabbing;
+  @include r.floating-card;
 }
 
 .placeholder {
