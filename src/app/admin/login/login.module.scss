@@ -37,7 +37,7 @@
     cursor: pointer;
     font-weight: 600;
     color: #fff;
-    background: linear-gradient(90deg, $accent, $secondary);
+    background: linear-gradient(90deg, var(--accent), var(--accent-secondary));
 
     &:disabled {
       opacity: 0.6;

@@ -9,10 +9,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar, faGripVertical } from "@fortawesome/free-solid-svg-icons";
 import EditableText from "@/components/EditableText";
 import { useDragReorder } from "@/components/useDragReorder";
+import { useTilt } from "@/components/useTilt";
 import { saveConfig } from "@/app/admin/contentActions";
 import { projectFlags, type SiteConfigData } from "@/lib/siteConfig";
 
 function FeaturedCard({ project, isAdmin, innerRef, onHandlePointerDown, onUnfeature, floating }: any) {
+  const tilt = useTilt();
   const thumbnail = (
     <div className={styles.thumbnail}>
       {project.image && (
@@ -68,7 +70,7 @@ function FeaturedCard({ project, isAdmin, innerRef, onHandlePointerDown, onUnfea
   }
 
   return (
-    <Link href={`/projects/${project.slug}`} className={styles.card}>
+    <Link href={`/projects/${project.slug}`} className={styles.card} {...tilt}>
       {thumbnail}
       <div className={styles.body}>
         <h3>{project.title}</h3>

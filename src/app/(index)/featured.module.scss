@@ -1,8 +1,10 @@
 @use "@/styles/variables" as *;
 
+// Entrance animates `translate`/opacity (not `transform`) so it never collides
+// with the pointer-tilt transform applied on hover.
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; translate: 0 20px; }
+  to { opacity: 1; translate: 0 0; }
 }
 
 .sectionHeader {
@@ -45,13 +47,18 @@
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-sm);
   text-decoration: none;
-  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+
+  // `--ty` carries the hover lift inside the transform so it composes with the
+  // pointer tilt (--rx/--ry) instead of overwriting it.
+  --ty: 0px;
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(var(--ty));
+  transition: transform 0.25s ease-out, box-shadow 0.3s ease-in-out;
 
   opacity: 0;
   animation: fadeInUp 0.6s ease-out forwards;
 
   &:hover {
-    transform: translateY(-5px);
+    --ty: -5px;
     box-shadow: var(--shadow-md);
 
     .thumbnailImage {
@@ -59,7 +66,7 @@
     }
 
     .body h3 {
-      color: $accent;
+      color: var(--accent);
     }
 
     .viewLink {
@@ -96,7 +103,7 @@
     background: rgba(0, 0, 0, 0.55);
 
     &.flagActive {
-      background: $accent;
+      background: var(--accent);
     }
   }
 }
@@ -123,7 +130,7 @@
   align-self: flex-start;
   margin-top: auto;          // pin to the bottom regardless of text length
   padding: 0.6rem 1.4rem;
-  background-color: $accent;
+  background-color: var(--accent);
   color: var(--text-on-accent);
   font-weight: bold;
   text-decoration: none;

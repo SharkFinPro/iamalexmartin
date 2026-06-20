@@ -12,6 +12,10 @@ $themes: (
     text-muted: #5a6e82,
     text-light: #f5f5f5,
     text-on-accent: #ffffff,
+    // Deeper emerald reads with more authority against the pale background.
+    accent: #059669,
+    // Deeper blue for the same reason.
+    accent-secondary: #2358b2,
     border-color: rgba(15, 23, 42, 0.09),
     shadow-sm: 0 5px 15px rgba(15, 23, 42, 0.08),
     shadow-md: 0 15px 30px rgba(15, 23, 42, 0.12),
@@ -36,6 +40,10 @@ $themes: (
     text-muted: #647a93,
     text-light: #eef2f7,
     text-on-accent: #ffffff,
+    // Brighter emerald so the accent pops against the near-black background.
+    accent: #22c79a,
+    // Brighter blue so it pops against the near-black background.
+    accent-secondary: #5a8cf0,
     border-color: rgba(238, 242, 247, 0.12),
     shadow-sm: 0 5px 15px rgba(0, 0, 0, 0.3),
     shadow-md: 0 15px 30px rgba(0, 0, 0, 0.45),

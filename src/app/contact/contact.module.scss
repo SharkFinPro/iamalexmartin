@@ -55,7 +55,7 @@
     left: 0;
     right: 0;
     height: 6px;
-    background: linear-gradient(90deg, $accent, $secondary, $highlight, $accent);
+    background: linear-gradient(90deg, var(--accent), var(--accent-secondary), $highlight, var(--accent));
     background-size: 300% 100%;
     animation: gradientShift 5s ease infinite;
   }
@@ -79,7 +79,7 @@
         transform: translateX(-50%);
         width: 60px;
         height: 3px;
-        background: linear-gradient(90deg, $accent, $secondary);
+        background: linear-gradient(90deg, var(--accent), var(--accent-secondary));
         border-radius: 2px;
       }
     }
@@ -133,7 +133,7 @@
       transition: all var(--transition);
 
       &:focus {
-        border-color: $accent;
+        border-color: var(--accent);
         outline: none;
         box-shadow:
                 0 0 0 4px rgba(16, 185, 129, 0.15),
@@ -158,7 +158,7 @@
   .formSubmit {
     border: none;
     border-radius: var(--radius-lg);
-    background: linear-gradient(135deg, $accent 0%, $secondary 100%);
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-secondary) 100%);
     width: 100%;
     padding: 1rem;
     margin-block: 1rem;

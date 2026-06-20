@@ -1,5 +1,3 @@
-@use "@/styles/variables" as *;
-@use "sass:color";
 
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(20px); }
@@ -109,7 +107,7 @@
   }
 
   & > .quickLinkIcon {
-    border: 3px outset $accent;
+    border: 3px outset var(--accent);
     color: var(--text-primary);
   }
 
@@ -170,7 +168,7 @@
   justify-content: center;
   margin: 0 auto 1.25rem;
   font-size: 1.5rem;
-  color: $accent;
+  color: var(--accent);
 
   /* Subtle icon animation */
   animation: fadeInUp 0.75s ease-out 0.2s backwards;
@@ -215,7 +213,7 @@
   grid-area: link;
 
   margin-top: auto;
-  background-color: $accent;
+  background-color: var(--accent);
   color: var(--text-on-accent);
   font-weight: bold;
   text-decoration: none;
@@ -275,7 +273,7 @@
     background: rgba(0, 0, 0, 0.55);
 
     &.flagActive {
-      background: $accent;
+      background: var(--accent);
     }
 
     &.deleteButton {
@@ -328,7 +326,7 @@
   svg { font-size: 1.75rem; }
 
   &:hover:not(:disabled) {
-    border-color: $accent;
+    border-color: var(--accent);
     color: var(--text-primary);
   }
 
@@ -443,7 +441,7 @@
   flex-shrink: 0;
   border-radius: 50%;
   background: var(--bg-secondary);
-  color: $accent;
+  color: var(--accent);
 }
 
 .modalError {
@@ -478,7 +476,7 @@
 }
 
 .modalConfirm {
-  background: $accent;
+  background: var(--accent);
   color: #fff;
 }
 

@@ -21,6 +21,7 @@ import {
 import EditableText from "@/components/EditableText";
 import AssetPicker from "@/components/RichTextEditor/AssetPicker";
 import { useDragReorder } from "@/components/useDragReorder";
+import { useTilt } from "@/components/useTilt";
 import {
   saveConfig,
   updateContentField,
@@ -114,12 +115,17 @@ function ProjectCard({
   const hidden = isAdmin && !flags.visible;
   const archived = isAdmin && flags.archived;
 
+  // Pointer tilt for visitors only (admin cards are draggable/editable).
+  const tilt = useTilt();
+  const tiltProps = isAdmin ? {} : tilt;
+
   return (
     <div
       ref={innerRef}
       className={`${styles.card} ${hidden ? styles.hiddenCard : ""} ${
         archived ? styles.archivedCard : ""
       } ${floating ? styles.floating : ""}`}
+      {...tiltProps}
     >
       <div className={styles.thumbnail}>
         {project.image && (

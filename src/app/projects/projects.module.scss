@@ -1,5 +1,4 @@
 @use "@/styles/variables" as *;
-@use "sass:color";
 
 .container {
   background-color: var(--bg-primary);
@@ -35,11 +34,11 @@
   }
 
   & > .selectedProjectType {
-    background: $secondary;
+    background: var(--accent-secondary);
     color: var(--text-on-accent);
 
     &:hover {
-      background: color.mix(#000, $secondary, 10%);
+      background: color-mix(in srgb, var(--accent-secondary) 90%, #000);
     }
   }
 
@@ -66,12 +65,17 @@
 
 .card {
   display: grid;
-  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
   grid-template-rows: auto 1fr;
   // Match the resting elevation + rounding of the Featured/Portfolio cards so
   // every card across the site reads as one family.
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
+
+  // `--ty` carries the hover lift inside the transform so it composes with the
+  // pointer tilt (--rx/--ry) rather than overwriting it.
+  --ty: 0px;
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(var(--ty));
+  transition: transform 0.25s ease-out, box-shadow 0.3s ease-in-out;
 
   .thumbnail {
     aspect-ratio: 2/1;
@@ -167,7 +171,7 @@
       margin-top: 1.5em;
       width: 100%;
       color: var(--text-on-accent);
-      background-color: $secondary;
+      background-color: var(--accent-secondary);
       text-decoration: none;
       padding-block: 1em;
       font-weight: bold;
@@ -182,7 +186,7 @@
   }
 
   &:hover {
-    transform: translateY(-5px);
+    --ty: -5px;
     box-shadow: var(--shadow-md);
 
     .thumbnailImage {
@@ -252,7 +256,7 @@
     background: rgba(0, 0, 0, 0.55);
 
     &.flagActive {
-      background: $accent;
+      background: var(--accent);
     }
   }
 }
@@ -327,7 +331,7 @@
   &:focus {
     outline: none;
     border-style: solid;
-    border-color: $accent;
+    border-color: var(--accent);
   }
 }
 
@@ -346,14 +350,14 @@
   padding: 0.75em 1.25em;
   border: none;
   border-radius: 0.5em;
-  background: $secondary;
+  background: var(--accent-secondary);
   color: $light;
   font-weight: bold;
   cursor: pointer;
   transition: background 0.2s ease-in-out;
 
   &:hover {
-    background: color.mix(#000, $secondary, 10%);
+    background: color-mix(in srgb, var(--accent-secondary) 90%, #000);
   }
 }
 
@@ -377,13 +381,13 @@
   transition: all 0.2s ease-in-out;
 
   &:hover {
-    border-color: $accent;
+    border-color: var(--accent);
   }
 }
 
 .typeChipActive {
-  background: $accent;
-  border-color: $accent;
+  background: var(--accent);
+  border-color: var(--accent);
   color: #fff;
 }
 
@@ -474,7 +478,7 @@
   }
 
   &:hover {
-    border-color: $accent;
+    border-color: var(--accent);
   }
 }
 
@@ -517,6 +521,6 @@
 }
 
 .modalConfirm {
-  background: $secondary;
+  background: var(--accent-secondary);
   color: $light;
 }

@@ -32,8 +32,9 @@
   //   --accent-secondary supporting accent (blue) — links, project page CTAs
   //   --accent-highlight tertiary pop (orange) — sparing, one-off emphasis
   // Reserve the green→blue *gradient* for the hero name and contact bar only.
-  --accent: #{variables.$accent};
-  --accent-secondary: #{variables.$secondary};
+  // --accent and --accent-secondary are theme-forked (emitted per theme from
+  // _themes.scss) so they can be tuned for light vs. dark; --accent-highlight is
+  // shared across themes.
   --accent-highlight: #{variables.$highlight};
 
   // Placeholder thumbnail gradient (shown when a project has no image).
@@ -98,7 +99,7 @@ input:focus-visible,
 textarea:focus-visible,
 select:focus-visible,
 [tabindex]:focus-visible {
-  outline: 2px solid variables.$accent;
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
   border-radius: var(--radius-sm);
 }
