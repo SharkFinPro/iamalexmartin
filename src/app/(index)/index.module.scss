@@ -11,6 +11,13 @@
   position: relative;
   overflow: hidden;
   background-color: var(--bg-primary);
+  // Fill at *least* one viewport minus the sticky navbar so the hero reads as a
+  // full first screen — but allow it to grow taller if the natural content +
+  // padding would otherwise be clipped (very short viewports, e.g. landscape
+  // phones). 100dvh tracks the mobile browser chrome so the hero stays
+  // visible as the URL bar shows/hides; 100vh is the fallback.
+  min-height: calc(100vh - var(--navbar-height));
+  min-height: calc(100dvh - var(--navbar-height));
   padding-block: var(--section-padding-lg);
 }
 
