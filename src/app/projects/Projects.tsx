@@ -110,6 +110,7 @@ function ProjectCard({
   onToggleType,
   onTagsChange,
   onHandlePointerDown,
+  onHandleKeyDown,
   innerRef,
   floating
 }: any) {
@@ -132,7 +133,9 @@ function ProjectCard({
         {project.image && (
           <Image
             src={project.image.url}
-            alt={project.title}
+            // Decorative: the project title is announced by the adjacent <h3>, so
+            // an empty alt avoids a duplicate reading. WCAG 1.1.1.
+            alt=""
             className={styles.thumbnailImage}
             width={800}
             height={400}
@@ -150,8 +153,9 @@ function ProjectCard({
               <button
                 type="button"
                 className={styles.dragHandle}
-                aria-label="Drag to reorder"
+                aria-label="Reorder project. Press arrow keys to move, or drag."
                 onPointerDown={onHandlePointerDown}
+                onKeyDown={onHandleKeyDown}
               >
                 <FontAwesomeIcon icon={faGripVertical} />
               </button>
@@ -471,6 +475,10 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
         </div>
       )}
 
+      {isAdmin && (
+        <div className="srOnly" role="status" aria-live="polite">{drag.announcement}</div>
+      )}
+
       <div
         className={styles.cards}
         role="tabpanel"
@@ -498,6 +506,7 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
               onHandlePointerDown={
                 canReorder ? (e: React.PointerEvent) => drag.startDrag(items.indexOf(project), project.slug, e) : undefined
               }
+              onHandleKeyDown={canReorder ? drag.keyboardReorder(project.slug) : undefined}
             />
           )
         ))}

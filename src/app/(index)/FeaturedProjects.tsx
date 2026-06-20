@@ -12,14 +12,16 @@ import { useTilt } from "@/components/useTilt";
 import { useSiteConfig } from "@/components/useSiteConfig";
 import { projectFlags } from "@/lib/siteConfig";
 
-function FeaturedCard({ project, isAdmin, innerRef, onHandlePointerDown, onUnfeature, floating }: any) {
+function FeaturedCard({ project, isAdmin, innerRef, onHandlePointerDown, onHandleKeyDown, onUnfeature, floating }: any) {
   const tilt = useTilt();
   const thumbnail = (
     <div className={styles.thumbnail}>
       {project.image && (
         <Image
           src={project.image.url}
-          alt={project.title}
+          // Decorative: the project title is announced by the adjacent <h3>, so
+          // an empty alt avoids a duplicate reading. WCAG 1.1.1.
+          alt=""
           className={styles.thumbnailImage}
           width={800}
           height={400}
@@ -31,8 +33,9 @@ function FeaturedCard({ project, isAdmin, innerRef, onHandlePointerDown, onUnfea
             <button
               type="button"
               className={styles.dragHandle}
-              aria-label="Drag to reorder"
+              aria-label="Reorder project. Press arrow keys to move, or drag."
               onPointerDown={onHandlePointerDown}
+              onKeyDown={onHandleKeyDown}
             >
               <FontAwesomeIcon icon={faGripVertical} />
             </button>
@@ -117,6 +120,10 @@ export default function FeaturedProjects({ className, projects, description, con
         </EditableText>
       </p>
 
+      {isAdmin && (
+        <div className="srOnly" role="status" aria-live="polite">{drag.announcement}</div>
+      )}
+
       <div className={styles.cards}>
         {items.map((project, index) => (
           project.slug === drag.draggingKey ? (
@@ -134,6 +141,7 @@ export default function FeaturedProjects({ className, projects, description, con
               onHandlePointerDown={
                 isAdmin ? (e: React.PointerEvent) => drag.startDrag(index, project.slug, e) : undefined
               }
+              onHandleKeyDown={isAdmin ? drag.keyboardReorder(project.slug) : undefined}
               onUnfeature={() => unfeature(project.slug)}
             />
           )

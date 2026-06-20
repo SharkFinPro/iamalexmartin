@@ -62,6 +62,7 @@ function CardView({
   hidden,
   innerRef,
   onHandlePointerDown,
+  onHandleKeyDown,
   onEdit,
   onToggleHide,
   onDelete,
@@ -84,8 +85,9 @@ function CardView({
             <button
               type="button"
               className={styles.dragHandle}
-              aria-label="Drag to reorder"
+              aria-label="Reorder card. Press arrow keys to move, or drag."
               onPointerDown={onHandlePointerDown}
+              onKeyDown={onHandleKeyDown}
             >
               <FontAwesomeIcon icon={faGripVertical} />
             </button>
@@ -328,6 +330,10 @@ export default function Portfolio({ className, cards, description, config, isAdm
         </EditableText>
       </p>
 
+      {isAdmin && (
+        <div className="srOnly" role="status" aria-live="polite">{drag.announcement}</div>
+      )}
+
       <div className={styles.quickLinks}>
         {items.map((card, index) =>
           card.id === drag.draggingKey ? (
@@ -346,6 +352,7 @@ export default function Portfolio({ className, cards, description, config, isAdm
               onHandlePointerDown={
                 isAdmin ? (e: React.PointerEvent) => drag.startDrag(index, card.id, e) : undefined
               }
+              onHandleKeyDown={isAdmin ? drag.keyboardReorder(card.id) : undefined}
               onEdit={() => setEditing(card)}
               onToggleHide={() => toggleHide(card.id)}
               onDelete={() => { setDeleteError(""); setPendingDelete(card); }}

@@ -19,6 +19,9 @@ export function useDragReorder<T>({ items, setItems, getKey, onCommit }: Options
   const [pointer, setPointer] = useState({ x: 0, y: 0 });
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [size, setSize] = useState({ w: 0, h: 0 });
+  // Screen-reader announcement for keyboard reordering. Consumers render this in
+  // an aria-live region so each move is spoken (e.g. "Moved to position 2 of 5").
+  const [announcement, setAnnouncement] = useState("");
 
   const cardRefs = useRef<Map<string, HTMLElement>>(new Map());
   const dragIndexRef = useRef<number | null>(null);
@@ -135,6 +138,62 @@ export function useDragReorder<T>({ items, setItems, getKey, onCommit }: Options
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [draggingKey]);
 
+  // --- Keyboard reordering -------------------------------------------------
+  // A focusable drag handle also accepts arrow keys (and Home/End) to move its
+  // item one step at a time, with each change committed and announced. Because
+  // cards are keyed, the handle's DOM node is preserved across the reorder, so
+  // keyboard focus naturally rides along with the moving item.
+  function moveTo(key: string, to: number) {
+    const list = itemsRef.current;
+    const from = list.findIndex((it) => getKey(it) === key);
+    if (from === -1) return;
+
+    const clamped = Math.max(0, Math.min(list.length - 1, to));
+    if (clamped === from) {
+      setAnnouncement(
+        to < from ? "Already at the start of the list." : "Already at the end of the list."
+      );
+      return;
+    }
+
+    const next = [...list];
+    const [moved] = next.splice(from, 1);
+    next.splice(clamped, 0, moved);
+    itemsRef.current = next;
+    setItems(next);
+    onCommit(next.map(getKey));
+    setAnnouncement(`Moved to position ${clamped + 1} of ${next.length}.`);
+  }
+
+  function keyboardReorder(key: string) {
+    return (e: React.KeyboardEvent) => {
+      const list = itemsRef.current;
+      const from = list.findIndex((it) => getKey(it) === key);
+      if (from === -1) return;
+
+      switch (e.key) {
+        case "ArrowUp":
+        case "ArrowLeft":
+          e.preventDefault();
+          moveTo(key, from - 1);
+          break;
+        case "ArrowDown":
+        case "ArrowRight":
+          e.preventDefault();
+          moveTo(key, from + 1);
+          break;
+        case "Home":
+          e.preventDefault();
+          moveTo(key, 0);
+          break;
+        case "End":
+          e.preventDefault();
+          moveTo(key, list.length - 1);
+          break;
+      }
+    };
+  }
+
   function startDrag(index: number, key: string, e: React.PointerEvent) {
     if (e.button !== 0) {
       return;
@@ -162,6 +221,8 @@ export function useDragReorder<T>({ items, setItems, getKey, onCommit }: Options
     draggingKey,
     registerCard,
     startDrag,
+    keyboardReorder,
+    announcement,
     size,
     floatingStyle: {
       left: pointer.x - offset.x,

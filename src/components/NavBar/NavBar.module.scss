@@ -26,7 +26,7 @@
 
 .logo {
   font-weight: 700;
-  font-size: 24px;
+  font-size: 1.5rem;
   letter-spacing: -0.5px;
   color: var(--text-light);
   text-decoration: none;
@@ -43,7 +43,7 @@
 }
 
 .nav_item {
-  font-size: 15px;
+  font-size: 0.9375rem;
   font-weight: 500;
   text-decoration: none;
   color: color-mix(in srgb, var(--text-light) 80%, transparent);
@@ -86,6 +86,8 @@
 }
 
 .themeToggle {
+  // 40px comfortably clears the WCAG 2.5.8 (AA) 24px target minimum; kept at 40
+  // rather than 44 (AAA) so the centered icon stays aligned with the nav edge.
   height: 40px;
   width: 40px;
   border: none;
@@ -140,7 +142,7 @@
   padding: 15px 20px;
   text-decoration: none;
   color: var(--text-secondary);
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 500;
   transition: all 0.2s ease;
   position: relative;

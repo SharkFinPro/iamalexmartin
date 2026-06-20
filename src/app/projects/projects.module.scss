@@ -198,6 +198,11 @@
       z-index: 2;
       text-shadow: 0 1px 6px rgba(0, 0, 0, 0.45);
       cursor: default;
+      // Match the former <h2>'s look (display face + bold) now that it's a
+      // non-heading <span> and no longer inherits the global heading styles.
+      font-family: var(--font-display), var(--font-body), system-ui, sans-serif;
+      font-weight: 700;
+      letter-spacing: -0.015em;
       font-size: 1.4rem;
       opacity: 1;
       transition: opacity 0.3s ease-in-out;
@@ -338,8 +343,10 @@
 .tagRemove {
   display: inline-grid;
   place-items: center;
-  width: 1.05rem;
-  height: 1.05rem;
+  // 24px min hit area for the remove control (WCAG 2.5.8). The × glyph stays
+  // small via font-size; only the target grows.
+  width: 1.5rem;
+  height: 1.5rem;
   padding: 0;
   border: none;
   border-radius: 50%;
