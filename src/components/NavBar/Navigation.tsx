@@ -99,17 +99,23 @@ export default function Navigation() {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
   };
 
-  // Same control in both the desktop and small-screen navs.
-  const themeToggle = mounted && (
+  // Same control in both the desktop and small-screen navs. The button is always
+  // rendered so it reserves its slot in the navbar (no layout shift on mount);
+  // the theme-dependent icon and label — which only the client knows, since the
+  // theme lives in localStorage — fill in once mounted, keeping the server and
+  // first client render identical (no hydration mismatch).
+  const themeToggle = (
     <button
       className={styles.themeToggle}
       onClick={toggleTheme}
-      aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+      aria-label={mounted ? `Switch to ${theme === 'light' ? 'dark' : 'light'} mode` : 'Toggle color theme'}
     >
-      <FontAwesomeIcon
-        icon={theme === 'light' ? faMoon : faSun}
-        className={styles.themeToggleIcon}
-      />
+      {mounted && (
+        <FontAwesomeIcon
+          icon={theme === 'light' ? faMoon : faSun}
+          className={styles.themeToggleIcon}
+        />
+      )}
     </button>
   );
 
