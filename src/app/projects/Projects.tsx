@@ -198,11 +198,11 @@ function ProjectCard({
       </div>
 
       <div className={styles.cardContainer}>
-        <h3>
+        <h2>
           <EditableText model="Project" id={project.id} field="title" value={project.title} editable={isAdmin}>
             {project.title}
           </EditableText>
-        </h3>
+        </h2>
         <p>
           <EditableText model="Project" id={project.id} field="description" value={project.description} editable={isAdmin} multiline>
             {project.description}
@@ -596,7 +596,7 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
             </label>
 
             <fieldset className={styles.field}>
-              <span>Type</span>
+              <legend>Type</legend>
               <div className={styles.typeChips}>
                 {enumValues.map((type: any) => {
                   const active = newTypes.includes(type.name);

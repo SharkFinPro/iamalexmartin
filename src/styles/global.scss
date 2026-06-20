@@ -123,6 +123,13 @@ h1, h2, h3, h4, h5, h6 {
 // when focused via the skip link (or any #hash navigation).
 #main-content {
   scroll-margin-top: calc(var(--navbar-height) + 1rem);
+
+  // It's a programmatic skip target (tabindex="-1"), not an interactive control,
+  // so don't draw the global focus ring around the whole content region.
+  &:focus,
+  &:focus-visible {
+    outline: none;
+  }
 }
 
 // Skip-to-content link: visually hidden until focused, then pinned to the

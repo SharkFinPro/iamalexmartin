@@ -38,10 +38,12 @@
   padding: 0;
   margin: 0;
 
-  & > span {
+  & > span,
+  & > legend {
     font-size: 0.9rem;
     font-weight: bold;
     color: var(--text-secondary);
+    padding: 0; // <legend> carries default inline padding; reset it
   }
 }
 

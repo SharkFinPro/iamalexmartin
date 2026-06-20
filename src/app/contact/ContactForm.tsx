@@ -10,14 +10,48 @@ export default function ContactForm() {
   const [shouldShowStatus, setShouldShowStatus] = useState(false);
   const [status, setStatus] = useState<boolean>(false);
   const [sentEmail, setSentEmail] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const contactFormRef = useRef<HTMLFormElement>(null);
+
+  // Clear a field's error as soon as the visitor edits it.
+  function clearError(field: string) {
+    setErrors((prev) => {
+      if (!prev[field]) return prev;
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  }
+
+  function validate(form: any): Record<string, string> {
+    const errs: Record<string, string> = {};
+    if (!form.name.value.trim()) errs.name = "Please enter your name.";
+    const email = form.email.value.trim();
+    if (!email) errs.email = "Please enter your email address.";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errs.email = "Please enter a valid email address.";
+    if (!form.subject.value.trim()) errs.subject = "Please enter a subject.";
+    if (!form.message.value.trim()) errs.message = "Please enter a message.";
+    return errs;
+  }
 
   function handleMessageSubmit(event: any) {
     event.preventDefault();
+    const form = event.target;
+
+    // Validate ourselves (form is noValidate) so errors are visible, associated,
+    // and announced rather than living only in native validation bubbles.
+    const nextErrors = validate(form);
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) {
+      const firstInvalid = ["name", "email", "subject", "message"].find((k) => nextErrors[k]);
+      if (firstInvalid) form[firstInvalid]?.focus();
+      return;
+    }
+
     setIsSubmitting(true);
     setShouldShowStatus(false);
 
-    const { name, email, subject, message } = event.target;
+    const { name, email, subject, message } = form;
     setSentEmail(email.value);
 
     let wasSuccessful = false;
@@ -42,7 +76,7 @@ export default function ContactForm() {
   }
 
   return (
-    <form className={styles.formContent} onSubmit={handleMessageSubmit} ref={contactFormRef}>
+    <form className={styles.formContent} onSubmit={handleMessageSubmit} ref={contactFormRef} noValidate>
       {/* Persistent polite live region: success + "sending" are announced without
           stealing focus. */}
       <div role="status" aria-live="polite" aria-atomic="true">
@@ -62,20 +96,44 @@ export default function ContactForm() {
       <div className={styles.twoColumns}>
         <div className={styles.formGroup}>
           <label htmlFor="name">Full Name</label>
-          <input type="text" id="name" name="name" placeholder="Your name" required />
+          <input
+            type="text" id="name" name="name" placeholder="Your name" required
+            aria-invalid={!!errors.name}
+            aria-describedby={errors.name ? "name-error" : undefined}
+            onInput={() => clearError("name")}
+          />
+          {errors.name && <span id="name-error" className={styles.fieldError} role="alert">{errors.name}</span>}
         </div>
         <div className={styles.formGroup}>
           <label htmlFor="email">Email Address</label>
-          <input type="email" id="email" name="email" placeholder="your@email.com" required />
+          <input
+            type="email" id="email" name="email" placeholder="your@email.com" required
+            aria-invalid={!!errors.email}
+            aria-describedby={errors.email ? "email-error" : undefined}
+            onInput={() => clearError("email")}
+          />
+          {errors.email && <span id="email-error" className={styles.fieldError} role="alert">{errors.email}</span>}
         </div>
       </div>
       <div className={styles.formGroup}>
         <label htmlFor="subject">Subject</label>
-        <input type="text" id="subject" name="subject" placeholder="What's this about?" required />
+        <input
+          type="text" id="subject" name="subject" placeholder="What's this about?" required
+          aria-invalid={!!errors.subject}
+          aria-describedby={errors.subject ? "subject-error" : undefined}
+          onInput={() => clearError("subject")}
+        />
+        {errors.subject && <span id="subject-error" className={styles.fieldError} role="alert">{errors.subject}</span>}
       </div>
       <div className={styles.formGroup}>
         <label htmlFor="message">Message</label>
-        <textarea id="message" name="message" placeholder="What do you want to discuss?" required />
+        <textarea
+          id="message" name="message" placeholder="What do you want to discuss?" required
+          aria-invalid={!!errors.message}
+          aria-describedby={errors.message ? "message-error" : undefined}
+          onInput={() => clearError("message")}
+        />
+        {errors.message && <span id="message-error" className={styles.fieldError} role="alert">{errors.message}</span>}
       </div>
       <button type="submit" className={styles.formSubmit} disabled={isSubmitting}>
         {isSubmitting ? (

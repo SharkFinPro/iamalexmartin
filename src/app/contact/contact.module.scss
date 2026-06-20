@@ -141,6 +141,16 @@
         transform: translateY(-2px);
         background: var(--bg-secondary);
       }
+
+      &[aria-invalid="true"] {
+        border-color: var(--error-text);
+      }
+    }
+
+    .fieldError {
+      color: var(--error-text);
+      font-size: 0.85rem;
+      font-weight: 600;
     }
   }
 
