@@ -33,19 +33,19 @@
   background-color: var(--bg-card);
   width: min(800px, 100%);
   margin-inline: auto;
-  border-radius: 15px;
+  border-radius: var(--radius-lg);
   padding: 3rem;
   position: relative;
   overflow: hidden;
 
   @media (max-width: 768px) {
     padding: 2rem;
-    border-radius: 10px;
+    border-radius: var(--radius-md);
   }
 
   @media (max-width: 480px) {
     padding: 1.5rem;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
   }
 
   &:before {
@@ -92,19 +92,19 @@
 
   .formSubmitSuccess, .formSubmitFailure {
     padding: 1rem;
-    border-radius: 0.5rem;
+    border-radius: var(--radius-sm);
     border: 1px solid;
     animation: fade-in 0.5s ease-out;
   }
 
   .formSubmitSuccess {
-    background-color: color.mix(#2abf2a, $light, 15%);
-    border-color: color.mix(#2abf2a, $light, 45%);
+    background-color: var(--success-bg);
+    border-color: var(--success-border);
   }
 
   .formSubmitFailure {
-    background-color: color.mix(#bf2a2a, $light, 15%);
-    border-color: color.mix(#bf2a2a, $light, 45%);
+    background-color: var(--error-bg);
+    border-color: var(--error-border);
   }
 
   .formContent {
@@ -126,11 +126,11 @@
 
     & > input, & > textarea {
       padding: 0.8rem;
-      border-radius: 1rem;
+      border-radius: var(--radius-md);
       border: 2px solid var(--border-color);
       background-color: var(--bg-primary);
       color: var(--text-primary);
-      transition: all 0.3s ease-in-out;
+      transition: all var(--transition);
 
       &:focus {
         border-color: $accent;
@@ -157,19 +157,19 @@
 
   .formSubmit {
     border: none;
-    border-radius: 1rem;
+    border-radius: var(--radius-lg);
     background: linear-gradient(135deg, $accent 0%, $secondary 100%);
     width: 100%;
     padding: 1rem;
     margin-block: 1rem;
-    color: white;
+    color: var(--text-on-accent);
     font-weight: 500;
     font-size: 1.1rem;
-    transition: all 0.3s ease-in-out;
+    transition: all var(--transition);
 
     &:hover {
       translate: 0 -3px;
-      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+      box-shadow: var(--shadow-md);
     }
 
     &:disabled {

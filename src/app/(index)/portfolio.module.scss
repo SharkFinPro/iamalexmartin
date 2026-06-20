@@ -61,10 +61,10 @@
 
 .quickLinkCard {
   background-color: var(--bg-card);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   padding: 1.5rem;
   text-align: center;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-sm);
   transition: all 0.3s ease-in-out;
   border: 1px solid var(--border-color);
 
@@ -159,7 +159,7 @@
 
 .quickLinkCard:hover {
   translate: 0 -5px;
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
 }
 
 .quickLinkIcon {
@@ -219,11 +219,11 @@
 
   margin-top: auto;
   background-color: $accent;
-  color: white;
+  color: var(--text-on-accent);
   font-weight: bold;
   text-decoration: none;
   padding-block: 0.75rem;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   width: 85%;
   align-self: center;
   transition: all 0.3s ease-in-out;
@@ -241,7 +241,7 @@
 
 .quickLinkCard > a:hover {
   transform: translateY(-2.5px);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
 }
 
 /* --- Admin management ----------------------------------------------------- */

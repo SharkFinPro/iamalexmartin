@@ -48,10 +48,10 @@
   display: flex;
   flex-direction: column;
   background-color: var(--bg-card);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   overflow: hidden;
   border: 1px solid var(--border-color);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-sm);
   text-decoration: none;
   transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 
@@ -60,7 +60,7 @@
 
   &:hover {
     transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-md);
 
     .thumbnailImage {
       transform: scale(1.04);
@@ -72,7 +72,7 @@
 
     .viewLink {
       transform: translateY(-2px);
-      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+      box-shadow: var(--shadow-md);
     }
   }
 }
@@ -81,7 +81,7 @@
   position: relative;
   aspect-ratio: 2 / 1;
   display: block;
-  background: linear-gradient(25deg, $primary, $secondary);
+  background: var(--thumb-gradient);
   overflow: hidden;
 }
 
@@ -132,10 +132,10 @@
   margin-top: auto;          // pin to the bottom regardless of text length
   padding: 0.6rem 1.4rem;
   background-color: $accent;
-  color: #fff;
+  color: var(--text-on-accent);
   font-weight: bold;
   text-decoration: none;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 }
 

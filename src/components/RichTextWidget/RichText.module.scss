@@ -8,7 +8,7 @@
   color: var(--text-primary);
   max-width: 800px;
   padding: 2rem 1.5rem;
-  border-radius: 1rem;
+  border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
 
   & > * {

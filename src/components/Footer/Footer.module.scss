@@ -48,15 +48,15 @@
       height: 2.75rem;
       display: grid;
       place-content: center;
-      border-radius: 0.5rem;
+      border-radius: var(--radius-sm);
       border: 2px solid var(--bg-tertiary);
-      transition: 0.3s all ease-in-out;
+      transition: all var(--transition);
 
       &:hover {
         background: $accent;
         border-color: $accent;
         transform: translateY(-3px) scale(1.05);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        box-shadow: var(--shadow-md);
       }
     }
   }

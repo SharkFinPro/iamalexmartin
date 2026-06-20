@@ -78,10 +78,10 @@
 
 .homepageButton {
   padding: 1em 2em;
-  border-radius: 0.5em;
+  border-radius: var(--radius-sm);
   border: none;
   font-size: 1rem;
-  transition: all 0.3s ease-in-out;
+  transition: all var(--transition);
   text-decoration: none;
   display: grid;
   place-content: center;
@@ -90,12 +90,12 @@
 
 .homepageButton:hover {
   transform: translateY(-2.5px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-md);
 }
 
 .viewProjects {
   background: linear-gradient(135deg, $accent, color.mix($accent, $secondary, 50%));
-  color: white;
+  color: var(--text-on-accent);
   border: 2px solid $accent;
   animation: buttonSlideIn 0.5s ease-out forwards;
   animation-delay: 1.2s;
