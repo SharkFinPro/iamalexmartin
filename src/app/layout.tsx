@@ -4,6 +4,7 @@ import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import AdminBar from "@/components/AdminBar";
 import { isAuthed } from "@/lib/auth";
+import { Analytics } from "@vercel/analytics/next";
 
 import { config } from "@fortawesome/fontawesome-svg-core"
 import "@fortawesome/fontawesome-svg-core/styles.css"
@@ -101,6 +102,7 @@ export default async function RootLayout({
         <Footer />
         {admin && <AdminBar />}
         <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   );
