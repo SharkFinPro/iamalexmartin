@@ -14,9 +14,19 @@ const renderers = {
   table_header_cell: ({ children }: any) => <th scope="col">{children}</th>
 };
 
-export default function RichTextWidget({ content }: { content: any }) {
+type Props = {
+  content: any;
+  /**
+   * "card" (default) wraps the prose in the standalone bordered surface used on
+   * the About page. "bare" drops the box so the prose sits inside a larger
+   * composition (project case-study blocks) without looking like a widget.
+   */
+  variant?: "card" | "bare";
+};
+
+export default function RichTextWidget({ content, variant = "card" }: Props) {
   return (
-    <div className={richTextStyles.container}>
+    <div className={`${richTextStyles.container} ${variant === "card" ? richTextStyles.card : ""}`}>
       <RichText content={content} renderers={renderers} />
     </div>
   );

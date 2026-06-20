@@ -15,15 +15,23 @@ type Props = {
   onClose: () => void;
   /** Dialog heading; defaults to the rich-text "Insert image" context. */
   title?: string;
+  /** Which media kind to list/pick. Videos can't be uploaded here (the uploader
+   *  only crops images), so the upload control is hidden in video mode. */
+  accept?: "image" | "video";
 };
 
 /**
- * Inline image picker. Loads assets through the same Media Library data layer
- * (via the `listMediaAssets` action), narrows to images, and lets the admin
- * search + pick one without leaving the page. Used by the rich-text editor and
- * the project image control.
+ * Inline media picker. Loads assets through the same Media Library data layer
+ * (via the `listMediaAssets` action), narrows to the requested kind, and lets the
+ * admin search + pick one without leaving the page. Used by the rich-text editor,
+ * the project image control, and the block editor's image/video pickers.
  */
-export default function AssetPicker({ onSelect, onClose, title = "Insert image" }: Props) {
+export default function AssetPicker({
+  onSelect,
+  onClose,
+  title = "Insert image",
+  accept = "image"
+}: Props) {
   const [assets, setAssets] = useState<MediaAsset[] | null>(null);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
@@ -47,11 +55,12 @@ export default function AssetPicker({ onSelect, onClose, title = "Insert image" 
   }, []);
 
   const images = useMemo(() => {
-    const list = (assets ?? []).filter((a) => (a.mimeType ?? "").startsWith("image/"));
+    const prefix = accept === "video" ? "video/" : "image/";
+    const list = (assets ?? []).filter((a) => (a.mimeType ?? "").startsWith(prefix));
     const q = query.trim().toLowerCase();
     if (!q) return list;
     return list.filter((a) => `${a.title ?? ""} ${a.fileName}`.toLowerCase().includes(q));
-  }, [assets, query]);
+  }, [assets, query, accept]);
 
   return (
     <Modal onClose={onClose} labelledBy={titleId} overlayClassName={styles.pickerOverlay}>
@@ -60,8 +69,9 @@ export default function AssetPicker({ onSelect, onClose, title = "Insert image" 
           <h2 className={styles.pickerTitle} id={titleId}>{title}</h2>
           <div className={styles.pickerHeadActions}>
             {/* Reuse the Media Library's crop & upload widget — a freshly
-                uploaded asset is inserted straight into the editor. */}
-            <MediaUploader onUploaded={onSelect} />
+                uploaded asset is inserted straight into the editor. Images only;
+                videos are picked from existing library assets. */}
+            {accept === "image" && <MediaUploader onUploaded={onSelect} />}
             <button
               type="button"
               className={styles.pickerClose}
@@ -79,8 +89,8 @@ export default function AssetPicker({ onSelect, onClose, title = "Insert image" 
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search images by name…"
-            aria-label="Search images by name"
+            placeholder={`Search ${accept === "video" ? "videos" : "images"} by name…`}
+            aria-label={`Search ${accept === "video" ? "videos" : "images"} by name`}
             autoFocus
           />
         </div>
@@ -93,7 +103,9 @@ export default function AssetPicker({ onSelect, onClose, title = "Insert image" 
           <p className={styles.pickerState} role="status" aria-live="polite">Loading media…</p>
         ) : images.length === 0 ? (
           <p className={styles.pickerState}>
-            {query.trim() ? "No images match your search." : "No images in the library yet."}
+            {query.trim()
+              ? `No ${accept === "video" ? "videos" : "images"} match your search.`
+              : `No ${accept === "video" ? "videos" : "images"} in the library yet.`}
           </p>
         ) : (
           <ul className={styles.pickerGrid}>
@@ -108,13 +120,24 @@ export default function AssetPicker({ onSelect, onClose, title = "Insert image" 
                     title={name}
                   >
                     <span className={styles.pickerThumb}>
-                      <Image
-                        src={asset.url}
-                        alt={name}
-                        fill
-                        sizes="160px"
-                        className={styles.pickerImg}
-                      />
+                      {accept === "video" ? (
+                        // eslint-disable-next-line jsx-a11y/media-has-caption
+                        <video
+                          src={asset.url}
+                          muted
+                          preload="metadata"
+                          className={styles.pickerImg}
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        />
+                      ) : (
+                        <Image
+                          src={asset.url}
+                          alt={name}
+                          fill
+                          sizes="160px"
+                          className={styles.pickerImg}
+                        />
+                      )}
                       {asset.status === "draft" && (
                         <span className={styles.pickerBadge}>Draft</span>
                       )}

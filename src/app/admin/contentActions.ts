@@ -5,6 +5,7 @@ import { cmsMutate, cmsUpload } from "@/lib/cms";
 import { getAssetById, getMediaAssets, type MediaAsset } from "@/lib/getAssets";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { sanitizeRichTextAst } from "@/components/RichTextEditor/richTextAst";
+import { sanitizeProjectPage, type Block } from "@/components/ProjectBlocks/blocks";
 import { normalizeConfig, type SiteConfigData } from "@/lib/siteConfig";
 
 type ActionResult = { ok: true } | { ok: false; error: string };
@@ -22,7 +23,6 @@ const EDITABLE_FIELDS: Record<string, string[]> = {
 // Rich-text (RichTextAST) fields the inline editor may write. Kept separate from
 // EDITABLE_FIELDS because the value is the AST JSON, not a simple scalar/list.
 const EDITABLE_RICH_TEXT_FIELDS: Record<string, string[]> = {
-  Project: ["projectPageContent"],
   RichTextWidget: ["content"]
 };
 
@@ -312,6 +312,37 @@ export async function updateRichTextField(
   return { ok: true };
 }
 
+type SaveBlocksResult = { ok: true; blocks: Block[] } | { ok: false; error: string };
+
+/**
+ * Persist a project's case-study block list to the `projectPage` JSON field, then
+ * publish. The incoming array is run through `sanitizeProjectPage` (defense in
+ * depth): invalid/unknown blocks are dropped, link/image URLs are checked, and
+ * rich-text sub-trees are sanitized — so a bypassed client can't store a broken
+ * layout or click-XSS into public content. Returns the cleaned blocks so the
+ * editor can adopt exactly what was stored (optimistic, no refetch).
+ */
+export async function updateProjectPage(
+  id: string,
+  blocks: unknown
+): Promise<SaveBlocksResult> {
+  const denied = await requireAuth();
+  if (denied) return denied;
+
+  const clean = sanitizeProjectPage(blocks);
+
+  try {
+    // Json field: store [] (not null) so the saved state is explicit.
+    await updateAndPublish("Project", id, { projectPage: clean });
+  } catch (e: any) {
+    return { ok: false, error: e?.message || "Failed to save page." };
+  }
+
+  // No revalidatePath: consistent with the other writes — the client renders the
+  // saved blocks optimistically rather than refetching stale CDN data.
+  return { ok: true, blocks: clean };
+}
+
 type ListAssetsResult = { assets: MediaAsset[] } | { error: string };
 
 /**
@@ -448,11 +479,8 @@ const CREATE_PROJECT_MUTATION = `
 type CreateProjectResult = { ok: true; id: string; slug: string } | { ok: false; error: string };
 
 // Placeholder text fields a fresh project gets so the (required) CMS fields are
-// satisfied; the admin overwrites them inline. An empty paragraph keeps the
-// rich-text body valid so the project page (which reads `projectPageContent.raw`)
-// renders right after the post-create redirect.
+// satisfied; the admin overwrites them inline.
 const NEW_PROJECT_DESCRIPTION = "Add a description for this project.";
-const EMPTY_RICH_TEXT = { children: [{ type: "paragraph", children: [{ text: "" }] }] };
 
 /**
  * Create a minimal project stub (title, slug, type) and publish it. Required text
@@ -490,7 +518,6 @@ export async function createProject(
         projectType,
         description: NEW_PROJECT_DESCRIPTION,
         projectPageDescription: NEW_PROJECT_DESCRIPTION,
-        projectPageContent: EMPTY_RICH_TEXT,
         image: { connect: { id: imageId } }
       }
     });
