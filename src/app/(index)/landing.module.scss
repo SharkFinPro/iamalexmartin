@@ -2,11 +2,14 @@
 @use "sass:color";
 
 .container {
+  // Sit above the homepage's grid/glow backdrop.
+  position: relative;
+  z-index: 1;
+
   color: var(--text-primary);
-  max-width: 640px;
+  max-width: 720px;
   padding: 0 1rem;
   margin: 0 auto;
-  text-align: center;
 
   // Fill more of the viewport so the hero reads as a composed first screen
   // rather than a small block of text floating in empty space.
@@ -14,10 +17,30 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
 
   @media (min-width: 768px) {
     padding: 0 2rem;
   }
+}
+
+// Glass panel: a defined, intentional barrier between the hero copy and the
+// grid backdrop. Semi-transparent so the grid still reads faintly through it,
+// with a blur + hairline border + soft shadow to lift it off the background.
+.panel {
+  text-align: center;
+  max-width: 600px;
+  width: 100%;
+  padding: clamp(2rem, 5vw, 3.25rem) clamp(1.5rem, 5vw, 3rem);
+  border-radius: 28px;
+  // Intentional glass surface: enough tint, blur, and elevation to read as a
+  // deliberate element, with a deliberately faint border so the edge is felt
+  // rather than drawn. Softer tint + shadow with generous rounding.
+  background: color-mix(in srgb, var(--bg-card) 52%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border-color) 45%, transparent);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 @keyframes fadeIn {

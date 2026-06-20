@@ -26,6 +26,16 @@
   --fs-hero: clamp(2.5rem, 5vw, 3.5rem);
   --fs-title: clamp(1.9rem, 4vw, 2.4rem);
 
+  // Semantic accent roles. The hex values live in variables.scss; these tokens
+  // name their *intent* so usage stays disciplined:
+  //   --accent           primary brand accent (green) — default for emphasis
+  //   --accent-secondary supporting accent (blue) — links, project page CTAs
+  //   --accent-highlight tertiary pop (orange) — sparing, one-off emphasis
+  // Reserve the green→blue *gradient* for the hero name and contact bar only.
+  --accent: #{variables.$accent};
+  --accent-secondary: #{variables.$secondary};
+  --accent-highlight: #{variables.$highlight};
+
   // Placeholder thumbnail gradient (shown when a project has no image).
   // Defined here rather than in the theme map because gradients contain
   // top-level commas that the SCSS map parser would split on.

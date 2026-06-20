@@ -66,8 +66,12 @@
 
 .card {
   display: grid;
-  transition: all 0.3s ease-in-out;
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
   grid-template-rows: auto 1fr;
+  // Match the resting elevation + rounding of the Featured/Portfolio cards so
+  // every card across the site reads as one family.
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
 
   .thumbnail {
     aspect-ratio: 2/1;
@@ -82,38 +86,38 @@
     .thumbnailImage {
       height: 100%;
       width: 100%;
-      // `cover` lets the actual project visual fill the frame instead of
-      // letterboxing it inside a dark box.
+      // Lock to the scoped 2:1 ratio; `cover` fills the frame (cropping only if
+      // a source ever deviates) rather than letterboxing it in a dark box.
+      aspect-ratio: 2 / 1;
       object-fit: cover;
       transition: transform 0.4s ease-in-out;
     }
 
-    // Bottom-only gradient: keeps the title legible while leaving the upper
-    // ~60% of the image fully visible (was a full dark scrim).
+    // Light, even scrim that holds the centered title; mostly lifts on hover to
+    // reveal the image.
     &::after {
       content: "";
       position: absolute;
       inset: 0;
-      background: linear-gradient(
-        to top,
-        rgba(15, 23, 42, 0.78) 0%,
-        rgba(15, 23, 42, 0.25) 38%,
-        transparent 65%
-      );
+      background-color: rgba($dark, 0.52);
+      transition: background-color 0.4s ease-in-out;
       z-index: 1;
     }
 
     & > h2 {
       position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      padding: 0.85rem 1rem;
+      inset: 0;
+      display: grid;
+      place-content: center;
+      padding-inline: 1rem;
+      text-align: center;
       color: #fff;
       z-index: 2;
-      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+      text-shadow: 0 1px 6px rgba(0, 0, 0, 0.45);
       cursor: default;
-      font-size: 1.3rem;
+      font-size: 1.4rem;
+      opacity: 1;
+      transition: opacity 0.3s ease-in-out;
     }
   }
 
@@ -129,6 +133,7 @@
       font-size: 1.2em;
       padding-block: 0.5em;
       color: var(--text-primary);
+      transition: color 0.3s ease-in-out;
     }
 
     & > p {
@@ -182,6 +187,18 @@
 
     .thumbnailImage {
       transform: scale(1.04);
+    }
+
+    .thumbnail::after {
+      background-color: rgba($dark, 0.1);
+    }
+
+    .thumbnail > h2 {
+      opacity: 0;
+    }
+
+    .cardContainer > h3 {
+      color: var(--accent);
     }
   }
 }
