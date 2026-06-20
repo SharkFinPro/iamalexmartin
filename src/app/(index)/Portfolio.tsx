@@ -219,7 +219,7 @@ function CardEditor({
           <input value={form.link} onChange={(e) => set("link", e.target.value)} placeholder="/projects" />
         </label>
 
-        {error && <p className={styles.modalError}>{error}</p>}
+        {error && <p className={styles.modalError} role="alert">{error}</p>}
 
         <div className={styles.modalActions}>
           <button type="button" className={styles.modalCancel} onClick={onClose} disabled={saving}>
@@ -412,7 +412,7 @@ export default function Portfolio({ className, cards, description, config, isAdm
               <strong>{pendingDelete.title?.trim() || "this card"}</strong> from the CMS.
               This can’t be undone.
             </p>
-            {deleteError && <p className={styles.modalError}>{deleteError}</p>}
+            {deleteError && <p className={styles.modalError} role="alert">{deleteError}</p>}
             <div className={styles.modalActions}>
               <button
                 type="button"

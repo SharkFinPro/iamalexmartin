@@ -325,7 +325,7 @@ function MediaCard({
             </button>
           </div>
         </div>
-        {error && <span className={styles.actionError}>{error}</span>}
+        {error && <span className={styles.actionError} role="alert">{error}</span>}
       </div>
       )}
     </li>

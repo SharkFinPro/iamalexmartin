@@ -114,7 +114,7 @@ export default function EditableText({ model, id, field, value, editable, multil
           <FontAwesomeIcon icon={faXmark} />
         </button>
       </span>
-      {error && <span className={styles.error}>{error}</span>}
+      {error && <span className={styles.error} role="alert">{error}</span>}
     </span>
   );
 }

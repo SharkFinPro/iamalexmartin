@@ -366,7 +366,7 @@ export default function RichTextEditor({ initialContent, onSave, onCancel }: Pro
         onBlur={saveSelection}
       />
 
-      {error && <p className={styles.error}>{error}</p>}
+      {error && <p className={styles.error} role="alert">{error}</p>}
 
       <div className={styles.actions}>
         <button

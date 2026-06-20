@@ -635,7 +635,7 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
               </button>
             </div>
 
-            {createError && <p className={styles.modalError}>{createError}</p>}
+            {createError && <p className={styles.modalError} role="alert">{createError}</p>}
 
             <div className={styles.modalActions}>
               <button
