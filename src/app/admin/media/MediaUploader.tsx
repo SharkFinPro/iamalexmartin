@@ -1,12 +1,13 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { Cropper, type CropperRef } from "react-advanced-cropper";
 import "react-advanced-cropper/dist/style.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
 import type { MediaAsset } from "@/lib/getAssets";
 import { uploadAsset } from "../contentActions";
+import Modal from "@/components/Modal";
 import styles from "./media.module.scss";
 
 // Free-form crop is always available (no aspect ratio); the 2:1 preset matches
@@ -36,6 +37,7 @@ export default function MediaUploader({
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cropperRef = useRef<CropperRef>(null);
+  const titleId = useId();
 
   // The image being cropped: a data URL + the originating file (for name/type).
   // A data URL (not a blob: object URL) is used so it passes the site CSP, whose
@@ -129,15 +131,15 @@ export default function MediaUploader({
       {!source && error && <p className={styles.actionError}>{error}</p>}
 
       {source && (
-        <div
-          className={styles.modalOverlay}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Crop and upload image"
+        <Modal
+          onClose={() => { if (!busy) reset(); }}
+          labelledBy={titleId}
+          overlayClassName={styles.modalOverlay}
+          closeOnOverlayClick={!busy}
         >
           <div className={styles.modal}>
             <div className={styles.modalHead}>
-              <h2 className={styles.modalTitle}>Crop &amp; upload</h2>
+              <h2 className={styles.modalTitle} id={titleId}>Crop &amp; upload</h2>
               <div className={styles.ratioGroup} role="group" aria-label="Crop aspect ratio">
                 <button
                   type="button"
@@ -197,7 +199,7 @@ export default function MediaUploader({
               />
             </label>
 
-            {error && <p className={styles.actionError}>{error}</p>}
+            {error && <p className={styles.actionError} role="alert">{error}</p>}
 
             <div className={styles.modalActions}>
               <button
@@ -218,7 +220,7 @@ export default function MediaUploader({
               </button>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
     </>
   );

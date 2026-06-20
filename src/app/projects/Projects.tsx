@@ -3,7 +3,7 @@ import { camelCaseToSentence } from "@/utils/string";
 import styles from "./projects.module.scss";
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -19,6 +19,7 @@ import {
   faXmark
 } from "@fortawesome/free-solid-svg-icons";
 import EditableText from "@/components/EditableText";
+import Modal from "@/components/Modal";
 import AssetPicker from "@/components/RichTextEditor/AssetPicker";
 import { useDragReorder } from "@/components/useDragReorder";
 import { useTilt } from "@/components/useTilt";
@@ -109,6 +110,7 @@ function ProjectCard({
   onToggleType,
   onTagsChange,
   onHandlePointerDown,
+  onHandleKeyDown,
   innerRef,
   floating
 }: any) {
@@ -131,14 +133,19 @@ function ProjectCard({
         {project.image && (
           <Image
             src={project.image.url}
-            alt={project.title}
+            // Decorative: the project title is announced by the adjacent <h3>, so
+            // an empty alt avoids a duplicate reading. WCAG 1.1.1.
+            alt=""
             className={styles.thumbnailImage}
             width={800}
             height={400}
             priority={priority}
           />
         )}
-        <h2>{project.title}</h2>
+        {/* Decorative title overlay on the thumbnail — the real heading is the
+            <h3> in the card body, so this is hidden from assistive tech to avoid
+            announcing the title twice. */}
+        <span className={styles.thumbTitle} aria-hidden="true">{project.title}</span>
 
         {isAdmin && (
           <div className={styles.adminOverlay}>
@@ -146,8 +153,9 @@ function ProjectCard({
               <button
                 type="button"
                 className={styles.dragHandle}
-                aria-label="Drag to reorder"
+                aria-label="Reorder project. Press arrow keys to move, or drag."
                 onPointerDown={onHandlePointerDown}
+                onKeyDown={onHandleKeyDown}
               >
                 <FontAwesomeIcon icon={faGripVertical} />
               </button>
@@ -190,11 +198,11 @@ function ProjectCard({
       </div>
 
       <div className={styles.cardContainer}>
-        <h3>
+        <h2>
           <EditableText model="Project" id={project.id} field="title" value={project.title} editable={isAdmin}>
             {project.title}
           </EditableText>
-        </h3>
+        </h2>
         <p>
           <EditableText model="Project" id={project.id} field="description" value={project.description} editable={isAdmin} multiline>
             {project.description}
@@ -246,6 +254,18 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
   const [newImagePicker, setNewImagePicker] = useState(false);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState("");
+  const newProjectTitleId = useId();
+
+  // Reset and dismiss the New Project dialog (shared by Cancel, Escape, and
+  // scrim click so the form never retains stale input on the next open).
+  function closeCreate() {
+    setShowCreate(false);
+    setNewTitle("");
+    setNewSlug("");
+    setNewTypes([]);
+    setNewImage(null);
+    setCreateError("");
+  }
 
   useEffect(() => setItems(projects.projects), [projects.projects]);
 
@@ -405,7 +425,7 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
   const draggingProject = drag.draggingKey ? items.find((p) => p.slug === drag.draggingKey) : null;
 
   return (
-    <div className={styles.container}>
+    <main className={styles.container} id="main-content" tabIndex={-1}>
       <div
         ref={selectorRef}
         className={styles.projectTypeSelector}
@@ -420,6 +440,8 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
         {indicator && <span className={styles.indicator} aria-hidden="true" />}
         <button
           role="tab"
+          id="projects-tab-all"
+          aria-controls="projects-panel"
           data-value="all"
           data-active={projectType === "all"}
           aria-selected={projectType === "all"}
@@ -432,6 +454,8 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
           .map((type : any) => (
             <button key={type.name}
               role="tab"
+              id={`projects-tab-${type.name}`}
+              aria-controls="projects-panel"
               data-value={type.name}
               data-active={projectType === type.name}
               aria-selected={projectType === type.name}
@@ -451,7 +475,16 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
         </div>
       )}
 
-      <div className={styles.cards}>
+      {isAdmin && (
+        <div className="srOnly" role="status" aria-live="polite">{drag.announcement}</div>
+      )}
+
+      <div
+        className={styles.cards}
+        role="tabpanel"
+        id="projects-panel"
+        aria-labelledby={`projects-tab-${projectType}`}
+      >
         {visible.map((project) => (
           project.slug === drag.draggingKey ? (
             // The lifted card leaves a gap here; the real card floats by the cursor.
@@ -473,6 +506,7 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
               onHandlePointerDown={
                 canReorder ? (e: React.PointerEvent) => drag.startDrag(items.indexOf(project), project.slug, e) : undefined
               }
+              onHandleKeyDown={canReorder ? drag.keyboardReorder(project.slug) : undefined}
             />
           )
         ))}
@@ -537,9 +571,14 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
       )}
 
       {showCreate && (
-        <div className={styles.modalOverlay} role="dialog" aria-modal="true" aria-label="New project">
+        <Modal
+          onClose={() => { if (!creating) closeCreate(); }}
+          labelledBy={newProjectTitleId}
+          overlayClassName={styles.modalOverlay}
+          closeOnOverlayClick={!creating}
+        >
           <form className={styles.modal} onSubmit={submitCreate}>
-            <h2 className={styles.modalTitle}>New Project</h2>
+            <h2 className={styles.modalTitle} id={newProjectTitleId}>New Project</h2>
 
             <label className={styles.field}>
               <span>Title</span>
@@ -557,7 +596,7 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
             </label>
 
             <fieldset className={styles.field}>
-              <span>Type</span>
+              <legend>Type</legend>
               <div className={styles.typeChips}>
                 {enumValues.map((type: any) => {
                   const active = newTypes.includes(type.name);
@@ -596,20 +635,13 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
               </button>
             </div>
 
-            {createError && <p className={styles.modalError}>{createError}</p>}
+            {createError && <p className={styles.modalError} role="alert">{createError}</p>}
 
             <div className={styles.modalActions}>
               <button
                 type="button"
                 className={styles.modalCancel}
-                onClick={() => {
-                  setShowCreate(false);
-                  setNewTitle("");
-                  setNewSlug("");
-                  setNewTypes([]);
-                  setNewImage(null);
-                  setCreateError("");
-                }}
+                onClick={closeCreate}
                 disabled={creating}
               >
                 Cancel
@@ -619,8 +651,8 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
               </button>
             </div>
           </form>
-        </div>
+        </Modal>
       )}
-    </div>
+    </main>
   );
 }

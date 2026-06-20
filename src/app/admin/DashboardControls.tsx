@@ -34,7 +34,7 @@ export default function DashboardControls({ config }: { config: SiteConfigData }
   }
 
   return (
-    <div className={styles.container}>
+    <main className={styles.container} id="main-content" tabIndex={-1}>
       <section className={styles.panel}>
         <h2>Homepage</h2>
         {HOMEPAGE_TOGGLES.map(({ key, label }) => (
@@ -59,6 +59,6 @@ export default function DashboardControls({ config }: { config: SiteConfigData }
           Logout
         </button>
       </section>
-    </div>
+    </main>
   );
 }

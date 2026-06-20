@@ -35,7 +35,7 @@ export default async function Page() {
         description="All images stored in the CMS. Upload, crop, and publish assets."
       />
 
-      <div className={styles.container}>
+      <main className={styles.container} id="main-content" tabIndex={-1}>
         {error ? (
           <div className={styles.state} role="alert">
             <p className={styles.stateTitle}>Couldn&apos;t load media</p>
@@ -44,7 +44,7 @@ export default async function Page() {
         ) : (
           <MediaGallery assets={assets ?? []} />
         )}
-      </div>
+      </main>
     </>
   );
 }

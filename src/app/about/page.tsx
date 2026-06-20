@@ -38,8 +38,8 @@ export default async function Page() {
       description={description.description}
       edit={{ isAdmin, model: "Description", id: description.id, titleField: "header", descriptionField: "description" }}
     />
-    <div className={styles.container}>
+    <main className={styles.container} id="main-content" tabIndex={-1}>
       <RichTextField model="RichTextWidget" id={widget.id} field="content" raw={widget.content.raw} isAdmin={isAdmin} />
-    </div>
+    </main>
   </>
 }

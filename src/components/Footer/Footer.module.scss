@@ -116,7 +116,7 @@
       transition: 0.3s all ease-in-out;
 
       &:hover {
-        color: var(--accent);
+        color: var(--accent-text);
       }
     }
 
@@ -124,7 +124,7 @@
       transform: translateX(0.5rem);
 
       a {
-        color: var(--accent);
+        color: var(--accent-text);
       }
     }
   }
@@ -140,7 +140,7 @@
     color: var(--text-secondary);
 
     span {
-      color: var(--accent);
+      color: var(--accent-text);
     }
   }
 }

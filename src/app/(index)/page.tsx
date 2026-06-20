@@ -67,7 +67,7 @@ export default async function Page() {
   // Visible + featured projects, in their own featured order.
   const featured = featuredProjects(data.projects || [], config);
 
-  return <>
+  return <main id="main-content" tabIndex={-1}>
     <Landing className={`${styles.wrapper} ${styles.homepage}`} description={landingDescription} isAdmin={isAdmin} />
 
     {(config.homepage.showPortfolioCards || isAdmin) && (
@@ -84,5 +84,5 @@ export default async function Page() {
         isAdmin={isAdmin}
       />
     )}
-  </>
+  </main>
 }

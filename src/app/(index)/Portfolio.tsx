@@ -2,8 +2,9 @@
 
 import styles from "./portfolio.module.scss";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import EditableText from "@/components/EditableText";
+import Modal from "@/components/Modal";
 import { useDragReorder } from "@/components/useDragReorder";
 import { useSiteConfig } from "@/components/useSiteConfig";
 import {
@@ -61,6 +62,7 @@ function CardView({
   hidden,
   innerRef,
   onHandlePointerDown,
+  onHandleKeyDown,
   onEdit,
   onToggleHide,
   onDelete,
@@ -83,8 +85,9 @@ function CardView({
             <button
               type="button"
               className={styles.dragHandle}
-              aria-label="Drag to reorder"
+              aria-label="Reorder card. Press arrow keys to move, or drag."
               onPointerDown={onHandlePointerDown}
+              onKeyDown={onHandleKeyDown}
             >
               <FontAwesomeIcon icon={faGripVertical} />
             </button>
@@ -145,14 +148,7 @@ function CardEditor({
   const [form, setForm] = useState<CardForm>(initial);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
+  const titleId = useId();
 
   function set<K extends keyof CardForm>(key: K, value: string) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -173,17 +169,9 @@ function CardEditor({
   const iconName = form.fontAwesomeIcon.trim() || "star";
 
   return (
-    <div
-      className={styles.modalOverlay}
-      role="dialog"
-      aria-modal="true"
-      aria-label="Edit card"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
-    >
+    <Modal onClose={onClose} labelledBy={titleId} overlayClassName={styles.modalOverlay}>
       <form className={styles.modal} onSubmit={submit}>
-        <h2 className={styles.modalTitle}>{heading}</h2>
+        <h2 className={styles.modalTitle} id={titleId}>{heading}</h2>
 
         <label className={styles.field}>
           <span>Title</span>
@@ -231,7 +219,7 @@ function CardEditor({
           <input value={form.link} onChange={(e) => set("link", e.target.value)} placeholder="/projects" />
         </label>
 
-        {error && <p className={styles.modalError}>{error}</p>}
+        {error && <p className={styles.modalError} role="alert">{error}</p>}
 
         <div className={styles.modalActions}>
           <button type="button" className={styles.modalCancel} onClick={onClose} disabled={saving}>
@@ -242,12 +230,13 @@ function CardEditor({
           </button>
         </div>
       </form>
-    </div>
+    </Modal>
   );
 }
 
 export default function Portfolio({ className, cards, description, config, isAdmin = false }: any) {
   const { cfg, cfgRef, persist } = useSiteConfig(config);
+  const deleteTitleId = useId();
   const [items, setItems] = useState<Card[]>(() => applyConfigToCards(cards, config, isAdmin));
   const [showCreate, setShowCreate] = useState(false);
   const [editing, setEditing] = useState<Card | null>(null);
@@ -341,6 +330,10 @@ export default function Portfolio({ className, cards, description, config, isAdm
         </EditableText>
       </p>
 
+      {isAdmin && (
+        <div className="srOnly" role="status" aria-live="polite">{drag.announcement}</div>
+      )}
+
       <div className={styles.quickLinks}>
         {items.map((card, index) =>
           card.id === drag.draggingKey ? (
@@ -359,6 +352,7 @@ export default function Portfolio({ className, cards, description, config, isAdm
               onHandlePointerDown={
                 isAdmin ? (e: React.PointerEvent) => drag.startDrag(index, card.id, e) : undefined
               }
+              onHandleKeyDown={isAdmin ? drag.keyboardReorder(card.id) : undefined}
               onEdit={() => setEditing(card)}
               onToggleHide={() => toggleHide(card.id)}
               onDelete={() => { setDeleteError(""); setPendingDelete(card); }}
@@ -405,23 +399,20 @@ export default function Portfolio({ className, cards, description, config, isAdm
       )}
 
       {pendingDelete && (
-        <div
-          className={styles.modalOverlay}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Delete card"
-          onMouseDown={(e) => {
-            if (e.target === e.currentTarget && !deleting) setPendingDelete(null);
-          }}
+        <Modal
+          onClose={() => { if (!deleting) setPendingDelete(null); }}
+          labelledBy={deleteTitleId}
+          overlayClassName={styles.modalOverlay}
+          closeOnOverlayClick={!deleting}
         >
           <div className={`${styles.modal} ${styles.confirmModal}`}>
-            <h2 className={styles.modalTitle}>Delete card?</h2>
+            <h2 className={styles.modalTitle} id={deleteTitleId}>Delete card?</h2>
             <p className={styles.confirmText}>
               This permanently removes{" "}
               <strong>{pendingDelete.title?.trim() || "this card"}</strong> from the CMS.
               This can’t be undone.
             </p>
-            {deleteError && <p className={styles.modalError}>{deleteError}</p>}
+            {deleteError && <p className={styles.modalError} role="alert">{deleteError}</p>}
             <div className={styles.modalActions}>
               <button
                 type="button"
@@ -441,7 +432,7 @@ export default function Portfolio({ className, cards, description, config, isAdm
               </button>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
     </div>
   );

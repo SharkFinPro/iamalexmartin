@@ -33,9 +33,10 @@ type Props = {
 // Block formats offered in the toolbar dropdown. Values are the tag names
 // `formatBlock` (and `queryCommandValue`) work with, so the dropdown can both
 // apply and reflect the block under the caret.
+// No H1 option: the page's single <h1> is the Banner title, so CMS body content
+// starts at H2 to keep one <h1> per page (WCAG 1.3.1 / 2.4.6).
 const BLOCKS: { value: string; label: string }[] = [
   { value: "p", label: "Paragraph" },
-  { value: "h1", label: "Heading 1" },
   { value: "h2", label: "Heading 2" },
   { value: "h3", label: "Heading 3" },
   { value: "h4", label: "Heading 4" },
@@ -365,7 +366,7 @@ export default function RichTextEditor({ initialContent, onSave, onCancel }: Pro
         onBlur={saveSelection}
       />
 
-      {error && <p className={styles.error}>{error}</p>}
+      {error && <p className={styles.error} role="alert">{error}</p>}
 
       <div className={styles.actions}>
         <button

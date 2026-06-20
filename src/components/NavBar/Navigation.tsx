@@ -1,7 +1,7 @@
 "use client";
 import styles from "./NavBar.module.scss";
 import { usePathname } from "next/navigation";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useId } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faTimes, faSun, faMoon } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
@@ -27,7 +27,9 @@ export default function Navigation() {
       return 'light';
     }
   });
-  const dropdownRef = useRef(null);
+  const dropdownRef = useRef<HTMLElement>(null);
+  const toggleButtonRef = useRef<HTMLButtonElement>(null);
+  const menuId = useId();
   const isInitialized = useRef(false);
 
   const navItems = [
@@ -55,22 +57,39 @@ export default function Navigation() {
     }
   }, [theme]);
 
-  // Close dropdown when clicking outside
+  // Close dropdown on outside click or Escape. Escape also returns focus to the
+  // toggle so keyboard users aren't stranded.
   useEffect(() => {
-    const handleClickOutside = (event: any) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+    if (!isDropdownOpen) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false);
       }
     };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsDropdownOpen(false);
+        toggleButtonRef.current?.focus();
+      }
+    };
 
-    if (isDropdownOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [isDropdownOpen, pathname]);
+
+  // Move focus to the first menu item when the dropdown opens, so keyboard users
+  // land inside it rather than having to tab past the toggle.
+  useEffect(() => {
+    if (!isDropdownOpen) return;
+    const firstItem = dropdownRef.current?.querySelector<HTMLElement>(`.${styles.dropdownItem}`);
+    firstItem?.focus();
+  }, [isDropdownOpen]);
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -80,17 +99,23 @@ export default function Navigation() {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
   };
 
-  // Same control in both the desktop and small-screen navs.
-  const themeToggle = mounted && (
+  // Same control in both the desktop and small-screen navs. The button is always
+  // rendered so it reserves its slot in the navbar (no layout shift on mount);
+  // the theme-dependent icon and label — which only the client knows, since the
+  // theme lives in localStorage — fill in once mounted, keeping the server and
+  // first client render identical (no hydration mismatch).
+  const themeToggle = (
     <button
       className={styles.themeToggle}
       onClick={toggleTheme}
-      aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+      aria-label={mounted ? `Switch to ${theme === 'light' ? 'dark' : 'light'} mode` : 'Toggle color theme'}
     >
-      <FontAwesomeIcon
-        icon={theme === 'light' ? faMoon : faSun}
-        className={styles.themeToggleIcon}
-      />
+      {mounted && (
+        <FontAwesomeIcon
+          icon={theme === 'light' ? faMoon : faSun}
+          className={styles.themeToggleIcon}
+        />
+      )}
     </button>
   );
 
@@ -101,6 +126,7 @@ export default function Navigation() {
           key={item.label}
           href={item.path}
           className={`${styles.nav_item} ${pathname === item.path ? styles.active : ""}`}
+          aria-current={pathname === item.path ? "page" : undefined}
         >
           <span>{item.label}</span>
         </Link>
@@ -110,9 +136,11 @@ export default function Navigation() {
     <nav className={styles.navSmall} ref={dropdownRef}>
       {themeToggle}
       <button
+        ref={toggleButtonRef}
         className={styles.navSmallToggle}
         onClick={toggleDropdown}
         aria-expanded={isDropdownOpen}
+        aria-controls={menuId}
         aria-label="Toggle navigation menu"
       >
         <FontAwesomeIcon
@@ -121,12 +149,13 @@ export default function Navigation() {
         />
       </button>
       {isDropdownOpen && (
-        <div className={styles.dropdownMenu}>
+        <div className={styles.dropdownMenu} id={menuId}>
           {navItems.map((item) => (
             <Link
               key={item.label}
               href={item.path}
               className={`${styles.dropdownItem} ${pathname === item.path ? styles.active : ""}`}
+              aria-current={pathname === item.path ? "page" : undefined}
               onClick={toggleDropdown}
             >
               {item.label}

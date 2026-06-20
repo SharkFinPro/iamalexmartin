@@ -39,7 +39,7 @@ export default async function Page() {
       edit={{ isAdmin, model: "Description", id: description.id, titleField: "header", descriptionField: "description" }}
     />
 
-    <div className={styles.container}>
+    <main className={styles.container} id="main-content" tabIndex={-1}>
       <div className={styles.contactForm}>
         <div className={styles.formHeader}>
           <h2>
@@ -55,6 +55,6 @@ export default async function Page() {
         </div>
         <ContactForm />
       </div>
-    </div>
+    </main>
   </>
 }

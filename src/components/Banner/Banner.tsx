@@ -21,9 +21,9 @@ export default function Banner({
   const editable = !!edit?.isAdmin;
 
   return (
-    <div className={styles.wrapper}>
+    <section className={styles.wrapper} aria-labelledby="page-title">
       <div className={styles.container}>
-        <h1>
+        <h1 id="page-title">
           {editable ? (
             <EditableText model={edit!.model} id={edit!.id} field={edit!.titleField} value={title} editable>
               {title}
@@ -38,6 +38,6 @@ export default function Banner({
           ) : description}
         </p>
       </div>
-    </div>
+    </section>
   );
 }

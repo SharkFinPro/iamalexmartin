@@ -23,9 +23,9 @@ export default function LoginForm() {
   }
 
   return (
-    <div className={styles.container}>
+    <main className={styles.container} id="main-content" tabIndex={-1}>
       <form className={styles.form} onSubmit={handleSubmit}>
-        {error && <p className={styles.error}>{error}</p>}
+        {error && <p className={styles.error} role="alert">{error}</p>}
         <label htmlFor="key">Admin Key</label>
         <input
           type="password"
@@ -40,6 +40,6 @@ export default function LoginForm() {
           {isSubmitting ? "Signing in..." : "Sign In"}
         </button>
       </form>
-    </div>
+    </main>
   );
 }
