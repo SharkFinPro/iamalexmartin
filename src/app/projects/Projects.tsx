@@ -22,13 +22,13 @@ import EditableText from "@/components/EditableText";
 import AssetPicker from "@/components/RichTextEditor/AssetPicker";
 import { useDragReorder } from "@/components/useDragReorder";
 import { useTilt } from "@/components/useTilt";
+import { useSiteConfig } from "@/components/useSiteConfig";
 import {
-  saveConfig,
   updateContentField,
   createProject,
   setProjectImage
 } from "@/app/admin/contentActions";
-import { projectFlags, type SiteConfigData } from "@/lib/siteConfig";
+import { projectFlags } from "@/lib/siteConfig";
 
 /**
  * Tag pills for a project. Visitors see the original read-only chip list; admins
@@ -234,8 +234,7 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
 
   const [projectType, setProjectType] = useState<string>("all");
   const [items, setItems] = useState<any[]>(projects.projects);
-  const [cfg, setCfg] = useState<SiteConfigData>(config);
-  const cfgRef = useRef(cfg);
+  const { cfg, cfgRef, persist } = useSiteConfig(config);
 
   // Image picker (project being re-imaged) and the New Project modal.
   const [imageFor, setImageFor] = useState<any | null>(null);
@@ -249,8 +248,6 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
   const [createError, setCreateError] = useState("");
 
   useEffect(() => setItems(projects.projects), [projects.projects]);
-  useEffect(() => setCfg(config), [config]);
-  useEffect(() => { cfgRef.current = cfg; }, [cfg]);
 
   useEffect(() => {
     const queriedProjectType = searchParams.get("projectType");
@@ -317,15 +314,6 @@ export default function Projects({ projects, config, isAdmin = false }: any) {
 
   // Reordering is only meaningful (and unambiguous) when viewing all projects.
   const canReorder = isAdmin && projectType === "all";
-
-  async function persist(next: SiteConfigData) {
-    setCfg(next);
-    const result = await saveConfig(next);
-    if ("error" in result) {
-      alert(`Save failed: ${result.error}`);
-      router.refresh();
-    }
-  }
 
   function toggleFlag(slug: string, key: "visible" | "featured") {
     const current = projectFlags(cfgRef.current, slug);
