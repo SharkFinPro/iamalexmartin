@@ -8,52 +8,12 @@
 }
 
 .homepage {
+  // Positioning context + clip for the hero backdrop (CSS grid or WebGL shader,
+  // rendered by the HeroBackground client island).
   position: relative;
   overflow: hidden;
   background-color: var(--bg-primary);
   padding-block: var(--section-padding-lg);
-
-  // Drifting technical grid — a bold nod to the graphics/engineering work.
-  // Two line weights (fine 46px cells + bold major lines every 5th cell) give
-  // it structure that reads clearly in BOTH themes. Masked to fade toward the
-  // edges. Reduced-motion users get a static grid (global rule disables the
-  // animation).
-  &::before {
-    content: "";
-    position: absolute;
-    inset: -2px;
-    background-image:
-      linear-gradient(to right, color-mix(in srgb, var(--accent) 22%, transparent) 1px, transparent 1px),
-      linear-gradient(to bottom, color-mix(in srgb, var(--accent) 22%, transparent) 1px, transparent 1px),
-      linear-gradient(to right, color-mix(in srgb, var(--accent) 42%, transparent) 1.5px, transparent 1.5px),
-      linear-gradient(to bottom, color-mix(in srgb, var(--accent) 42%, transparent) 1.5px, transparent 1.5px);
-    background-size: 46px 46px, 46px 46px, 230px 230px, 230px 230px;
-    -webkit-mask-image: radial-gradient(ellipse 78% 70% at 50% 40%, #000 0%, transparent 78%);
-    mask-image: radial-gradient(ellipse 78% 70% at 50% 40%, #000 0%, transparent 78%);
-    animation: gridDrift 28s linear infinite;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  // Crisp accent wash from the top edge — defined (not blurred), so it reads as
-  // intentional color in light mode instead of a muddy smudge.
-  &::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--accent) 12%, transparent) 0%,
-      transparent 42%
-    );
-    pointer-events: none;
-    z-index: 0;
-  }
-}
-
-@keyframes gridDrift {
-  from { background-position: 0 0, 0 0, 0 0, 0 0; }
-  to   { background-position: 46px 46px, 46px 46px, 230px 230px, 230px 230px; }
 }
 
 // Clean solid band defined by crisp hairline dividers (not a blurry fade) so

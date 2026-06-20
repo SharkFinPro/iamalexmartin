@@ -1,0 +1,77 @@
+@use "@/styles/variables" as *;
+
+// --- CSS grid backdrop (item 7) ------------------------------------------- //
+
+// Drifting technical grid with two line weights (fine 46px cells + bold major
+// lines every 5th cell). Masked to fade toward the edges. Reduced-motion users
+// get a static grid (global rule disables the animation).
+.grid {
+  position: absolute;
+  inset: -2px;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--accent) 22%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--accent) 22%, transparent) 1px, transparent 1px),
+    linear-gradient(to right, color-mix(in srgb, var(--accent) 42%, transparent) 1.5px, transparent 1.5px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--accent) 42%, transparent) 1.5px, transparent 1.5px);
+  background-size: 46px 46px, 46px 46px, 230px 230px, 230px 230px;
+  -webkit-mask-image: radial-gradient(ellipse 78% 70% at 50% 40%, #000 0%, transparent 78%);
+  mask-image: radial-gradient(ellipse 78% 70% at 50% 40%, #000 0%, transparent 78%);
+  animation: gridDrift 28s linear infinite;
+}
+
+// Crisp accent wash from the top edge.
+.wash {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--accent) 12%, transparent) 0%,
+    transparent 42%
+  );
+}
+
+@keyframes gridDrift {
+  from { background-position: 0 0, 0 0, 0 0, 0 0; }
+  to   { background-position: 46px 46px, 46px 46px, 230px 230px, 230px 230px; }
+}
+
+// --- Constellation canvas ------------------------------------------------- //
+
+.canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+// --- Admin-only dev toggle ------------------------------------------------ //
+
+.adminToggle {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 3;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: color-mix(in srgb, var(--bg-card) 70%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  cursor: pointer;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+
+  &:hover {
+    color: var(--text-primary);
+    border-color: var(--accent);
+  }
+}

@@ -1,10 +1,12 @@
 import styles from "./landing.module.scss";
 import Link from "next/link";
 import EditableText from "@/components/EditableText";
+import HeroBackground from "./HeroBackground";
 
 export default function Landing({ className, description, isAdmin = false }) {
   return (
     <div className={className}>
+      <HeroBackground isAdmin={isAdmin} />
       <div className={styles.container}>
         <div className={styles.panel}>
           <h1 className={styles.title}>
