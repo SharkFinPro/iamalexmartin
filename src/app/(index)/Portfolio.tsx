@@ -2,18 +2,17 @@
 
 import styles from "./portfolio.module.scss";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import EditableText from "@/components/EditableText";
 import { useDragReorder } from "@/components/useDragReorder";
+import { useSiteConfig } from "@/components/useSiteConfig";
 import {
-  saveConfig,
   createPortfolioCard,
   updatePortfolioCard,
   deletePortfolioCard,
   type PortfolioCard as Card
 } from "@/app/admin/contentActions";
-import { applyConfigToCards, cardFlags, type SiteConfigData } from "@/lib/siteConfig";
+import { applyConfigToCards, cardFlags } from "@/lib/siteConfig";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -248,31 +247,18 @@ function CardEditor({
 }
 
 export default function Portfolio({ className, cards, description, config, isAdmin = false }: any) {
-  const router = useRouter();
-  const [cfg, setCfg] = useState<SiteConfigData>(config);
+  const { cfg, cfgRef, persist } = useSiteConfig(config);
   const [items, setItems] = useState<Card[]>(() => applyConfigToCards(cards, config, isAdmin));
   const [showCreate, setShowCreate] = useState(false);
   const [editing, setEditing] = useState<Card | null>(null);
   const [pendingDelete, setPendingDelete] = useState<Card | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
-  const cfgRef = useRef(cfg);
 
-  useEffect(() => { cfgRef.current = cfg; }, [cfg]);
-  // Re-derive from the server only when fresh props arrive (refresh/navigation).
+  // Re-derive items from the server only when fresh props arrive (refresh/nav).
   useEffect(() => {
-    setCfg(config);
     setItems(applyConfigToCards(cards, config, isAdmin));
   }, [cards, config, isAdmin]);
-
-  async function persist(next: SiteConfigData) {
-    setCfg(next);
-    const result = await saveConfig(next);
-    if ("error" in result) {
-      alert(`Save failed: ${result.error}`);
-      router.refresh();
-    }
-  }
 
   function toggleHide(id: string) {
     const current = cardFlags(cfgRef.current, id);

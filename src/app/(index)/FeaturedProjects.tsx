@@ -3,15 +3,14 @@
 import styles from "./featured.module.scss";
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar, faGripVertical } from "@fortawesome/free-solid-svg-icons";
 import EditableText from "@/components/EditableText";
 import { useDragReorder } from "@/components/useDragReorder";
 import { useTilt } from "@/components/useTilt";
-import { saveConfig } from "@/app/admin/contentActions";
-import { projectFlags, type SiteConfigData } from "@/lib/siteConfig";
+import { useSiteConfig } from "@/components/useSiteConfig";
+import { projectFlags } from "@/lib/siteConfig";
 
 function FeaturedCard({ project, isAdmin, innerRef, onHandlePointerDown, onUnfeature, floating }: any) {
   const tilt = useTilt();
@@ -82,23 +81,10 @@ function FeaturedCard({ project, isAdmin, innerRef, onHandlePointerDown, onUnfea
 }
 
 export default function FeaturedProjects({ className, projects, description, config, isAdmin = false }: any) {
-  const router = useRouter();
   const [items, setItems] = useState<any[]>(projects);
-  const [cfg, setCfg] = useState<SiteConfigData>(config);
-  const cfgRef = useRef(cfg);
+  const { cfg, cfgRef, persist } = useSiteConfig(config);
 
   useEffect(() => setItems(projects), [projects]);
-  useEffect(() => setCfg(config), [config]);
-  useEffect(() => { cfgRef.current = cfg; }, [cfg]);
-
-  async function persist(next: SiteConfigData) {
-    setCfg(next);
-    const result = await saveConfig(next);
-    if ("error" in result) {
-      alert(`Save failed: ${result.error}`);
-      router.refresh();
-    }
-  }
 
   function unfeature(slug: string) {
     const current = projectFlags(cfgRef.current, slug);

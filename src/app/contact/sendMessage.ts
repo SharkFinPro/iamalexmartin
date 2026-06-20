@@ -211,17 +211,14 @@ function createEmailData(name : string, email : string, subject : string, messag
 }
 
 export default async function sendMessage(name : string, email : string, subject : string, message : string) {
-  return new Promise((resolve, reject) => {
-    const emailData = createEmailData(name, email, subject, message);
+  const emailData = createEmailData(name, email, subject, message);
 
-    const mailgun = new Mailgun(FormData);
-    const mg = mailgun.client({
-      username: "api",
-      key: process.env.EMAIL_KEY
-    });
-
-    mg.messages.create("iamalexmartin.com", emailData)
-      .then(() => resolve(true))
-      .catch((err) => reject(err));
+  const mailgun = new Mailgun(FormData);
+  const mg = mailgun.client({
+    username: "api",
+    key: process.env.EMAIL_KEY
   });
+
+  await mg.messages.create("iamalexmartin.com", emailData);
+  return true;
 }

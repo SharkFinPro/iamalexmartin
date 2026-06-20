@@ -80,6 +80,20 @@ export default function Navigation() {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
   };
 
+  // Same control in both the desktop and small-screen navs.
+  const themeToggle = mounted && (
+    <button
+      className={styles.themeToggle}
+      onClick={toggleTheme}
+      aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+    >
+      <FontAwesomeIcon
+        icon={theme === 'light' ? faMoon : faSun}
+        className={styles.themeToggleIcon}
+      />
+    </button>
+  );
+
   return <>
     <nav className={styles.nav}>
       {navItems.map((item) => (
@@ -91,32 +105,10 @@ export default function Navigation() {
           <span>{item.label}</span>
         </Link>
       ))}
-      {mounted && (
-        <button
-          className={styles.themeToggle}
-          onClick={toggleTheme}
-          aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-        >
-          <FontAwesomeIcon
-            icon={theme === 'light' ? faMoon : faSun}
-            className={styles.themeToggleIcon}
-          />
-        </button>
-      )}
+      {themeToggle}
     </nav>
     <nav className={styles.navSmall} ref={dropdownRef}>
-      {mounted && (
-        <button
-          className={styles.themeToggle}
-          onClick={toggleTheme}
-          aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-        >
-          <FontAwesomeIcon
-            icon={theme === 'light' ? faMoon : faSun}
-            className={styles.themeToggleIcon}
-          />
-        </button>
-      )}
+      {themeToggle}
       <button
         className={styles.navSmallToggle}
         onClick={toggleDropdown}

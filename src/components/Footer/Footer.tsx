@@ -3,6 +3,7 @@ import { camelCaseToSentence } from "@/utils/string";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGithub, faLinkedin } from "@fortawesome/free-brands-svg-icons";
 import Link from "next/link";
+import { cmsQuery } from "@/lib/cms";
 
 const PROJECTS_TYPES_QUERY = `
   query ProjectTypes {
@@ -68,16 +69,7 @@ function Projects({ projectTypes }) {
 }
 
 export default async function Footer() {
-  const request = await fetch(process.env.CMS_ENDPOINT, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      query: PROJECTS_TYPES_QUERY
-    })
-  });
-  const response = await request.json();
+  const data = await cmsQuery(PROJECTS_TYPES_QUERY);
 
   return (
     <footer className={styles.wrapper}>
@@ -85,7 +77,7 @@ export default async function Footer() {
         <Social />
         <div className={styles.links}>
           <Navigate />
-          <Projects projectTypes={response.data["__type"].enumValues} />
+          <Projects projectTypes={data["__type"].enumValues} />
         </div>
       </div>
       <div className={styles.bottom}>

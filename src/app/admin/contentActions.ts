@@ -26,23 +26,69 @@ const EDITABLE_RICH_TEXT_FIELDS: Record<string, string[]> = {
   RichTextWidget: ["content"]
 };
 
+// --- Shared mutation helpers -------------------------------------------------
+// Every action below validates the caller and then runs the same handful of
+// Hygraph operations. `model` is always a validated/whitelisted PascalCase API
+// ID before it reaches these helpers, so interpolating it into the mutation
+// name is safe.
+
+/** Returns the not-authorized result when the caller isn't an admin, else null. */
+async function requireAuth(): Promise<{ ok: false; error: string } | null> {
+  return (await isAuthed()) ? null : { ok: false, error: "Not authorized." };
+}
+
+/** Publish an entry to the PUBLISHED stage. */
+function publishEntry(model: string, id: string) {
+  return cmsMutate(
+    `mutation Publish($id: ID!) { publish${model}(where: { id: $id }, to: PUBLISHED) { id } }`,
+    { id }
+  );
+}
+
+/** Remove an entry from the PUBLISHED stage. */
+function unpublishEntry(model: string, id: string) {
+  return cmsMutate(
+    `mutation Unpublish($id: ID!) { unpublish${model}(where: { id: $id }, from: PUBLISHED) { id } }`,
+    { id }
+  );
+}
+
+/** Update an entry's fields on the DRAFT stage, then publish it. */
+async function updateAndPublish(model: string, id: string, data: Record<string, any>) {
+  await cmsMutate(
+    `mutation Update($id: ID!, $data: ${model}UpdateInput!) { update${model}(where: { id: $id }, data: $data) { id } }`,
+    { id, data }
+  );
+  await publishEntry(model, id);
+}
+
+/**
+ * Permanently delete an entry. A published entry must be unpublished first, so we
+ * always attempt an unpublish (ignoring the error when it isn't published) before
+ * deleting. Irreversible — callers confirm with the user beforehand.
+ */
+async function unpublishThenDelete(model: string, id: string) {
+  try {
+    await unpublishEntry(model, id);
+  } catch {
+    // Not published (or already unpublished) — nothing to undo before delete.
+  }
+  await cmsMutate(
+    `mutation Delete($id: ID!) { delete${model}(where: { id: $id }) { id } }`,
+    { id }
+  );
+}
+
 const SAVE_CONFIG_MUTATION = `
   mutation SaveConfig($id: ID!, $data: Json!) {
     updateSiteConfig(where: { id: $id }, data: { data: $data }) { id }
   }
 `;
 
-const PUBLISH_CONFIG_MUTATION = `
-  mutation PublishConfig($id: ID!) {
-    publishSiteConfig(where: { id: $id }, to: PUBLISHED) { id }
-  }
-`;
-
 /** Persist the full siteConfig JSON (normalized to fill any missing keys). */
 export async function saveConfig(data: SiteConfigData): Promise<ActionResult> {
-  if (!(await isAuthed())) {
-    return { ok: false, error: "Not authorized." };
-  }
+  const denied = await requireAuth();
+  if (denied) return denied;
 
   const { id } = await getSiteConfig();
   if (!id) {
@@ -58,7 +104,7 @@ export async function saveConfig(data: SiteConfigData): Promise<ActionResult> {
   }
 
   try {
-    await cmsMutate(PUBLISH_CONFIG_MUTATION, { id });
+    await publishEntry("SiteConfig", id);
   } catch (e: any) {
     return { ok: false, error: `Publish failed: ${e?.message || e}` };
   }
@@ -69,26 +115,13 @@ export async function saveConfig(data: SiteConfigData): Promise<ActionResult> {
   return { ok: true };
 }
 
-const PUBLISH_ASSET_MUTATION = `
-  mutation PublishAsset($id: ID!) {
-    publishAsset(where: { id: $id }, to: PUBLISHED) { id }
-  }
-`;
-
-const UNPUBLISH_ASSET_MUTATION = `
-  mutation UnpublishAsset($id: ID!) {
-    unpublishAsset(where: { id: $id }, from: PUBLISHED) { id }
-  }
-`;
-
 /** Publish a single media asset (DRAFT -> PUBLISHED) from the admin UI. */
 export async function publishAsset(id: string): Promise<ActionResult> {
-  if (!(await isAuthed())) {
-    return { ok: false, error: "Not authorized." };
-  }
+  const denied = await requireAuth();
+  if (denied) return denied;
 
   try {
-    await cmsMutate(PUBLISH_ASSET_MUTATION, { id });
+    await publishEntry("Asset", id);
   } catch (e: any) {
     return { ok: false, error: e?.message || "Failed to publish asset." };
   }
@@ -116,16 +149,15 @@ export async function renameAsset(
   title: string,
   republish: boolean
 ): Promise<ActionResult> {
-  if (!(await isAuthed())) {
-    return { ok: false, error: "Not authorized." };
-  }
+  const denied = await requireAuth();
+  if (denied) return denied;
 
   const trimmed = title.trim();
 
   try {
     await cmsMutate(RENAME_ASSET_MUTATION, { id, title: trimmed || null });
     if (republish) {
-      await cmsMutate(PUBLISH_ASSET_MUTATION, { id });
+      await publishEntry("Asset", id);
     }
   } catch (e: any) {
     return { ok: false, error: e?.message || "Failed to rename asset." };
@@ -144,9 +176,8 @@ type UploadResult = { ok: true; asset: MediaAsset } | { ok: false; error: string
  * insert it without a full refetch.
  */
 export async function uploadAsset(formData: FormData): Promise<UploadResult> {
-  if (!(await isAuthed())) {
-    return { ok: false, error: "Not authorized." };
-  }
+  const denied = await requireAuth();
+  if (denied) return denied;
 
   const file = formData.get("file");
   if (!(file instanceof File) || file.size === 0) {
@@ -183,29 +214,16 @@ export async function uploadAsset(formData: FormData): Promise<UploadResult> {
   }
 }
 
-const DELETE_ASSET_MUTATION = `
-  mutation DeleteAsset($id: ID!) {
-    deleteAsset(where: { id: $id }) { id }
-  }
-`;
-
 /**
- * Permanently delete a media asset. A published asset must be unpublished first,
- * so we always attempt an unpublish (ignoring the error when it isn't published)
- * before deleting. Irreversible — the UI confirms with the user beforehand.
+ * Permanently delete a media asset. Unpublished first if needed. Irreversible —
+ * the UI confirms with the user beforehand.
  */
 export async function deleteAsset(id: string): Promise<ActionResult> {
-  if (!(await isAuthed())) {
-    return { ok: false, error: "Not authorized." };
-  }
+  const denied = await requireAuth();
+  if (denied) return denied;
 
   try {
-    try {
-      await cmsMutate(UNPUBLISH_ASSET_MUTATION, { id });
-    } catch {
-      // Not published (or already unpublished) — nothing to undo before delete.
-    }
-    await cmsMutate(DELETE_ASSET_MUTATION, { id });
+    await unpublishThenDelete("Asset", id);
   } catch (e: any) {
     return { ok: false, error: e?.message || "Failed to delete asset." };
   }
@@ -215,12 +233,11 @@ export async function deleteAsset(id: string): Promise<ActionResult> {
 
 /** Unpublish a single media asset (remove it from the PUBLISHED stage). */
 export async function unpublishAsset(id: string): Promise<ActionResult> {
-  if (!(await isAuthed())) {
-    return { ok: false, error: "Not authorized." };
-  }
+  const denied = await requireAuth();
+  if (denied) return denied;
 
   try {
-    await cmsMutate(UNPUBLISH_ASSET_MUTATION, { id });
+    await unpublishEntry("Asset", id);
   } catch (e: any) {
     return { ok: false, error: e?.message || "Failed to unpublish asset." };
   }
@@ -239,29 +256,16 @@ export async function updateContentField(
   field: string,
   value: any
 ): Promise<ActionResult> {
-  if (!(await isAuthed())) {
-    return { ok: false, error: "Not authorized." };
-  }
+  const denied = await requireAuth();
+  if (denied) return denied;
 
   const allowed = EDITABLE_FIELDS[model];
   if (!allowed || !allowed.includes(field)) {
     return { ok: false, error: `Field "${field}" on "${model}" is not editable.` };
   }
 
-  const updateMutation = `
-    mutation Update($id: ID!, $data: ${model}UpdateInput!) {
-      update${model}(where: { id: $id }, data: $data) { id }
-    }
-  `;
-  const publishMutation = `
-    mutation Publish($id: ID!) {
-      publish${model}(where: { id: $id }, to: PUBLISHED) { id }
-    }
-  `;
-
   try {
-    await cmsMutate(updateMutation, { id, data: { [field]: value } });
-    await cmsMutate(publishMutation, { id });
+    await updateAndPublish(model, id, { [field]: value });
   } catch (e: any) {
     return { ok: false, error: e?.message || "Failed to update content." };
   }
@@ -285,33 +289,20 @@ export async function updateRichTextField(
   field: string,
   content: RichTextAST
 ): Promise<ActionResult> {
-  if (!(await isAuthed())) {
-    return { ok: false, error: "Not authorized." };
-  }
+  const denied = await requireAuth();
+  if (denied) return denied;
 
   const allowed = EDITABLE_RICH_TEXT_FIELDS[model];
   if (!allowed || !allowed.includes(field)) {
     return { ok: false, error: `Field "${field}" on "${model}" is not editable.` };
   }
 
-  const updateMutation = `
-    mutation Update($id: ID!, $data: ${model}UpdateInput!) {
-      update${model}(where: { id: $id }, data: $data) { id }
-    }
-  `;
-  const publishMutation = `
-    mutation Publish($id: ID!) {
-      publish${model}(where: { id: $id }, to: PUBLISHED) { id }
-    }
-  `;
-
   // Defense in depth: strip unsafe link schemes (javascript:/data:, etc.) before
   // persisting, so a bypassed client can't store click-XSS into public content.
   const safeContent = sanitizeRichTextAst(content);
 
   try {
-    await cmsMutate(updateMutation, { id, data: { [field]: safeContent } });
-    await cmsMutate(publishMutation, { id });
+    await updateAndPublish(model, id, { [field]: safeContent });
   } catch (e: any) {
     return { ok: false, error: e?.message || "Failed to update content." };
   }
@@ -370,42 +361,17 @@ const CREATE_PORTFOLIO_CARD_MUTATION = `
   }
 `;
 
-const PUBLISH_PORTFOLIO_CARD_MUTATION = `
-  mutation PublishPortfolioCard($id: ID!) {
-    publishPortfolioCard(where: { id: $id }, to: PUBLISHED) { id }
-  }
-`;
-
-const UNPUBLISH_PORTFOLIO_CARD_MUTATION = `
-  mutation UnpublishPortfolioCard($id: ID!) {
-    unpublishPortfolioCard(where: { id: $id }, from: PUBLISHED) { id }
-  }
-`;
-
-const DELETE_PORTFOLIO_CARD_MUTATION = `
-  mutation DeletePortfolioCard($id: ID!) {
-    deletePortfolioCard(where: { id: $id }) { id }
-  }
-`;
-
 /**
- * Permanently delete a portfolio card. A published card must be unpublished first,
- * so we always attempt an unpublish (ignoring the error when it isn't published)
- * before deleting. Irreversible — the UI confirms with the user beforehand. The
- * caller also drops the card from siteConfig (order + flags).
+ * Permanently delete a portfolio card. Unpublished first if needed. Irreversible
+ * — the UI confirms with the user beforehand. The caller also drops the card from
+ * siteConfig (order + flags).
  */
 export async function deletePortfolioCard(id: string): Promise<ActionResult> {
-  if (!(await isAuthed())) {
-    return { ok: false, error: "Not authorized." };
-  }
+  const denied = await requireAuth();
+  if (denied) return denied;
 
   try {
-    try {
-      await cmsMutate(UNPUBLISH_PORTFOLIO_CARD_MUTATION, { id });
-    } catch {
-      // Not published (or already unpublished) — nothing to undo before delete.
-    }
-    await cmsMutate(DELETE_PORTFOLIO_CARD_MUTATION, { id });
+    await unpublishThenDelete("PortfolioCard", id);
   } catch (e: any) {
     return { ok: false, error: e?.message || "Failed to delete card." };
   }
@@ -414,6 +380,16 @@ export async function deletePortfolioCard(id: string): Promise<ActionResult> {
 }
 
 type CreateCardResult = { ok: true; card: PortfolioCard } | { ok: false; error: string };
+
+// Filter an arbitrary form payload down to the PortfolioCard whitelist so only
+// the known simple fields are ever sent to Hygraph.
+function cleanCardFields(data: Record<string, string>): Record<string, string> {
+  const clean: Record<string, string> = {};
+  for (const key of EDITABLE_FIELDS.PortfolioCard) {
+    if (typeof data?.[key] === "string") clean[key] = data[key];
+  }
+  return clean;
+}
 
 /**
  * Create a new portfolio card from the admin's form values and publish it so it
@@ -424,34 +400,21 @@ type CreateCardResult = { ok: true; card: PortfolioCard } | { ok: false; error: 
 export async function createPortfolioCard(
   data: Record<string, string>
 ): Promise<CreateCardResult> {
-  if (!(await isAuthed())) {
-    return { ok: false, error: "Not authorized." };
-  }
-
-  const allowed = EDITABLE_FIELDS.PortfolioCard;
-  const clean: Record<string, string> = {};
-  for (const key of allowed) {
-    if (typeof data?.[key] === "string") clean[key] = data[key];
-  }
+  const denied = await requireAuth();
+  if (denied) return denied;
 
   try {
-    const result = await cmsMutate(CREATE_PORTFOLIO_CARD_MUTATION, { data: clean });
+    const result = await cmsMutate(CREATE_PORTFOLIO_CARD_MUTATION, { data: cleanCardFields(data) });
     const card = result?.createPortfolioCard;
     if (!card?.id) {
       return { ok: false, error: "Card was not created." };
     }
-    await cmsMutate(PUBLISH_PORTFOLIO_CARD_MUTATION, { id: card.id });
+    await publishEntry("PortfolioCard", card.id);
     return { ok: true, card };
   } catch (e: any) {
     return { ok: false, error: e?.message || "Failed to create card." };
   }
 }
-
-const UPDATE_PORTFOLIO_CARD_MUTATION = `
-  mutation UpdatePortfolioCard($id: ID!, $data: PortfolioCardUpdateInput!) {
-    updatePortfolioCard(where: { id: $id }, data: $data) { id }
-  }
-`;
 
 /**
  * Update any subset of a portfolio card's editable fields in one write, then
@@ -462,19 +425,11 @@ export async function updatePortfolioCard(
   id: string,
   data: Record<string, string>
 ): Promise<ActionResult> {
-  if (!(await isAuthed())) {
-    return { ok: false, error: "Not authorized." };
-  }
-
-  const allowed = EDITABLE_FIELDS.PortfolioCard;
-  const clean: Record<string, string> = {};
-  for (const key of allowed) {
-    if (typeof data?.[key] === "string") clean[key] = data[key];
-  }
+  const denied = await requireAuth();
+  if (denied) return denied;
 
   try {
-    await cmsMutate(UPDATE_PORTFOLIO_CARD_MUTATION, { id, data: clean });
-    await cmsMutate(PUBLISH_PORTFOLIO_CARD_MUTATION, { id });
+    await updateAndPublish("PortfolioCard", id, cleanCardFields(data));
   } catch (e: any) {
     return { ok: false, error: e?.message || "Failed to update card." };
   }
@@ -487,12 +442,6 @@ export async function updatePortfolioCard(
 const CREATE_PROJECT_MUTATION = `
   mutation CreateProject($data: ProjectCreateInput!) {
     createProject(data: $data) { id slug }
-  }
-`;
-
-const PUBLISH_PROJECT_MUTATION = `
-  mutation PublishProject($id: ID!) {
-    publishProject(where: { id: $id }, to: PUBLISHED) { id }
   }
 `;
 
@@ -517,9 +466,8 @@ export async function createProject(
   projectType: string[],
   imageId: string
 ): Promise<CreateProjectResult> {
-  if (!(await isAuthed())) {
-    return { ok: false, error: "Not authorized." };
-  }
+  const denied = await requireAuth();
+  if (denied) return denied;
 
   const cleanTitle = title.trim();
   const cleanSlug = slug.trim().toLowerCase();
@@ -551,8 +499,8 @@ export async function createProject(
       return { ok: false, error: "Project was not created." };
     }
     // Publish the asset too, so the connected image resolves on the public stage.
-    await cmsMutate(PUBLISH_ASSET_MUTATION, { id: imageId });
-    await cmsMutate(PUBLISH_PROJECT_MUTATION, { id: project.id });
+    await publishEntry("Asset", imageId);
+    await publishEntry("Project", project.id);
     return { ok: true, id: project.id, slug: project.slug };
   } catch (e: any) {
     return { ok: false, error: e?.message || "Failed to create project." };
@@ -571,15 +519,14 @@ const SET_PROJECT_IMAGE_MUTATION = `
  * resolve its URL. Replaces any current image (to-one relation).
  */
 export async function setProjectImage(id: string, assetId: string): Promise<ActionResult> {
-  if (!(await isAuthed())) {
-    return { ok: false, error: "Not authorized." };
-  }
+  const denied = await requireAuth();
+  if (denied) return denied;
 
   try {
     await cmsMutate(SET_PROJECT_IMAGE_MUTATION, { id, assetId });
     // Make sure the linked asset is live, otherwise `image { url }` is null publicly.
-    await cmsMutate(PUBLISH_ASSET_MUTATION, { id: assetId });
-    await cmsMutate(PUBLISH_PROJECT_MUTATION, { id });
+    await publishEntry("Asset", assetId);
+    await publishEntry("Project", id);
   } catch (e: any) {
     return { ok: false, error: e?.message || "Failed to set project image." };
   }

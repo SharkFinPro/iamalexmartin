@@ -1,4 +1,6 @@
 @use "@/styles/variables" as *;
+@use "@/styles/reorder" as r;
+@use "@/styles/modal" as m;
 
 .container {
   background-color: var(--bg-primary);
@@ -285,17 +287,13 @@
 }
 
 .floatingLayer {
-  position: fixed;
-  z-index: 1000;
-  pointer-events: none;
+  @include r.floating-layer;
   margin: 0;
   list-style: none;
 }
 
 .floating {
-  transform: rotate(2deg) scale(1.03);
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
-  cursor: grabbing;
+  @include r.floating-card;
 }
 
 .placeholder {
@@ -313,47 +311,13 @@
 }
 
 .adminOverlay {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  z-index: 3;
-  display: flex;
-  align-items: center;
+  @include r.admin-overlay;
   justify-content: flex-end;
   flex-wrap: wrap;
-  gap: 0.4rem;
-
-  button {
-    width: 2rem;
-    height: 2rem;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    color: #fff;
-    background: rgba(0, 0, 0, 0.55);
-
-    &.flagActive {
-      background: var(--accent);
-    }
-  }
 }
 
 .dragHandle {
-  display: grid;
-  place-items: center;
-  width: 2rem;
-  height: 2rem;
-  padding: 0;
-  border: none;
-  border-radius: 6px;
-  color: #fff;
-  background: rgba(0, 0, 0, 0.55);
-  cursor: grab;
-  touch-action: none;
-
-  &:active {
-    cursor: grabbing;
-  }
+  @include r.drag-handle;
 }
 
 .archivedCard {
@@ -486,52 +450,23 @@
 /* --- New Project modal ---------------------------------------------------- */
 
 .modalOverlay {
-  position: fixed;
-  inset: 0;
-  z-index: 1100;
-  display: grid;
-  place-items: center;
-  background: rgba(0, 0, 0, 0.55);
-  padding: 1rem;
+  @include m.modal-overlay;
 }
 
 .modal {
-  width: 100%;
+  @include m.modal-surface;
   max-width: 420px;
-  background: var(--bg-card);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
 }
 
 .modalTitle {
-  font-size: 1.3rem;
+  @include m.modal-title;
 }
 
 .field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  border: none;
-  padding: 0;
-  margin: 0;
-
-  & > span {
-    font-size: 0.9rem;
-    font-weight: bold;
-    color: var(--text-secondary);
-  }
+  @include m.modal-field;
 
   & > input {
-    padding: 0.6em 0.75em;
-    border: 1px solid var(--border-color);
-    border-radius: 0.5em;
-    background: var(--bg-primary);
-    color: var(--text-primary);
+    @include m.modal-input;
   }
 }
 
@@ -568,28 +503,16 @@
 }
 
 .modalError {
-  color: #e5484d;
-  font-size: 0.9rem;
+  @include m.modal-error;
 }
 
 .modalActions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
+  @include m.modal-actions;
 }
 
 .modalCancel,
 .modalConfirm {
-  padding: 0.6em 1.25em;
-  border: none;
-  border-radius: 0.5em;
-  font-weight: bold;
-  cursor: pointer;
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: default;
-  }
+  @include m.modal-button;
 }
 
 .modalCancel {
