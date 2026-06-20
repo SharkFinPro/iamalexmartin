@@ -2,9 +2,9 @@ import RichTextWidget from "@/components/RichTextWidget";
 import EditableRichText from "@/components/RichTextEditor";
 
 type Props = {
-  model: string; // Hygraph model API ID (e.g. "Project")
+  model: string; // Hygraph model API ID (e.g. "RichTextWidget")
   id: string; // entry id
-  field: string; // RichText field API ID (e.g. "projectPageContent")
+  field: string; // RichText field API ID (e.g. "content")
   raw: any; // raw rich-text AST ({ children })
   isAdmin: boolean;
 };

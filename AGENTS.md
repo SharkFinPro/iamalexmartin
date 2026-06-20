@@ -31,7 +31,7 @@ The site has a lightweight, **database-free admin editor**: log in with an env-v
 
 ## Content model (Hygraph)
 
-Simple scalar/list fields the admin may write inline are whitelisted in `EDITABLE_FIELDS` in `src/app/admin/contentActions.ts`: `Project`, `Description` (keyed by `location`), `PortfolioCard`. **Rich-text** fields are whitelisted separately in `EDITABLE_RICH_TEXT_FIELDS` (`Project.projectPageContent`, `RichTextWidget.content`) and edited via the `RichTextEditor` subsystem (see below). Relations are still **not** inline-editable.
+Simple scalar/list fields the admin may write inline are whitelisted in `EDITABLE_FIELDS` in `src/app/admin/contentActions.ts`: `Project`, `Description` (keyed by `location`), `PortfolioCard`. **Rich-text** fields are whitelisted separately in `EDITABLE_RICH_TEXT_FIELDS` (`RichTextWidget.content`) and edited via the `RichTextEditor` subsystem (see below). Relations are still **not** inline-editable.
 
 Presentation state lives in one **`SiteConfig`** entry (a single JSON `data` field), shaped by `SiteConfigData` in `siteConfig.ts`: `projectOrder`, `featuredOrder`, per-project `{ visible, featured }` flags, and `homepage` toggles. Defaults are applied so the site works before any config is saved.
 

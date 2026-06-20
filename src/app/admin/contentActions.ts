@@ -23,7 +23,6 @@ const EDITABLE_FIELDS: Record<string, string[]> = {
 // Rich-text (RichTextAST) fields the inline editor may write. Kept separate from
 // EDITABLE_FIELDS because the value is the AST JSON, not a simple scalar/list.
 const EDITABLE_RICH_TEXT_FIELDS: Record<string, string[]> = {
-  Project: ["projectPageContent"],
   RichTextWidget: ["content"]
 };
 
@@ -480,11 +479,8 @@ const CREATE_PROJECT_MUTATION = `
 type CreateProjectResult = { ok: true; id: string; slug: string } | { ok: false; error: string };
 
 // Placeholder text fields a fresh project gets so the (required) CMS fields are
-// satisfied; the admin overwrites them inline. An empty paragraph keeps the
-// rich-text body valid so the project page (which reads `projectPageContent.raw`)
-// renders right after the post-create redirect.
+// satisfied; the admin overwrites them inline.
 const NEW_PROJECT_DESCRIPTION = "Add a description for this project.";
-const EMPTY_RICH_TEXT = { children: [{ type: "paragraph", children: [{ text: "" }] }] };
 
 /**
  * Create a minimal project stub (title, slug, type) and publish it. Required text
@@ -522,7 +518,6 @@ export async function createProject(
         projectType,
         description: NEW_PROJECT_DESCRIPTION,
         projectPageDescription: NEW_PROJECT_DESCRIPTION,
-        projectPageContent: EMPTY_RICH_TEXT,
         image: { connect: { id: imageId } }
       }
     });

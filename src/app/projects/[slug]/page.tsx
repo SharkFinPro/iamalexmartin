@@ -2,7 +2,6 @@ import { notFound } from 'next/navigation'
 import styles from "./Project.module.scss";
 import { Metadata } from "next";
 import Banner from "@/components/Banner";
-import RichTextWidget from "@/components/RichTextWidget";
 import ProjectBlocks from "@/components/ProjectBlocks/ProjectBlocks";
 import ProjectPageEditor from "@/components/ProjectBlocks/editor/ProjectPageEditor";
 import { sanitizeProjectPage } from "@/components/ProjectBlocks/blocks";
@@ -21,9 +20,6 @@ async function getProject(slug: string) {
             title
             projectPageDescription
             projectPage
-            projectPageContent {
-              raw
-            }
           }
         }
       `,
@@ -75,9 +71,8 @@ export default async function Page({ params }) {
     notFound();
   }
 
-  // projectPage is the case-study block list (nullable — coerced to []). While a
-  // project hasn't been migrated to blocks, visitors fall back to the legacy
-  // projectPageContent rich text.
+  // projectPage is the case-study block list. It is null until populated in the
+  // CMS, so sanitizeProjectPage coerces a missing value to an empty list.
   const blocks = sanitizeProjectPage(project.projectPage);
 
   return (
@@ -95,10 +90,8 @@ export default async function Page({ params }) {
             projectTitle={project.title}
             initialBlocks={blocks}
           />
-        ) : blocks.length > 0 ? (
-          <ProjectBlocks blocks={blocks} />
         ) : (
-          <RichTextWidget content={project.projectPageContent?.raw} />
+          blocks.length > 0 && <ProjectBlocks blocks={blocks} />
         )}
       </main>
     </>
