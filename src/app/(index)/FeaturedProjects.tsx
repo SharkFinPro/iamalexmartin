@@ -72,14 +72,14 @@ function FeaturedCard({ project, isAdmin, innerRef, onHandlePointerDown, onHandl
   }
 
   return (
-    <Link href={`/projects/${project.slug}`} className={styles.card} {...tilt}>
+    <div className={styles.card} {...tilt}>
       {thumbnail}
       <div className={styles.body}>
         <h3>{project.title}</h3>
         <p>{project.description}</p>
-        <span className={styles.viewLink}>View Details</span>
+        <Link href={`/projects/${project.slug}`} className={styles.viewLink}>View Details</Link>
       </div>
-    </Link>
+    </div>
   );
 }
 
