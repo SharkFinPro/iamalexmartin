@@ -1,8 +1,7 @@
 import Banner from "@/components/Banner";
 import type { Metadata } from "next";
 import styles from "./About.module.scss";
-import RichTextWidget from "@/components/RichTextWidget";
-import EditableRichText from "@/components/RichTextEditor";
+import RichTextField from "@/components/RichTextField";
 import { cmsQuery } from "@/lib/cms";
 import { isAuthed } from "@/lib/auth";
 
@@ -40,18 +39,7 @@ export default async function Page() {
       edit={{ isAdmin, model: "Description", id: description.id, titleField: "header", descriptionField: "description" }}
     />
     <div className={styles.container}>
-      {/* Admins edit the rich-text field inline; visitors get the unchanged,
-          server-rendered widget (same markup, no client cost or SEO impact). */}
-      {isAdmin ? (
-        <EditableRichText
-          model="RichTextWidget"
-          id={widget.id}
-          field="content"
-          value={widget.content.raw}
-        />
-      ) : (
-        <RichTextWidget content={widget.content.raw} />
-      )}
+      <RichTextField model="RichTextWidget" id={widget.id} field="content" raw={widget.content.raw} isAdmin={isAdmin} />
     </div>
   </>
 }

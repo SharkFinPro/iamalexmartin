@@ -2,8 +2,7 @@ import { notFound } from 'next/navigation'
 import styles from "./Project.module.scss";
 import { Metadata } from "next";
 import Banner from "@/components/Banner";
-import RichTextWidget from "@/components/RichTextWidget";
-import EditableRichText from "@/components/RichTextEditor";
+import RichTextField from "@/components/RichTextField";
 import { cmsQuery } from "@/lib/cms";
 import { isAuthed } from "@/lib/auth";
 import { getSiteConfig } from "@/lib/getSiteConfig";
@@ -81,18 +80,7 @@ export default async function Page({ params }) {
       />
 
       <div className={styles.container}>
-        {/* Admins edit the rich-text field inline; visitors get the unchanged,
-            server-rendered widget (same markup, no client cost or SEO impact). */}
-        {isAdmin ? (
-          <EditableRichText
-            model="Project"
-            id={project.id}
-            field="projectPageContent"
-            value={project.projectPageContent.raw}
-          />
-        ) : (
-          <RichTextWidget content={project.projectPageContent.raw} />
-        )}
+        <RichTextField model="Project" id={project.id} field="projectPageContent" raw={project.projectPageContent.raw} isAdmin={isAdmin} />
       </div>
     </>
   );
