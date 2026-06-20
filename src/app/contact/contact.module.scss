@@ -20,11 +20,10 @@
 
 .container {
   background-color: var(--bg-primary);
-  padding-block: 2rem;
+  padding-block: var(--section-padding);
   padding-inline: 1rem;
 
   @media (max-width: 480px) {
-    padding-block: 1rem;
     padding-inline: 0.5rem;
   }
 }
@@ -37,6 +36,7 @@
   padding: 3rem;
   position: relative;
   overflow: hidden;
+  animation: pageFadeIn 0.5s ease-out 0.1s both;
 
   @media (max-width: 768px) {
     padding: 2rem;
@@ -68,7 +68,7 @@
     & > h2 {
       color: var(--text-primary);
       font-weight: 800;
-      font-size: 2.1rem;
+      font-size: var(--fs-title);
       position: relative;
 
       &:after {

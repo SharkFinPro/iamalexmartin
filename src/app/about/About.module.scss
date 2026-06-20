@@ -4,11 +4,10 @@
 .container {
   background-color: var(--bg-primary);
   place-items: center;
-  padding-block: 2rem;
+  padding-block: var(--section-padding);
   padding-inline: 1rem;
 
   @media (max-width: 480px) {
-    padding-block: 1rem;
     padding-inline: 0.5rem;
   }
 }

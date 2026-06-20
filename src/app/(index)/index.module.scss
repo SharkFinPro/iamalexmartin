@@ -4,12 +4,12 @@
 .wrapper {
   display: grid;
   place-items: center;
-  padding-block: 4em;
+  padding-block: var(--section-padding);
 }
 
 .homepage {
   background-color: var(--bg-primary);
-  padding-block: 6em;
+  padding-block: var(--section-padding-lg);
 }
 
 .welcome {

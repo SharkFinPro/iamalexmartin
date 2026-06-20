@@ -18,6 +18,14 @@
   --transition-fast: 0.2s ease;
   --transition: 0.3s ease;
 
+  // Shared vertical rhythm — one responsive scale for page/section padding.
+  --section-padding: clamp(2.5rem, 5vw, 4rem);
+  --section-padding-lg: clamp(3.5rem, 7vw, 6rem);
+
+  // Shared type ramp for page/section titles.
+  --fs-hero: clamp(2.5rem, 5vw, 3.5rem);
+  --fs-title: clamp(1.9rem, 4vw, 2.4rem);
+
   // Placeholder thumbnail gradient (shown when a project has no image).
   // Defined here rather than in the theme map because gradients contain
   // top-level commas that the SCSS map parser would split on.
@@ -44,6 +52,24 @@ body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+// Shared page-entrance motion. Defined in this global (non-module) file so the
+// keyframe name stays unhashed and is referenceable from any CSS module.
+@keyframes pageFadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// Honor reduced-motion globally: neutralizes the homepage entrance animations
+// and the shared page fade for users who ask for less motion.
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 // Shared keyboard-focus indicator. Mouse clicks don't trigger :focus-visible,

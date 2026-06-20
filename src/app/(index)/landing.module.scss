@@ -43,7 +43,7 @@
   margin-top: clamp(1rem, 3vw, 2rem);
 
   @media (min-width: 400px) {
-    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    font-size: var(--fs-hero);
   }
 }
 
