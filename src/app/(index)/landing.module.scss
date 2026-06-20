@@ -103,10 +103,10 @@
   display: flex;
   gap: 1em;
   justify-content: center;
-
-  @media (max-width: 400px) {
-    flex-direction: column;
-  }
+  // Allow the *pair* of buttons to wrap onto two lines as a unit on very
+  // narrow screens, but keep each individual button on a single line (see
+  // white-space below) so the labels never break awkwardly mid-word.
+  flex-wrap: wrap;
 }
 
 .homepageButton {
@@ -119,6 +119,10 @@
   display: grid;
   place-content: center;
   opacity: 0;
+  // Keep each button label on one line — "View My Work" / "Contact Me" wrapping
+  // mid-phrase looks broken. The pair can still wrap as a whole thanks to
+  // .buttons { flex-wrap: wrap }.
+  white-space: nowrap;
 }
 
 .homepageButton:hover {
