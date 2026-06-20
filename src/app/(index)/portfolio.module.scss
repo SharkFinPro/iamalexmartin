@@ -154,7 +154,7 @@
   box-shadow: var(--shadow-md);
 
   & > h3 {
-    color: var(--accent);
+    color: var(--accent-text);
   }
 }
 
@@ -170,7 +170,7 @@
   justify-content: center;
   margin: 0 auto 1.25rem;
   font-size: 1.5rem;
-  color: var(--accent);
+  color: var(--accent-text);
 
   /* Subtle icon animation */
   animation: fadeInUp 0.75s ease-out 0.2s backwards;
@@ -380,7 +380,7 @@
   flex-shrink: 0;
   border-radius: 50%;
   background: var(--bg-secondary);
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .modalError {

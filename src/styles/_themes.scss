@@ -14,6 +14,10 @@ $themes: (
     text-on-accent: #ffffff,
     // Deeper emerald reads with more authority against the pale background.
     accent: #059669,
+    // Darker emerald for green *text* on light backgrounds: #059669 only reaches
+    // ~3.4:1 as text, so links/CTAs use this (4.5:1+) while --accent stays for the
+    // logo (on the dark navbar), focus ring, and fills. WCAG 1.4.3.
+    accent-text: #047d57,
     // Deeper blue for the same reason.
     accent-secondary: #2358b2,
     border-color: rgba(15, 23, 42, 0.09),
@@ -45,6 +49,9 @@ $themes: (
     text-on-accent: #ffffff,
     // Brighter emerald so the accent pops against the near-black background.
     accent: #22c79a,
+    // On dark backgrounds the bright accent already clears AA as text (~8.6:1),
+    // so the text token matches --accent here.
+    accent-text: #22c79a,
     // Brighter blue so it pops against the near-black background.
     accent-secondary: #5a8cf0,
     border-color: rgba(238, 242, 247, 0.12),
