@@ -1,7 +1,8 @@
 
 .container {
   background-color: var(--bg-primary);
-  place-items: center;
+  display: grid;
+  justify-items: center;
   padding-block: 2rem;
   padding-inline: 1rem;
   min-height: calc(100vh - 70px);
