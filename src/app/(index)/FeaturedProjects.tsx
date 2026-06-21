@@ -8,12 +8,18 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar, faGripVertical } from "@fortawesome/free-solid-svg-icons";
 import EditableText from "@/components/EditableText";
 import { useDragReorder } from "@/components/useDragReorder";
+import { useReveal } from "@/components/useReveal";
 import { useTilt } from "@/components/useTilt";
 import { useSiteConfig } from "@/components/useSiteConfig";
 import { projectFlags } from "@/lib/siteConfig";
 
-function FeaturedCard({ project, isAdmin, innerRef, onHandlePointerDown, onHandleKeyDown, onUnfeature, floating }: any) {
+function FeaturedCard({ project, isAdmin, innerRef, onHandlePointerDown, onHandleKeyDown, onUnfeature, floating, revealIndex }: any) {
   const tilt = useTilt();
+  // Each visitor card observes itself, so it reveals exactly as it scrolls into
+  // view (a single container observer would leave on-screen cards hidden until
+  // the whole grid crossed the threshold). The full index drives a first-to-last
+  // cascade when the grid enters the viewport together.
+  const reveal = useReveal<HTMLDivElement>();
   const thumbnail = (
     <div className={styles.thumbnail}>
       {project.image && (
@@ -72,7 +78,12 @@ function FeaturedCard({ project, isAdmin, innerRef, onHandlePointerDown, onHandl
   }
 
   return (
-    <div className={styles.card} {...tilt}>
+    <div
+      ref={reveal.ref}
+      className={`reveal ${reveal.isVisible ? "is-visible" : ""} ${styles.card}`}
+      style={{ ["--reveal-index" as any]: revealIndex ?? 0 }}
+      {...tilt}
+    >
       {thumbnail}
       <div className={styles.body}>
         <h3>{project.title}</h3>
@@ -86,6 +97,11 @@ function FeaturedCard({ project, isAdmin, innerRef, onHandlePointerDown, onHandl
 export default function FeaturedProjects({ className, projects, description, config, isAdmin = false }: any) {
   const [items, setItems] = useState<any[]>(projects);
   const { cfg, cfgRef, persist } = useSiteConfig(config);
+
+  // Header reveals on its own viewport entry; each card self-reveals (see
+  // FeaturedCard). Admin views render statically so editing never re-hides them.
+  const headerReveal = useReveal<HTMLHeadingElement>();
+  const headerVisible = isAdmin || headerReveal.isVisible;
 
   useEffect(() => setItems(projects), [projects]);
 
@@ -109,12 +125,18 @@ export default function FeaturedProjects({ className, projects, description, con
 
   return (
     <div className={className}>
-      <h2 className={styles.sectionHeader}>
+      <h2
+        ref={headerReveal.ref}
+        className={`reveal ${headerVisible ? "is-visible" : ""} ${styles.sectionHeader}`}
+      >
         <EditableText model="Description" id={description.id} field="header" value={description.header} editable={isAdmin}>
           {description.header}
         </EditableText>
       </h2>
-      <p className={styles.sectionDescription}>
+      <p
+        className={`reveal ${headerVisible ? "is-visible" : ""} ${styles.sectionDescription}`}
+        style={{ ["--reveal-index" as any]: 1 }}
+      >
         <EditableText model="Description" id={description.id} field="description" value={description.description} editable={isAdmin} multiline>
           {description.description}
         </EditableText>
@@ -137,6 +159,7 @@ export default function FeaturedProjects({ className, projects, description, con
               key={project.slug}
               project={project}
               isAdmin={isAdmin}
+              revealIndex={index}
               innerRef={drag.registerCard(project.slug)}
               onHandlePointerDown={
                 isAdmin ? (e: React.PointerEvent) => drag.startDrag(index, project.slug, e) : undefined

@@ -72,7 +72,7 @@
   // layered as a transform on the wrapper, not an opacity gate, so we never
   // hide the text.
   opacity: 1;
-  animation: fadeIn 1s ease-out both;
+  animation: fadeIn 1.5s ease-out both;
 
   line-height: 1.2;
   margin-top: clamp(1rem, 3vw, 2rem);
@@ -94,8 +94,8 @@
   color: var(--text-secondary);
 
   opacity: 1;
-  animation: fadeIn 1s ease-out both;
-  animation-delay: 0.7s;
+  animation: fadeIn 1.5s ease-out both;
+  animation-delay: 1s;
   line-height: 1.5;
 
   @media (prefers-reduced-motion: reduce) {
@@ -150,8 +150,8 @@
   background: var(--accent);
   color: var(--text-on-accent);
   border: 2px solid var(--accent);
-  animation: buttonSlideIn 0.5s ease-out both;
-  animation-delay: 1.2s;
+  animation: buttonSlideIn 0.8s ease-out both;
+  animation-delay: 1.7s;
 
   @media (prefers-reduced-motion: reduce) {
     animation: none;
@@ -162,8 +162,8 @@
   background-color: var(--bg-card);
   color: var(--text-primary);
   border: 2px solid var(--border-color);
-  animation: buttonSlideIn 0.5s ease-out both;
-  animation-delay: 1.5s;
+  animation: buttonSlideIn 0.8s ease-out both;
+  animation-delay: 2.1s;
 
   @media (prefers-reduced-motion: reduce) {
     animation: none;

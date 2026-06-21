@@ -36,7 +36,7 @@
   padding: 3rem;
   position: relative;
   overflow: hidden;
-  animation: pageFadeIn 0.5s ease-out 0.1s both;
+  animation: pageFadeIn 0.8s ease-out 0.15s both;
 
   @media (max-width: 768px) {
     padding: 2rem;
@@ -94,7 +94,7 @@
     padding: 1rem;
     border-radius: var(--radius-sm);
     border: 1px solid;
-    animation: fade-in 0.5s ease-out;
+    animation: fade-in 0.8s ease-out;
   }
 
   .formSubmitSuccess {

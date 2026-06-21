@@ -6,7 +6,7 @@
   background-color: var(--bg-primary);
   // Match the body's theme transition so this strip eases in sync with the rest
   // of the page rather than snapping instantly.
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color var(--dur-base) ease, color var(--dur-base) ease;
   min-width: 100%;
   color: var(--text-primary);
   max-width: 600px;
@@ -108,8 +108,8 @@
   background: var(--accent-secondary);
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-sm);
-  transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
-              width 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform var(--dur-base) cubic-bezier(0.22, 1, 0.36, 1),
+              width var(--dur-base) cubic-bezier(0.22, 1, 0.36, 1);
   z-index: 0;
   pointer-events: none;
 
@@ -154,7 +154,7 @@
   // pointer tilt (--rx/--ry) rather than overwriting it.
   --ty: 0px;
   transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(var(--ty));
-  transition: transform 0.25s ease-out, box-shadow 0.3s ease-in-out;
+  transition: transform var(--dur-base) ease-out, box-shadow var(--dur-base) ease-in-out;
 
   .thumbnail {
     aspect-ratio: 2/1;
@@ -173,7 +173,7 @@
       // a source ever deviates) rather than letterboxing it in a dark box.
       aspect-ratio: 2 / 1;
       object-fit: cover;
-      transition: transform 0.4s ease-in-out;
+      transition: transform var(--dur-slow) ease-in-out;
     }
 
     // Light, even scrim that holds the centered title; mostly lifts on hover to
@@ -183,7 +183,7 @@
       position: absolute;
       inset: 0;
       background-color: rgba($dark, 0.64);
-      transition: background-color 0.4s ease-in-out;
+      transition: background-color var(--dur-slow) ease-in-out;
       z-index: 1;
     }
 
@@ -205,7 +205,7 @@
       letter-spacing: -0.015em;
       font-size: 1.4rem;
       opacity: 1;
-      transition: opacity 0.3s ease-in-out;
+      transition: opacity var(--dur-base) ease-in-out;
     }
   }
 
@@ -221,7 +221,7 @@
       font-size: 1.2em;
       padding-block: 0.5em;
       color: var(--text-primary);
-      transition: color 0.3s ease-in-out;
+      transition: color var(--dur-base) ease-in-out;
     }
 
     & > p {
@@ -260,7 +260,7 @@
       padding-block: 1em;
       font-weight: bold;
       text-align: center;
-      transition: all 0.3s ease-in-out;
+      transition: all var(--dur-base) ease-in-out;
 
       &:hover {
         transform: translateY(-2px);
@@ -354,7 +354,7 @@
   color: var(--text-muted);
   cursor: pointer;
   font-size: 0.85em;
-  transition: all 0.15s ease-in-out;
+  transition: all var(--dur-fast) ease-in-out;
 
   &:hover {
     background: rgba(0, 0, 0, 0.18);
@@ -402,7 +402,7 @@
   color: $light;
   font-weight: bold;
   cursor: pointer;
-  transition: background 0.2s ease-in-out;
+  transition: background var(--dur-fast) ease-in-out;
 
   &:hover {
     background: color-mix(in srgb, var(--accent-secondary) 90%, #000);
@@ -426,7 +426,7 @@
   padding: 0.3em 0.75em;
   font-size: 0.8rem;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
+  transition: all var(--dur-fast) ease-in-out;
 
   &:hover {
     border-color: var(--accent);
@@ -530,4 +530,92 @@
 .modalConfirm {
   background: var(--accent-secondary);
   color: $light;
+}
+
+/* --- Loading skeletons ----------------------------------------------------- *
+ * Shown by loading.tsx while the force-dynamic page awaits the CMS query. The
+ * skeleton reuses the real `.cards`/`.card` box metrics so swapping in the live
+ * content produces no layout shift. */
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+%shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--bg-secondary) 25%,
+    var(--border-color) 50%,
+    var(--bg-secondary) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+// Soft entrance for the real cards once the streamed list resolves, so the
+// swap from skeletons isn't abrupt.
+@keyframes projectsFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+.cardsEnter {
+  animation: projectsFadeIn var(--dur-base) ease-out both;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+.skeletonCard {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.skeletonThumb {
+  @extend %shimmer;
+  aspect-ratio: 2 / 1;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.skeletonBody {
+  background-color: var(--bg-card);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1em;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  border: 1px solid var(--border-color);
+  border-top: none;
+}
+
+.skeletonLine {
+  @extend %shimmer;
+  height: 0.85rem;
+  border-radius: var(--radius-sm);
+}
+
+.skeletonLineTitle {
+  height: 1.3rem;
+  width: 65%;
+}
+
+.skeletonLineShort {
+  width: 40%;
+}
+
+.skeletonButton {
+  @extend %shimmer;
+  height: 3rem;
+  margin-top: 1rem;
+  border-radius: var(--radius-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  %shimmer {
+    animation: none;
+  }
 }

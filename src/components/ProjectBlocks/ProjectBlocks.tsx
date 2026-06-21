@@ -1,4 +1,5 @@
 import RichTextWidget from "@/components/RichTextWidget";
+import Reveal from "@/components/Reveal";
 import type { Block } from "./blocks";
 import Hero from "./Hero";
 import FeatureGrid from "./FeatureGrid";
@@ -30,34 +31,46 @@ export default function ProjectBlocks({
 }) {
   return (
     <div className={`${styles.blocks} ${naturalHeroImage ? styles.naturalHeroImage : ""}`}>
-      {blocks.map((block) => {
-        switch (block.type) {
-          case "hero":
-            return <Hero key={block.id} block={block} />;
-          case "richText":
-            return (
-              <section key={block.id} className={`${styles.block} ${styles.measure}`}>
-                <RichTextWidget content={block.content} variant="bare" />
-              </section>
-            );
-          case "featureGrid":
-            return <FeatureGrid key={block.id} block={block} />;
-          case "stats":
-            return <Stats key={block.id} block={block} />;
-          case "techStack":
-            return <TechStack key={block.id} block={block} />;
-          case "gallery":
-            return <Gallery key={block.id} block={block} />;
-          case "video":
-            return <Video key={block.id} block={block} />;
-          case "callout":
-            return <Callout key={block.id} block={block} />;
-          case "cta":
-            return <Cta key={block.id} block={block} />;
-          default:
-            return null;
-        }
+      {blocks.map((block, index) => {
+        const content = renderBlock(block);
+        if (!content) return null;
+        // Each block reveals as it scrolls into view. Stagger is capped so blocks
+        // that share the first screen cascade subtly without long waits.
+        return (
+          <Reveal key={block.id} index={index % 3}>
+            {content}
+          </Reveal>
+        );
       })}
     </div>
   );
+}
+
+function renderBlock(block: Block) {
+  switch (block.type) {
+    case "hero":
+      return <Hero block={block} />;
+    case "richText":
+      return (
+        <section className={`${styles.block} ${styles.measure}`}>
+          <RichTextWidget content={block.content} variant="bare" />
+        </section>
+      );
+    case "featureGrid":
+      return <FeatureGrid block={block} />;
+    case "stats":
+      return <Stats block={block} />;
+    case "techStack":
+      return <TechStack block={block} />;
+    case "gallery":
+      return <Gallery block={block} />;
+    case "video":
+      return <Video block={block} />;
+    case "callout":
+      return <Callout block={block} />;
+    case "cta":
+      return <Cta block={block} />;
+    default:
+      return null;
+  }
 }

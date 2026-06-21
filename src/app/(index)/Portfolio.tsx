@@ -6,6 +6,7 @@ import { useEffect, useId, useState } from "react";
 import EditableText from "@/components/EditableText";
 import Modal from "@/components/Modal";
 import { useDragReorder } from "@/components/useDragReorder";
+import { useReveal } from "@/components/useReveal";
 import { useSiteConfig } from "@/components/useSiteConfig";
 import {
   createPortfolioCard,
@@ -66,18 +67,28 @@ function CardView({
   onEdit,
   onToggleHide,
   onDelete,
-  floating
+  floating,
+  revealIndex
 }: any) {
   // A bad icon name renders nothing (FontAwesome warns); fall back so the slot
   // never collapses.
   const iconName = card.fontAwesomeIcon || "star";
 
+  // Each visitor card observes itself so it reveals exactly as it scrolls into
+  // view; the full index gives a first-to-last cascade when the grid enters
+  // together. Admin cards stay statically visible (and use the drag ref) so
+  // dragging/editing never re-hides them.
+  const reveal = useReveal<HTMLDivElement>();
+  const revealClass = isAdmin ? "" : `reveal ${reveal.isVisible ? "is-visible" : ""}`;
+  const rootRef = isAdmin ? innerRef : reveal.ref;
+
   return (
     <div
-      ref={innerRef}
-      className={`${styles.quickLinkCard} ${isAdmin ? styles.adminCard : ""} ${
+      ref={rootRef}
+      className={`${revealClass} ${styles.quickLinkCard} ${isAdmin ? styles.adminCard : ""} ${
         hidden ? styles.hiddenCard : ""
       } ${floating ? styles.floating : ""}`}
+      style={isAdmin ? undefined : { ["--reveal-index" as any]: revealIndex ?? 0 }}
     >
       {isAdmin && (
         <div className={styles.adminOverlay}>
@@ -237,6 +248,11 @@ function CardEditor({
 export default function Portfolio({ className, cards, description, config, isAdmin = false }: any) {
   const { cfg, cfgRef, persist } = useSiteConfig(config);
   const deleteTitleId = useId();
+
+  // Header reveals on its own viewport entry; each card self-reveals (see
+  // CardView). Admin views render statically.
+  const headerReveal = useReveal<HTMLHeadingElement>();
+  const headerVisible = isAdmin || headerReveal.isVisible;
   const [items, setItems] = useState<Card[]>(() => applyConfigToCards(cards, config, isAdmin));
   const [showCreate, setShowCreate] = useState(false);
   const [editing, setEditing] = useState<Card | null>(null);
@@ -319,12 +335,18 @@ export default function Portfolio({ className, cards, description, config, isAdm
 
   return (
     <div className={className}>
-      <h2 className={styles.sectionHeader}>
+      <h2
+        ref={headerReveal.ref}
+        className={`reveal ${headerVisible ? "is-visible" : ""} ${styles.sectionHeader}`}
+      >
         <EditableText model="Description" id={description.id} field="header" value={description.header} editable={isAdmin}>
           {description.header}
         </EditableText>
       </h2>
-      <p className={styles.sectionDescription}>
+      <p
+        className={`reveal ${headerVisible ? "is-visible" : ""} ${styles.sectionDescription}`}
+        style={{ ["--reveal-index" as any]: 1 }}
+      >
         <EditableText model="Description" id={description.id} field="description" value={description.description} editable={isAdmin} multiline>
           {description.description}
         </EditableText>
@@ -347,6 +369,7 @@ export default function Portfolio({ className, cards, description, config, isAdm
               key={card.id}
               card={card}
               isAdmin={isAdmin}
+              revealIndex={index}
               hidden={isAdmin && cardFlags(cfg, card.id).hidden}
               innerRef={drag.registerCard(card.id)}
               onHandlePointerDown={

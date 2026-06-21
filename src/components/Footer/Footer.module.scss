@@ -54,7 +54,7 @@
         background var(--transition),
         border-color var(--transition),
         box-shadow var(--transition),
-        transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        transform var(--dur-slow) cubic-bezier(0.34, 1.56, 0.64, 1);
 
       &:hover {
         background: var(--accent);
@@ -106,14 +106,14 @@
     gap: 0.5rem;
 
     li {
-      transition: 0.3s all ease-in-out;
+      transition: var(--dur-base) all ease-in-out;
     }
 
     a {
       color: var(--text-secondary);
       text-decoration: none;
       opacity: 0.8;
-      transition: 0.3s all ease-in-out;
+      transition: var(--dur-base) all ease-in-out;
 
       &:hover {
         color: var(--accent-text);
