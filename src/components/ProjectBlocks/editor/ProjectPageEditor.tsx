@@ -13,7 +13,7 @@ import {
   faEyeSlash
 } from "@fortawesome/free-solid-svg-icons";
 import RichTextEditor from "@/components/RichTextEditor/RichTextEditor";
-import { updateProjectPage } from "@/app/admin/contentActions";
+import { updateBlockLayout } from "@/app/admin/contentActions";
 import { useDragReorder } from "@/components/useDragReorder";
 import ProjectBlocks from "../ProjectBlocks";
 import {
@@ -50,21 +50,33 @@ const BLOCK_ORDER: BlockType[] = [
 ];
 
 type Props = {
-  projectId: string;
-  projectTitle: string;
+  /** Hygraph entry id holding the block layout. */
+  entryId: string;
+  /** Title used only to seed a new hero block's headline. */
+  title: string;
   initialBlocks: Block[];
+  /** Hygraph model API ID owning the block-layout field. */
+  model?: string;
+  /** Json field on `model` storing the `Block[]`. */
+  field?: string;
 };
 
 /**
- * Admin authoring surface for a project's case-study blocks. Editors add blocks
- * from a curated palette, reorder them (pointer + keyboard, via useDragReorder),
- * and edit each block in a purpose-built form. Structural changes (add/reorder/
- * delete) and committed edits persist through `updateProjectPage`, which returns
- * the sanitized list we then adopt — so the editor always reflects exactly what's
- * stored. Because the preview reuses the visitor renderer, this surface *is* the
- * preview.
+ * Admin authoring surface for a block-layout page (project case-studies and the
+ * About page share it). Editors add blocks from a curated palette, reorder them
+ * (pointer + keyboard, via useDragReorder), and edit each block in a purpose-built
+ * form. Structural changes (add/reorder/delete) and committed edits persist
+ * through `updateBlockLayout`, which returns the sanitized list we then adopt — so
+ * the editor always reflects exactly what's stored. Because the preview reuses the
+ * visitor renderer, this surface *is* the preview.
  */
-export default function ProjectPageEditor({ projectId, projectTitle, initialBlocks }: Props) {
+export default function ProjectPageEditor({
+  entryId,
+  title,
+  initialBlocks,
+  model = "Project",
+  field = "projectPage"
+}: Props) {
   const [blocks, setBlocks] = useState<Block[]>(initialBlocks);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Block | null>(null);
@@ -85,7 +97,7 @@ export default function ProjectPageEditor({ projectId, projectTitle, initialBloc
     setSaving(true);
     setError("");
     setStatus("");
-    const result = await updateProjectPage(projectId, next);
+    const result = await updateBlockLayout(model, entryId, field, next);
     setSaving(false);
     if ("error" in result) {
       setError(result.error);
@@ -110,7 +122,7 @@ export default function ProjectPageEditor({ projectId, projectTitle, initialBloc
 
   function addBlock(type: BlockType) {
     setPaletteOpen(false);
-    const block = createBlock(type, projectTitle);
+    const block = createBlock(type, title);
     setBlocks((prev) => [...prev, block]);
     setEditingId(block.id);
     setDraft(structuredClone(block));
