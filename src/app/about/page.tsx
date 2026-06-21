@@ -51,9 +51,10 @@ export default async function Page() {
           model="RichTextWidget"
           field="blockLayout"
           initialBlocks={blocks}
+          naturalHeroImage
         />
       ) : (
-        blocks.length > 0 && <ProjectBlocks blocks={blocks} />
+        blocks.length > 0 && <ProjectBlocks blocks={blocks} naturalHeroImage />
       )}
     </main>
   </>

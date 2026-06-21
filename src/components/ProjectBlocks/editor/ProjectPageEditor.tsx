@@ -59,6 +59,8 @@ type Props = {
   model?: string;
   /** Json field on `model` storing the `Block[]`. */
   field?: string;
+  /** Render hero images at their natural ratio in the preview (About page). */
+  naturalHeroImage?: boolean;
 };
 
 /**
@@ -75,7 +77,8 @@ export default function ProjectPageEditor({
   title,
   initialBlocks,
   model = "Project",
-  field = "projectPage"
+  field = "projectPage",
+  naturalHeroImage = false
 }: Props) {
   const [blocks, setBlocks] = useState<Block[]>(initialBlocks);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -220,7 +223,7 @@ export default function ProjectPageEditor({
         {blocks.length === 0 ? (
           <p className={styles.empty}>No blocks yet.</p>
         ) : (
-          <ProjectBlocks blocks={blocks} />
+          <ProjectBlocks blocks={blocks} naturalHeroImage={naturalHeroImage} />
         )}
       </div>
     );
@@ -329,7 +332,7 @@ export default function ProjectPageEditor({
                 </div>
               ) : (
                 <div className={styles.blockPreview}>
-                  <ProjectBlocks blocks={[shown]} />
+                  <ProjectBlocks blocks={[shown]} naturalHeroImage={naturalHeroImage} />
                 </div>
               )}
             </li>

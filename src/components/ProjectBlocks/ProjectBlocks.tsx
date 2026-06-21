@@ -16,9 +16,20 @@ import styles from "./ProjectBlocks.module.scss";
  * RichTextWidget so prose looks identical to before. Server-rendered (the gallery
  * lightbox is the only client island). Callers pass an already-sanitized list.
  */
-export default function ProjectBlocks({ blocks }: { blocks: Block[] }) {
+export default function ProjectBlocks({
+  blocks,
+  /**
+   * Render the hero image at its natural aspect ratio instead of the default
+   * 2:1 landscape crop. Used by the About page (a square headshot today, possibly
+   * portrait later); project heroes keep the landscape banner crop.
+   */
+  naturalHeroImage = false
+}: {
+  blocks: Block[];
+  naturalHeroImage?: boolean;
+}) {
   return (
-    <div className={styles.blocks}>
+    <div className={`${styles.blocks} ${naturalHeroImage ? styles.naturalHeroImage : ""}`}>
       {blocks.map((block) => {
         switch (block.type) {
           case "hero":
