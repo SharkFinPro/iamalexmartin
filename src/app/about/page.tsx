@@ -1,7 +1,9 @@
 import Banner from "@/components/Banner";
 import type { Metadata } from "next";
 import styles from "./About.module.scss";
-import RichTextField from "@/components/RichTextField";
+import ProjectBlocks from "@/components/ProjectBlocks/ProjectBlocks";
+import ProjectPageEditor from "@/components/ProjectBlocks/editor/ProjectPageEditor";
+import { sanitizeProjectPage } from "@/components/ProjectBlocks/blocks";
 import { cmsQuery } from "@/lib/cms";
 import { isAuthed } from "@/lib/auth";
 
@@ -20,9 +22,7 @@ const QUERY = `
     }
     richTextWidgets(where: { title: "About" }) {
       id
-      content {
-        raw
-      }
+      blockLayout
     }
   }
 `;
@@ -32,6 +32,11 @@ export default async function Page() {
   const description = data.descriptions[0];
   const widget = data.richTextWidgets[0];
 
+  // blockLayout is the About page's block list (same system as project pages). It
+  // is null until populated, so sanitizeProjectPage coerces a missing/invalid
+  // value to an empty list — the page never crashes on bad data.
+  const blocks = sanitizeProjectPage(widget?.blockLayout);
+
   return <>
     <Banner
       title={description.header}
@@ -39,7 +44,18 @@ export default async function Page() {
       edit={{ isAdmin, model: "Description", id: description.id, titleField: "header", descriptionField: "description" }}
     />
     <main className={styles.container} id="main-content" tabIndex={-1}>
-      <RichTextField model="RichTextWidget" id={widget.id} field="content" raw={widget.content.raw} isAdmin={isAdmin} />
+      {isAdmin ? (
+        <ProjectPageEditor
+          entryId={widget.id}
+          title={description.header}
+          model="RichTextWidget"
+          field="blockLayout"
+          initialBlocks={blocks}
+          naturalHeroImage
+        />
+      ) : (
+        blocks.length > 0 && <ProjectBlocks blocks={blocks} naturalHeroImage />
+      )}
     </main>
   </>
 }

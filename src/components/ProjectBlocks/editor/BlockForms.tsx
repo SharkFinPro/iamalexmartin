@@ -131,6 +131,22 @@ export function HeroForm({
   const roleItems = block.roleItems ?? [];
   const actions = block.actions ?? [];
 
+  function moveFact(from: number, to: number) {
+    if (to < 0 || to >= roleItems.length) return;
+    const next = [...roleItems];
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
+    onChange({ ...block, roleItems: next });
+  }
+
+  function moveAction(from: number, to: number) {
+    if (to < 0 || to >= actions.length) return;
+    const next = [...actions];
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
+    onChange({ ...block, actions: next });
+  }
+
   return (
     <div className={styles.form}>
       <Field label="Eyebrow (optional)">
@@ -157,39 +173,6 @@ export function HeroForm({
           onChange={(e) => onChange({ ...block, summary: e.target.value })}
         />
       </Field>
-
-      <fieldset className={styles.subgroup}>
-        <legend>Key facts</legend>
-        {roleItems.map((item, i) => (
-          <div key={i} className={styles.row}>
-            <input
-              type="text"
-              value={item}
-              placeholder="e.g. Role: Lead Engineer"
-              onChange={(e) => {
-                const next = [...roleItems];
-                next[i] = e.target.value;
-                onChange({ ...block, roleItems: next });
-              }}
-            />
-            <button
-              type="button"
-              className={styles.iconBtn}
-              aria-label={`Remove fact ${i + 1}`}
-              onClick={() => onChange({ ...block, roleItems: roleItems.filter((_, j) => j !== i) })}
-            >
-              <FontAwesomeIcon icon={faTrash} />
-            </button>
-          </div>
-        ))}
-        <button
-          type="button"
-          className={styles.addRowBtn}
-          onClick={() => onChange({ ...block, roleItems: [...roleItems, ""] })}
-        >
-          <FontAwesomeIcon icon={faPlus} /> Add fact
-        </button>
-      </fieldset>
 
       <fieldset className={styles.subgroup}>
         <legend>Lead image</legend>
@@ -225,6 +208,57 @@ export function HeroForm({
       </fieldset>
 
       <fieldset className={styles.subgroup}>
+        <legend>Key facts</legend>
+        {roleItems.map((item, i) => (
+          <div key={i} className={styles.row}>
+            <input
+              type="text"
+              value={item}
+              placeholder="e.g. Role: Lead Engineer"
+              onChange={(e) => {
+                const next = [...roleItems];
+                next[i] = e.target.value;
+                onChange({ ...block, roleItems: next });
+              }}
+            />
+            <button
+              type="button"
+              className={styles.iconBtn}
+              aria-label={`Move fact ${i + 1} up`}
+              disabled={i === 0}
+              onClick={() => moveFact(i, i - 1)}
+            >
+              <FontAwesomeIcon icon={faArrowUp} />
+            </button>
+            <button
+              type="button"
+              className={styles.iconBtn}
+              aria-label={`Move fact ${i + 1} down`}
+              disabled={i === roleItems.length - 1}
+              onClick={() => moveFact(i, i + 1)}
+            >
+              <FontAwesomeIcon icon={faArrowDown} />
+            </button>
+            <button
+              type="button"
+              className={styles.iconBtn}
+              aria-label={`Remove fact ${i + 1}`}
+              onClick={() => onChange({ ...block, roleItems: roleItems.filter((_, j) => j !== i) })}
+            >
+              <FontAwesomeIcon icon={faTrash} />
+            </button>
+          </div>
+        ))}
+        <button
+          type="button"
+          className={styles.addRowBtn}
+          onClick={() => onChange({ ...block, roleItems: [...roleItems, ""] })}
+        >
+          <FontAwesomeIcon icon={faPlus} /> Add fact
+        </button>
+      </fieldset>
+
+      <fieldset className={styles.subgroup}>
         <legend>Buttons (up to {HERO_MAX_ACTIONS})</legend>
         {actions.map((action, i) => {
           const invalid = action.href.trim() !== "" && !isSafeUrl(action.href);
@@ -251,6 +285,24 @@ export function HeroForm({
                   onChange({ ...block, actions: next });
                 }}
               />
+              <button
+                type="button"
+                className={styles.iconBtn}
+                aria-label={`Move button ${i + 1} up`}
+                disabled={i === 0}
+                onClick={() => moveAction(i, i - 1)}
+              >
+                <FontAwesomeIcon icon={faArrowUp} />
+              </button>
+              <button
+                type="button"
+                className={styles.iconBtn}
+                aria-label={`Move button ${i + 1} down`}
+                disabled={i === actions.length - 1}
+                onClick={() => moveAction(i, i + 1)}
+              >
+                <FontAwesomeIcon icon={faArrowDown} />
+              </button>
               <button
                 type="button"
                 className={styles.iconBtn}

@@ -4,7 +4,6 @@ import { isAuthed } from "@/lib/auth";
 import { cmsMutate, cmsUpload } from "@/lib/cms";
 import { getAssetById, getMediaAssets, type MediaAsset } from "@/lib/getAssets";
 import { getSiteConfig } from "@/lib/getSiteConfig";
-import { sanitizeRichTextAst } from "@/components/RichTextEditor/richTextAst";
 import { sanitizeProjectPage, type Block } from "@/components/ProjectBlocks/blocks";
 import { normalizeConfig, type SiteConfigData } from "@/lib/siteConfig";
 
@@ -20,10 +19,14 @@ const EDITABLE_FIELDS: Record<string, string[]> = {
   PortfolioCard: ["title", "description", "shortDescription", "linkText", "link", "fontAwesomeIcon"]
 };
 
-// Rich-text (RichTextAST) fields the inline editor may write. Kept separate from
-// EDITABLE_FIELDS because the value is the AST JSON, not a simple scalar/list.
-const EDITABLE_RICH_TEXT_FIELDS: Record<string, string[]> = {
-  RichTextWidget: ["content"]
+// Json fields that hold a block-layout (`Block[]`). Both the Project case-study
+// page and the About page share the same block system, so the persistence action
+// is model/field-parameterized and guarded by this whitelist. Keys are Hygraph
+// model API IDs; they're interpolated into mutation names, so only these exact
+// values are ever used.
+const BLOCK_LAYOUT_FIELDS: Record<string, string[]> = {
+  Project: ["projectPage"],
+  RichTextWidget: ["blockLayout"]
 };
 
 // --- Shared mutation helpers -------------------------------------------------
@@ -275,65 +278,37 @@ export async function updateContentField(
   return { ok: true };
 }
 
-type RichTextAST = { children: any[] };
-
-/**
- * Update a whitelisted RichText field (by id) with a full AST, then publish it.
- * `model`/`field` are validated against EDITABLE_RICH_TEXT_FIELDS before being
- * interpolated, so they can't be injected. The AST is passed straight through as
- * the field value — Hygraph RichText fields accept the `{ children }` shape.
- */
-export async function updateRichTextField(
-  model: string,
-  id: string,
-  field: string,
-  content: RichTextAST
-): Promise<ActionResult> {
-  const denied = await requireAuth();
-  if (denied) return denied;
-
-  const allowed = EDITABLE_RICH_TEXT_FIELDS[model];
-  if (!allowed || !allowed.includes(field)) {
-    return { ok: false, error: `Field "${field}" on "${model}" is not editable.` };
-  }
-
-  // Defense in depth: strip unsafe link schemes (javascript:/data:, etc.) before
-  // persisting, so a bypassed client can't store click-XSS into public content.
-  const safeContent = sanitizeRichTextAst(content);
-
-  try {
-    await updateAndPublish(model, id, { [field]: safeContent });
-  } catch (e: any) {
-    return { ok: false, error: e?.message || "Failed to update content." };
-  }
-
-  // No revalidatePath: consistent with the other writes — the client renders the
-  // saved AST optimistically rather than refetching stale CDN data.
-  return { ok: true };
-}
-
 type SaveBlocksResult = { ok: true; blocks: Block[] } | { ok: false; error: string };
 
 /**
- * Persist a project's case-study block list to the `projectPage` JSON field, then
- * publish. The incoming array is run through `sanitizeProjectPage` (defense in
- * depth): invalid/unknown blocks are dropped, link/image URLs are checked, and
- * rich-text sub-trees are sanitized — so a bypassed client can't store a broken
- * layout or click-XSS into public content. Returns the cleaned blocks so the
- * editor can adopt exactly what was stored (optimistic, no refetch).
+ * Persist a block-layout (`Block[]`) to a model's Json field, then publish. Shared
+ * by the project case-study page (`Project.projectPage`) and the About page
+ * (`RichTextWidget.blockLayout`) — same block system, one writer. The (model,
+ * field) pair must be whitelisted in BLOCK_LAYOUT_FIELDS. The incoming array is
+ * run through `sanitizeProjectPage` (defense in depth): invalid/unknown blocks are
+ * dropped, link/image URLs are checked, and rich-text sub-trees are sanitized — so
+ * a bypassed client can't store a broken layout or click-XSS into public content.
+ * Returns the cleaned blocks so the editor can adopt exactly what was stored
+ * (optimistic, no refetch).
  */
-export async function updateProjectPage(
+export async function updateBlockLayout(
+  model: string,
   id: string,
+  field: string,
   blocks: unknown
 ): Promise<SaveBlocksResult> {
   const denied = await requireAuth();
   if (denied) return denied;
 
+  if (!BLOCK_LAYOUT_FIELDS[model]?.includes(field)) {
+    return { ok: false, error: "Not an editable block-layout field." };
+  }
+
   const clean = sanitizeProjectPage(blocks);
 
   try {
     // Json field: store [] (not null) so the saved state is explicit.
-    await updateAndPublish("Project", id, { projectPage: clean });
+    await updateAndPublish(model, id, { [field]: clean });
   } catch (e: any) {
     return { ok: false, error: e?.message || "Failed to save page." };
   }
@@ -341,6 +316,14 @@ export async function updateProjectPage(
   // No revalidatePath: consistent with the other writes — the client renders the
   // saved blocks optimistically rather than refetching stale CDN data.
   return { ok: true, blocks: clean };
+}
+
+/** Project case-study convenience wrapper around `updateBlockLayout`. */
+export async function updateProjectPage(
+  id: string,
+  blocks: unknown
+): Promise<SaveBlocksResult> {
+  return updateBlockLayout("Project", id, "projectPage", blocks);
 }
 
 type ListAssetsResult = { assets: MediaAsset[] } | { error: string };

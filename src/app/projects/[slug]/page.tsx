@@ -86,8 +86,8 @@ export default async function Page({ params }) {
       <main className={styles.container} id="main-content" tabIndex={-1}>
         {isAdmin ? (
           <ProjectPageEditor
-            projectId={project.id}
-            projectTitle={project.title}
+            entryId={project.id}
+            title={project.title}
             initialBlocks={blocks}
           />
         ) : (

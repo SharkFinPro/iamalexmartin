@@ -57,20 +57,37 @@ $mono: ui-monospace, "Cascadia Code", "JetBrains Mono", "Source Code Pro", Menlo
 // Hero
 // ---------------------------------------------------------------------------
 
+// Mobile-first: a single column stacking intro → image → details (source order).
 .hero {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: clamp(1.75rem, 4vw, 3rem);
-  align-items: center;
 }
 
+// With a lead image, widen to two columns and pull the image into its own
+// right-hand column spanning both text rows (intro above details on the left).
 .heroSplit {
   @media (min-width: 820px) {
+    display: grid;
     grid-template-columns: 1fr 0.82fr;
+    grid-template-areas:
+      "intro media"
+      "details media";
+    align-items: center;
   }
 }
 
-.heroBody {
+.heroIntro,
+.heroDetails {
   min-width: 0;
+}
+
+.heroIntro {
+  grid-area: intro;
+}
+
+.heroDetails {
+  grid-area: details;
 }
 
 .heroEyebrow {
@@ -109,11 +126,19 @@ $mono: ui-monospace, "Cascadia Code", "JetBrains Mono", "Source Code Pro", Menlo
   margin: 1.25rem 0 0;
 }
 
+// Stack facts then buttons; the gap replaces the old per-element top margins so
+// there's no stray leading space when one of them is absent.
+.heroDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
 .heroFacts {
   display: flex;
   flex-wrap: wrap;
   gap: 1.25rem 1.75rem;
-  margin: 2rem 0 0;
+  margin: 0;
 }
 
 .heroFact {
@@ -140,7 +165,7 @@ $mono: ui-monospace, "Cascadia Code", "JetBrains Mono", "Source Code Pro", Menlo
   display: flex;
   flex-wrap: wrap;
   gap: 0.85rem;
-  margin-top: 2.25rem;
+  margin: 0;
 }
 
 .heroActionPrimary,
@@ -189,17 +214,47 @@ $mono: ui-monospace, "Cascadia Code", "JetBrains Mono", "Source Code Pro", Menlo
 
 .heroMedia {
   position: relative;
+  grid-area: media;
   border-radius: var(--radius-md);
   overflow: hidden;
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-md);
 
+  // Mobile: don't fill the column or crop — show the image at its natural ratio,
+  // capped and centered between the summary and the facts/buttons.
+  max-width: min(280px, 70%);
+  margin-inline: auto;
+
   img {
     display: block;
     width: 100%;
     height: auto;
-    aspect-ratio: 2 / 1;
-    object-fit: cover;
+    aspect-ratio: auto;
+    object-fit: contain;
+  }
+
+  // Wider screens: the image owns the right column; projects get the 2:1 banner
+  // crop, vertically centred beside the text.
+  @media (min-width: 820px) {
+    max-width: none;
+    margin-inline: 0;
+    align-self: center;
+
+    img {
+      aspect-ratio: 2 / 1;
+      object-fit: cover;
+    }
+  }
+
+  // Natural-ratio variant (About page): keep the image's intrinsic ratio on wider
+  // screens too — square today, portrait if it changes — capped so a tall portrait
+  // can't dominate. (Mobile is already natural for every hero.)
+  .naturalHeroImage & img {
+    @media (min-width: 820px) {
+      aspect-ratio: auto;
+      max-height: 70vh;
+      object-fit: contain;
+    }
   }
 
   // Single bold accent: a solid bar along the bottom edge that grounds the
