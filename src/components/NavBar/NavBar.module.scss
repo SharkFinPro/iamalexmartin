@@ -135,7 +135,7 @@
   box-shadow: var(--shadow-md);
   display: flex;
   flex-direction: column;
-  animation: dropdownAppear 0.2s ease-in;
+  animation: dropdownAppear var(--dur-fast) ease-in;
 }
 
 .dropdownItem {
@@ -144,7 +144,7 @@
   color: var(--text-secondary);
   font-size: 1rem;
   font-weight: 500;
-  transition: all 0.2s ease;
+  transition: all var(--dur-fast) ease;
   position: relative;
 
   &:hover {

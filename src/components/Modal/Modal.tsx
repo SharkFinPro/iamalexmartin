@@ -98,7 +98,9 @@ export default function Modal({
   return (
     <div
       ref={overlayRef}
-      className={overlayClassName}
+      // `modalAnimated` (global.scss) fades the scrim and settles the panel; it's
+      // appended here so every dialog gets the entrance with no per-caller CSS.
+      className={`${overlayClassName} modalAnimated`}
       role="dialog"
       aria-modal="true"
       aria-labelledby={labelledBy}

@@ -1,33 +1,15 @@
 @use "@/styles/reorder" as r;
 @use "@/styles/modal" as m;
 
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1); }
-}
-
 .sectionHeader {
   font-size: var(--fs-title);
   padding-block: 0.5em;
-
-  opacity: 0;
-  animation: fadeInUp 0.8s ease-out forwards;
-  animation-delay: 0.3s; /* Start slightly after the header animations begin */
 }
 
 .sectionDescription {
   font-size: 1.15rem;
   padding-block: 0.5em;
   color: var(--text-secondary);
-
-  opacity: 0;
-  animation: fadeInUp 0.8s ease-out forwards;
-  animation-delay: 0.6s;
 }
 
 .quickLinks {
@@ -57,7 +39,20 @@
   padding: 1.5rem;
   text-align: center;
   box-shadow: var(--shadow-sm);
-  transition: all 0.3s ease-in-out;
+  // Hover lift uses the `transform` longhand so it never collides with the
+  // scroll-reveal entrance, which animates the `translate` longhand. Both the
+  // entrance (opacity/translate, staggered) and the hover (transform/box-shadow,
+  // immediate) live in one declaration so neither `transition` shorthand clobbers
+  // the other. The delay list lines up with the property list.
+  transition:
+    opacity var(--dur-slow) var(--ease-out),
+    translate var(--dur-slow) var(--ease-out),
+    transform var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-standard);
+  transition-delay:
+    calc(var(--reveal-index, 0) * var(--reveal-stagger)),
+    calc(var(--reveal-index, 0) * var(--reveal-stagger)),
+    0s, 0s;
   border: 1px solid var(--border-color);
 
   width: 300px;
@@ -68,9 +63,6 @@
   flex-direction: column;
 
   height: auto;
-
-  opacity: 0;
-  animation: scaleIn 0.6s ease-out forwards;
 
   .shortDescription {
     display: none;
@@ -113,31 +105,6 @@
     color: var(--text-primary);
   }
 
-  /* Apply different delays based on card index */
-  &:nth-child(1) {
-    animation-delay: 1s;
-
-    .quickLinkIcon {
-      animation-delay: 1s;
-    }
-  }
-
-  &:nth-child(2) {
-    animation-delay: 1.2s;
-
-    .quickLinkIcon {
-      animation-delay: 1.2s;
-    }
-  }
-
-  &:nth-child(3) {
-    animation-delay: 1.4s;
-
-    .quickLinkIcon {
-      animation-delay: 1.4s;
-    }
-  }
-
   @media (min-width: 800px) {
     padding: 1.75rem;
   }
@@ -150,7 +117,7 @@
 }
 
 .quickLinkCard:hover {
-  translate: 0 -5px;
+  transform: translateY(-5px);
   box-shadow: var(--shadow-md);
 
   & > h3 {
@@ -171,9 +138,6 @@
   margin: 0 auto 1.25rem;
   font-size: 1.5rem;
   color: var(--accent-text);
-
-  /* Subtle icon animation */
-  animation: fadeInUp 0.75s ease-out 0.2s backwards;
 
   @media (min-width: 800px) {
     width: 70px;
@@ -198,7 +162,6 @@
 
   font-size: 1.1rem;
   color: var(--text-primary);
-  transition: color 0.3s ease-in-out;
 
   @media (min-width: 800px) {
     font-size: 1.25rem;
@@ -223,7 +186,8 @@
   border-radius: var(--radius-sm);
   width: 85%;
   align-self: center;
-  transition: all 0.3s ease-in-out;
+  transition: transform var(--dur-base) var(--ease-out),
+              box-shadow var(--dur-base) var(--ease-standard);
 
   @media (min-width: 800px) {
     padding-block: 0.85rem;
@@ -245,12 +209,10 @@
 
 // The admin card is a faithful preview of the public card; it only needs to be a
 // positioning context for the overlay controls. Editing happens in the modal.
-// The entrance fade-in is disabled here: dragging swaps cards in and out of the
-// DOM, which would otherwise replay the (delayed) animation and make cards appear
-// to vanish mid-drag or on drop. Visitors still get the animated entrance.
+// Admin cards never carry the scroll-reveal class (so dragging can't re-hide
+// them); visitors still get the staggered entrance.
 .adminCard {
   position: relative;
-  animation: none;
   opacity: 1;
 }
 
@@ -293,7 +255,8 @@
   color: var(--text-secondary);
   cursor: pointer;
   font-size: 1rem;
-  transition: all 0.2s ease-in-out;
+  transition: border-color var(--dur-fast) var(--ease-standard),
+              color var(--dur-fast) var(--ease-standard);
 
   svg { font-size: 1.75rem; }
 
@@ -312,11 +275,10 @@
 }
 
 .floating {
-  // The float clone mounts fresh mid-drag; without this it would replay the
-  // card's entrance animation (which starts at opacity 0 and, for the first few
-  // cards, waits out a 1s+ delay) and appear to vanish while being dragged.
-  animation: none;
+  // Admin drag clone — kept fully opaque and untransformed by entrance state
+  // (it never carries the `.reveal` class) so it tracks the cursor cleanly.
   opacity: 1;
+  translate: none;
   @include r.floating-card;
 }
 

@@ -187,7 +187,7 @@ $mono: ui-monospace, "Cascadia Code", "JetBrains Mono", "Source Code Pro", Menlo
     text-decoration: none;
     position: relative;
     font-weight: 500;
-    transition: color 0.3s ease-in-out;
+    transition: color var(--dur-base) ease-in-out;
 
     &::after {
       content: '';
@@ -197,7 +197,7 @@ $mono: ui-monospace, "Cascadia Code", "JetBrains Mono", "Source Code Pro", Menlo
       width: 0;
       height: 2px;
       background: linear-gradient(90deg, var(--accent-secondary), color-mix(in srgb, var(--accent-secondary) 70%, #1e293b));
-      transition: width 0.3s ease;
+      transition: width var(--dur-base) ease;
     }
 
     &:hover {

@@ -19,8 +19,25 @@
   // Height of the sticky NavBar (see NavBar.module.scss). Used so in-page scroll
   // targets (e.g. the skip-link's #main-content) clear the bar.
   --navbar-height: 70px;
-  --transition-fast: 0.2s ease;
-  --transition: 0.3s ease;
+
+  // --- Motion system -------------------------------------------------------
+  // One shared vocabulary for duration, easing, and reveal distance so motion
+  // stays consistent across the site (see .reveal below and useReveal.ts).
+  --dur-fast: 300ms;    // hovers, taps, small state changes
+  --dur-base: 500ms;    // default transitions, card hover lift
+  --dur-slow: 700ms;    // entrances, modal in
+  --dur-slower: 900ms;  // large/hero reveals
+
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);  // general UI state changes
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);     // entrances / decelerate
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);          // exits
+
+  --reveal-distance: 16px;  // travel for scroll-reveal entrances (kept subtle)
+  --reveal-stagger: 130ms;  // per-index delay for staggered groups
+
+  // Existing aliases, now expressed on the scale above (back-compat).
+  --transition-fast: var(--dur-fast) var(--ease-standard);
+  --transition: var(--dur-base) var(--ease-standard);
 
   // Shared vertical rhythm — one responsive scale for page/section padding.
   --section-padding: clamp(2.5rem, 5vw, 4rem);
@@ -67,7 +84,7 @@ body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-body), system-ui, -apple-system, sans-serif;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color var(--dur-base) var(--ease-standard), color var(--dur-base) var(--ease-standard);
 }
 
 // Site-wide text selection in the brand accent (theme-forked).
@@ -92,6 +109,57 @@ h1, h2, h3, h4, h5, h6 {
 @keyframes pageFadeIn {
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+// Shared modal entrance. Applied by the Modal shell (Modal.tsx) to the scrim it
+// controls, so every dialog — admin editors, the asset picker, the gallery
+// lightbox — fades its backdrop and settles its panel without per-module CSS.
+// The reduced-motion block below neutralizes both animations.
+@keyframes modalScrimIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes modalSurfaceIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modalAnimated {
+  animation: modalScrimIn var(--dur-fast) var(--ease-standard) both;
+}
+// The scrim's single styled panel (form/box) is its direct child.
+.modalAnimated > * {
+  animation: modalSurfaceIn var(--dur-slow) var(--ease-out) both;
+}
+
+// Shared scroll-reveal utility. Elements start shifted + transparent and settle
+// when JS adds `.is-visible` (driven by useReveal.ts on viewport entry). Kept in
+// this global file so the class names stay unhashed and any CSS module can apply
+// them. Group stagger comes from `--reveal-index` set inline per item.
+// Animates the `translate` longhand (not `transform`) so it composes with
+// cards that already use `transform` for pointer-tilt (.featured .card) without
+// clobbering it — mirroring the deliberate translate-not-transform choice the
+// featured entrance used before.
+.reveal {
+  opacity: 0;
+  translate: 0 var(--reveal-distance);
+  transition: opacity var(--dur-slow) var(--ease-out),
+              translate var(--dur-slow) var(--ease-out);
+  transition-delay: calc(var(--reveal-index, 0) * var(--reveal-stagger));
+  will-change: opacity, translate;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  translate: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    translate: none;
+    transition: none;
+  }
 }
 
 // Honor reduced-motion globally: neutralizes the homepage entrance animations
