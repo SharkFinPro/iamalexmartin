@@ -51,7 +51,7 @@
     font-size: 0.9rem;
     white-space: nowrap;
     cursor: pointer;
-    transition: background var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+    transition: background var(--transition-fast), transform var(--transition-fast);
 
     &:hover {
       background: var(--bg-primary);
@@ -221,7 +221,6 @@
       font-size: 1.2em;
       padding-block: 0.5em;
       color: var(--text-primary);
-      transition: color var(--dur-base) var(--ease-standard);
     }
 
     & > p {
