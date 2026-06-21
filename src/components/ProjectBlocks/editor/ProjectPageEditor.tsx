@@ -265,14 +265,26 @@ export default function ProjectPageEditor({
         {blocks.map((block, index) => {
           const editing = editingId === block.id;
           const shown = editing && draft ? draft : block;
-          const floating = drag.draggingKey === block.id;
+
+          // The dragged block is lifted into a floating clone (rendered below);
+          // here it leaves a dashed placeholder so the drop target is visible and
+          // the list reflows live as the order changes.
+          if (drag.draggingKey === block.id) {
+            return (
+              <li
+                key={block.id}
+                className={styles.placeholder}
+                style={{ height: drag.size.h }}
+                aria-hidden="true"
+              />
+            );
+          }
 
           return (
             <li
               key={block.id}
               ref={drag.registerCard(block.id)}
-              className={`${styles.blockItem} ${floating ? styles.floating : ""}`}
-              style={floating ? drag.floatingStyle : undefined}
+              className={styles.blockItem}
             >
               <div className={styles.blockBar}>
                 <button
@@ -339,6 +351,23 @@ export default function ProjectPageEditor({
           );
         })}
       </ul>
+
+      {drag.draggingKey && (() => {
+        const dragged = blocks.find((b) => b.id === drag.draggingKey);
+        if (!dragged) return null;
+        return (
+          <div className={styles.floatingLayer} style={drag.floatingStyle}>
+            <div className={`${styles.blockItem} ${styles.floating}`}>
+              <div className={styles.blockBar}>
+                <span className={styles.dragHandle} aria-hidden="true">
+                  <FontAwesomeIcon icon={faGripVertical} />
+                </span>
+                <span className={styles.blockTag}>{BLOCK_LABELS[dragged.type]}</span>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       <div className={styles.addZone}>
         {paletteOpen ? (

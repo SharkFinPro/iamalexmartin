@@ -51,9 +51,21 @@
   overflow: hidden;
 }
 
-.floating {
+// Fixed layer that hosts the lifted block clone following the cursor.
+.floatingLayer {
   @include r.floating-layer;
+}
+
+.floating {
   @include r.floating-card;
+}
+
+// Dashed gap left in the list at the dragged block's live position, marking the
+// drop target as the order reflows.
+.placeholder {
+  border: 2px dashed var(--accent);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-secondary);
 }
 
 .blockBar {
