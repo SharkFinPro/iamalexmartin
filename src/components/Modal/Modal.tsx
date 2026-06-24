@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 
 const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -9,6 +10,29 @@ const FOCUSABLE_SELECTOR =
 // dialog opened from within another dialog (e.g. the crop/upload dialog inside
 // the asset picker) behaves correctly and the inner one closes first.
 const modalStack: symbol[] = [];
+
+// How many modals currently hold the body scroll-lock. Reference-counted so a
+// stacked dialog doesn't release the lock when the inner one closes — the page
+// only scrolls again once the last modal is gone. `savedOverflow` remembers the
+// caller's original `body` overflow so we restore it rather than clobbering it.
+let scrollLockCount = 0;
+let savedOverflow = "";
+
+function lockBodyScroll() {
+  if (scrollLockCount === 0) {
+    savedOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+  }
+  scrollLockCount += 1;
+}
+
+function unlockBodyScroll() {
+  scrollLockCount -= 1;
+  if (scrollLockCount <= 0) {
+    scrollLockCount = 0;
+    document.body.style.overflow = savedOverflow;
+  }
+}
 
 type Props = {
   onClose: () => void;
@@ -43,11 +67,24 @@ export default function Modal({
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
 
+  // Render into a portal at <body> so the dialog escapes any ancestor stacking
+  // context (scroll-reveal wrappers set `opacity`/`translate`/`will-change`, each
+  // of which creates one). Inline, a fixed-position overlay still paints within
+  // its block's context, so a later sibling block — e.g. a project's <video> —
+  // would cover it regardless of z-index. `mounted` gates the portal so SSR and
+  // the first client render match (createPortal needs a real `document`).
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   useEffect(() => {
+    // Wait for the portal to render so `overlayRef` points at a real node; until
+    // then focus can't move inside and the focus trap has nothing to query.
+    if (!mounted) return;
     const overlay = overlayRef.current;
     const previouslyFocused = document.activeElement as HTMLElement | null;
     const token = Symbol("modal");
     modalStack.push(token);
+    lockBodyScroll();
     const isTopmost = () => modalStack[modalStack.length - 1] === token;
 
     // Move focus inside unless an autoFocus child already claimed it.
@@ -88,14 +125,17 @@ export default function Modal({
     document.addEventListener("keydown", onKeyDown);
     return () => {
       document.removeEventListener("keydown", onKeyDown);
+      unlockBodyScroll();
       const i = modalStack.indexOf(token);
       if (i >= 0) modalStack.splice(i, 1);
       // Restore focus to whatever opened the dialog (if it's still in the DOM).
       previouslyFocused?.focus?.();
     };
-  }, []);
+  }, [mounted]);
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <div
       ref={overlayRef}
       // `modalAnimated` (global.scss) fades the scrim and settles the panel; it's
@@ -115,6 +155,7 @@ export default function Modal({
       }
     >
       {children}
-    </div>
+    </div>,
+    document.body
   );
 }
