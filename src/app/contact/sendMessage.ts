@@ -2,6 +2,35 @@
 import FormData from "form-data";
 import Mailgun from "mailgun.js";
 
+// Server-side validation limits. The client validates too, but a Server Action
+// is a public endpoint — it must not trust anything the browser sends.
+const FIELD_LIMITS: Record<string, number> = {
+  name: 100,
+  email: 254,
+  subject: 150,
+  message: 5000
+};
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+export type SendMessageResult = { ok: true } | { ok: false; error: string };
+
+/** Returns a visitor-facing error message, or null when the input is valid. */
+function validateInput(fields: Record<string, unknown>): string | null {
+  for (const [key, limit] of Object.entries(FIELD_LIMITS)) {
+    const value = fields[key];
+    if (typeof value !== "string" || !value.trim()) {
+      return "All fields are required.";
+    }
+    if (value.length > limit) {
+      return `The ${key} field is too long (limit ${limit} characters).`;
+    }
+  }
+  if (!EMAIL_PATTERN.test((fields.email as string).trim())) {
+    return "Please enter a valid email address.";
+  }
+  return null;
+}
+
 function createEmailData(name : string, email : string, subject : string, message : string) {
   const date = new Date();
 
@@ -210,8 +239,18 @@ function createEmailData(name : string, email : string, subject : string, messag
   }
 }
 
-export default async function sendMessage(name : string, email : string, subject : string, message : string) {
-  const emailData = createEmailData(name, email, subject, message);
+export default async function sendMessage(
+  name: string,
+  email: string,
+  subject: string,
+  message: string
+): Promise<SendMessageResult> {
+  const validationError = validateInput({ name, email, subject, message });
+  if (validationError) {
+    return { ok: false, error: validationError };
+  }
+
+  const emailData = createEmailData(name.trim(), email.trim(), subject.trim(), message.trim());
 
   const mailgun = new Mailgun(FormData);
   const mg = mailgun.client({
@@ -219,6 +258,13 @@ export default async function sendMessage(name : string, email : string, subject
     key: process.env.EMAIL_KEY
   });
 
-  await mg.messages.create("iamalexmartin.com", emailData);
-  return true;
+  try {
+    await mg.messages.create("iamalexmartin.com", emailData);
+  } catch {
+    // Don't leak provider errors to the visitor; the details land in the
+    // server logs via Mailgun's own SDK logging.
+    return { ok: false, error: "Message failed to send. Please try again." };
+  }
+
+  return { ok: true };
 }

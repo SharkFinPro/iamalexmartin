@@ -9,6 +9,7 @@ export default function ContactForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [shouldShowStatus, setShouldShowStatus] = useState(false);
   const [status, setStatus] = useState<boolean>(false);
+  const [failureMessage, setFailureMessage] = useState("");
   const [sentEmail, setSentEmail] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const contactFormRef = useRef<HTMLFormElement>(null);
@@ -57,12 +58,20 @@ export default function ContactForm() {
     let wasSuccessful = false;
 
     sendMessage(name.value, email.value, subject.value, message.value)
-      .then(() => {
-        setStatus(true);
-        wasSuccessful = true;
+      .then((result) => {
+        if (result.ok) {
+          setStatus(true);
+          wasSuccessful = true;
+        } else {
+          // Server-side validation failed — show its reason rather than the
+          // generic failure line.
+          setStatus(false);
+          setFailureMessage(result.error);
+        }
       })
       .catch(err => {
         setStatus(false);
+        setFailureMessage("");
         console.log(err);
       })
       .finally(() => setTimeout(() => {
@@ -91,7 +100,9 @@ export default function ContactForm() {
       </div>
       {/* Failures are assertive so the visitor hears them immediately. */}
       {shouldShowStatus && !status && (
-        <p className={styles.formSubmitFailure} role="alert">Message failed to send. Please try again.</p>
+        <p className={styles.formSubmitFailure} role="alert">
+          {failureMessage || "Message failed to send. Please try again."}
+        </p>
       )}
       <div className={styles.twoColumns}>
         <div className={styles.formGroup}>
