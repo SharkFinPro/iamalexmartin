@@ -1,6 +1,12 @@
 "use server";
 import FormData from "form-data";
 import Mailgun from "mailgun.js";
+import { headers } from "next/headers";
+import { rateLimit, clientIpFrom } from "@/lib/rateLimit";
+
+// Per-IP ceiling: plenty for a human following up, useless for a spammer.
+const RATE_LIMIT_MAX = 3;
+const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
 
 // Server-side validation limits. The client validates too, but a Server Action
 // is a public endpoint — it must not trust anything the browser sends.
@@ -297,6 +303,11 @@ export default async function sendMessage(payload: ContactPayload): Promise<Send
   const validationError = validateInput({ name, email, subject, message });
   if (validationError) {
     return { ok: false, error: validationError };
+  }
+
+  const ip = clientIpFrom((await headers()).get("x-forwarded-for"));
+  if (!rateLimit(`contact:${ip}`, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_MS)) {
+    return { ok: false, error: "Too many messages from this connection. Please try again later." };
   }
 
   const emailData = createEmailData(name.trim(), email.trim(), subject.trim(), message.trim());
