@@ -1,0 +1,59 @@
+/* Shared styling for the branded 404 (not-found.tsx) and error-boundary
+   (error.tsx) pages. Buttons mirror the homepage CTA pair so the dead-end
+   pages still read as part of the site. */
+
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 4rem 1.5rem 6rem;
+  text-align: center;
+}
+
+.message {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  line-height: 1.7;
+  margin: 0 0 2.5rem;
+
+  code {
+    font-size: 0.95em;
+    color: var(--text-muted);
+  }
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.button {
+  padding: 1em 2em;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: all var(--transition);
+  white-space: nowrap;
+  cursor: pointer;
+  display: grid;
+  place-content: center;
+}
+
+.button:hover {
+  transform: translateY(-2.5px);
+  box-shadow: var(--shadow-md);
+}
+
+.primary {
+  background: var(--accent);
+  color: var(--text-on-accent);
+  border: 2px solid var(--accent);
+}
+
+.secondary {
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  border: 2px solid var(--border-color);
+}
