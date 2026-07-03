@@ -30,7 +30,15 @@ const spaceGrotesk = Space_Grotesk({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://iamalexmartin.com"),
+  // The site is served from www (the apex redirects to it), so all absolute
+  // URLs — canonicals, Open Graph, sitemap — must use the www host to avoid
+  // splitting link equity across a redirect.
+  metadataBase: new URL("https://www.iamalexmartin.com"),
+  // Relative canonical: resolves to each page's own URL, so every route gets
+  // a self-referencing canonical tag without per-page boilerplate.
+  alternates: {
+    canonical: "./"
+  },
   title: {
     default: "Alex Martin's Portfolio",
     template: "%s | Alex Martin"

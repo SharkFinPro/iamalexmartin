@@ -106,7 +106,7 @@ export async function generateMetadata({ params }): Promise<Metadata> {
     keywords: project.tags,
     openGraph: {
       type: "website",
-      url: `https://iamalexmartin.com/projects/${slug}`,
+      url: `https://www.iamalexmartin.com/projects/${slug}`,
       title: project.title,
       description: project.description,
       siteName: "Alex Martin's Portfolio",

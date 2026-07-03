@@ -12,7 +12,7 @@ const SLUGS_QUERY = `
 `;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = "https://iamalexmartin.com";
+  const baseUrl = "https://www.iamalexmartin.com";
   const currentDate = new Date()
 
   const staticPages = [
