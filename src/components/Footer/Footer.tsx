@@ -24,6 +24,8 @@ function Social() {
           href="https://github.com/SharkFinPro"
           aria-label="Alex Martin's GitHub Profile"
           title="Alex Martin's GitHub Profile"
+          target="_blank"
+          rel="noopener noreferrer"
         >
           <FontAwesomeIcon icon={faGithub} />
         </Link>
@@ -31,6 +33,8 @@ function Social() {
           href="https://www.linkedin.com/in/iamalexmartin/"
           aria-label="Alex Martin's LinkedIn Profile"
           title="Alex Martin's LinkedIn Profile"
+          target="_blank"
+          rel="noopener noreferrer"
         >
           <FontAwesomeIcon icon={faLinkedin} />
         </Link>
