@@ -44,6 +44,17 @@ export const metadata: Metadata = {
     template: "%s | Alex Martin"
   },
   description: "Software developer with expertise in graphics programming, web performance optimization, and full-stack application development.",
+  // Site-wide share-card defaults. og:image / twitter:image come from the
+  // app/opengraph-image.png file convention; project pages override the whole
+  // openGraph object in their own generateMetadata (CMS image included).
+  openGraph: {
+    type: "website",
+    siteName: "Alex Martin's Portfolio",
+    url: "./"
+  },
+  twitter: {
+    card: "summary_large_image"
+  },
   keywords: [
     "react",
     "nextjs",
