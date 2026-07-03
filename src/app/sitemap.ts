@@ -7,58 +7,53 @@ const SLUGS_QUERY = `
   query Slugs {
     projects {
       slug
+      updatedAt
     }
   }
 `;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = "https://iamalexmartin.com";
-  const currentDate = new Date()
+  const baseUrl = "https://www.iamalexmartin.com";
 
-  const staticPages = [
+  // No lastModified on static routes: the previous "now on every request"
+  // value changed on every crawl, which teaches crawlers to ignore it.
+  const staticPages: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
-      lastModified: currentDate,
       changeFrequency: "weekly",
-      priority: 1.0,
+      priority: 1.0
     },
     {
       url: `${baseUrl}/projects`,
-      lastModified: currentDate,
       changeFrequency: "weekly",
-      priority: 0.9,
+      priority: 0.9
     },
     {
       url: `${baseUrl}/about`,
-      lastModified: currentDate,
       changeFrequency: "weekly",
-      priority: 0.7,
+      priority: 0.7
     },
     {
       url: `${baseUrl}/contact`,
-      lastModified: currentDate,
       changeFrequency: "monthly",
-      priority: 0.6,
+      priority: 0.6
     }
   ];
 
   const [data, { data: config }] = await Promise.all([cmsQuery(SLUGS_QUERY), getSiteConfig()]);
 
-  const dynamicProjectPages = data.projects
-    .filter(({ slug }) => {
+  const dynamicProjectPages: MetadataRoute.Sitemap = data.projects
+    .filter(({ slug }: { slug: string }) => {
       const flags = projectFlags(config, slug);
       return flags.visible && !flags.archived;
     })
-    .map(({ slug }) => ({
+    .map(({ slug, updatedAt }: { slug: string; updatedAt: string }) => ({
+      // Real CMS edit time, so crawlers learn which case studies changed.
       url: `${baseUrl}/projects/${slug}`,
-      lastModified: currentDate,
-      changeFrequency: "monthly",
-      priority: 0.7,
-    }))
+      lastModified: new Date(updatedAt),
+      changeFrequency: "monthly" as const,
+      priority: 0.7
+    }));
 
-  // @ts-ignore
-  return [
-    ...staticPages,
-    ...dynamicProjectPages,
-  ];
+  return [...staticPages, ...dynamicProjectPages];
 }

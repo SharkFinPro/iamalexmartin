@@ -4,6 +4,8 @@ import styles from "./About.module.scss";
 import ProjectBlocks from "@/components/ProjectBlocks/ProjectBlocks";
 import ProjectPageEditor from "@/components/ProjectBlocks/editor/ProjectPageEditor";
 import { sanitizeProjectPage } from "@/components/ProjectBlocks/blocks";
+import JsonLd from "@/components/JsonLd";
+import { personJsonLd } from "@/lib/jsonLd";
 import { cmsQuery } from "@/lib/cms";
 import { isAuthed } from "@/lib/auth";
 
@@ -38,6 +40,7 @@ export default async function Page() {
   const blocks = sanitizeProjectPage(widget?.blockLayout);
 
   return <>
+    <JsonLd data={personJsonLd} />
     <Banner
       title={description.header}
       description={description.description}

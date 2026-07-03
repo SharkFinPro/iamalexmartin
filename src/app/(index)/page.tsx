@@ -3,6 +3,8 @@ import Landing from "./Landing";
 import Portfolio from "./Portfolio";
 import FeaturedProjects from "./FeaturedProjects";
 import type { Metadata } from "next";
+import JsonLd from "@/components/JsonLd";
+import { personJsonLd } from "@/lib/jsonLd";
 import { cmsQuery } from "@/lib/cms";
 import { isAuthed } from "@/lib/auth";
 import { getSiteConfig } from "@/lib/getSiteConfig";
@@ -11,7 +13,9 @@ import { featuredProjects } from "@/lib/siteConfig";
 export const dynamic = "force-dynamic";
 
 export const metadata : Metadata = {
-  title: "Portfolio"
+  // The home page leads with the name people actually search for, instead of
+  // the generic "Portfolio | Alex Martin" the template would produce.
+  title: { absolute: "Alex Martin — Software Developer | Graphics & Full-Stack" }
 };
 
 const PORTFOLIO_QUERY = `
@@ -68,6 +72,7 @@ export default async function Page() {
   const featured = featuredProjects(data.projects || [], config);
 
   return <main id="main-content" tabIndex={-1}>
+    <JsonLd data={personJsonLd} />
     <Landing className={`${styles.wrapper} ${styles.homepage}`} description={landingDescription} isAdmin={isAdmin} />
 
     {(config.homepage.showPortfolioCards || isAdmin) && (

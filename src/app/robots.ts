@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: '/admin'
     },
-    sitemap: 'https://iamalexmartin.com/sitemap.xml',
+    sitemap: 'https://www.iamalexmartin.com/sitemap.xml',
   }
 }
