@@ -31,7 +31,34 @@ function validateInput(fields: Record<string, unknown>): string | null {
   return null;
 }
 
-function createEmailData(name : string, email : string, subject : string, message : string) {
+/** Strip CR/LF and other control characters so visitor input can never smuggle
+ *  extra headers or recipients into the email envelope. */
+function stripControlChars(value: string) {
+  return value.replace(/[\u0000-\u001F\u007F]/g, " ").trim();
+}
+
+/** Escape for interpolation into the HTML email body. */
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function createEmailData(rawName : string, rawEmail : string, rawSubject : string, message : string) {
+  // Header-bound values get control characters stripped; body-bound values are
+  // additionally HTML-escaped so a visitor can't inject markup into an email
+  // that goes out under this domain's name.
+  const name = stripControlChars(rawName);
+  const email = stripControlChars(rawEmail);
+  const subject = stripControlChars(rawSubject);
+  const htmlName = escapeHtml(name);
+  const htmlEmail = escapeHtml(email);
+  const htmlSubject = escapeHtml(subject);
+  const htmlMessage = escapeHtml(message).replace(/\r?\n/g, "<br>");
+
   const date = new Date();
 
   const ptFormatter = new Intl.DateTimeFormat('en-US', {
@@ -50,7 +77,9 @@ function createEmailData(name : string, email : string, subject : string, messag
 
   return {
     from: "Alex Martin <no-reply@iamalexmartin.com>",
-    to: [`${name} <${email}>`],
+    // Bare address only — a visitor-typed display name stays out of the
+    // address header entirely.
+    to: [email],
     bcc: [`Alex Martin <${process.env.CONTACT_EMAIL}>`],
     subject: `Portfolio Message: ${subject}`,
     text: `Message Confirmation
@@ -183,7 +212,7 @@ function createEmailData(name : string, email : string, subject : string, messag
                 </div>
                 
                 <div class="content">
-                  <p>Dear ${name},</p>
+                  <p>Dear ${htmlName},</p>
                   
                   <p>Thank you for contacting me through my portfolio website. This email confirms that I have successfully received your message.</p>
                   
@@ -192,11 +221,11 @@ function createEmailData(name : string, email : string, subject : string, messag
                     <table>
                       <tr>
                         <td class="label">From:</td>
-                        <td>${name}</td>
+                        <td>${htmlName}</td>
                       </tr>
                       <tr>
                         <td class="label">Email:</td>
-                        <td>${email}</td>
+                        <td>${htmlEmail}</td>
                       </tr>
                       <tr>
                         <td class="label">Date:</td>
@@ -204,13 +233,13 @@ function createEmailData(name : string, email : string, subject : string, messag
                       </tr>
                       <tr>
                         <td class="label">Subject:</td>
-                        <td>${subject}</td>
+                        <td>${htmlSubject}</td>
                       </tr>
                     </table>
                     
                     <div class="message-text">
                       <strong>Your message:</strong><br>
-                      "${message}"
+                      "${htmlMessage}"
                     </div>
                   </div>
                   
