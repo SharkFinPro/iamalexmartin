@@ -11,7 +11,7 @@ import "@fortawesome/fontawesome-svg-core/styles.css"
 config.autoAddCss = false
 
 import { Open_Sans, Space_Grotesk } from "next/font/google";
-import { Metadata } from "next";
+import { Metadata, Viewport } from "next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const openSans = Open_Sans({
@@ -58,6 +58,16 @@ export const metadata: Metadata = {
     index: true,
     follow: true
   }
+};
+
+// Browser-chrome color (mobile address bar etc.), forked per OS color scheme
+// to match the theme backgrounds in _themes.scss. The in-page theme toggle
+// doesn't rewrite this tag — it tracks the OS preference only.
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f2f1ee" },
+    { media: "(prefers-color-scheme: dark)", color: "#0d1320" }
+  ]
 };
 
 export default async function RootLayout({
