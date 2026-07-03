@@ -10,50 +10,45 @@ import { isAuthed } from "@/lib/auth";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { projectFlags } from "@/lib/siteConfig";
 
+// Note: CMS/network failures are deliberately NOT caught here. A Hygraph outage
+// is an error, not a missing page — mapping it to notFound() would tell crawlers
+// the page is gone and mask the real problem.
 async function getProject(slug: string) {
-  try {
-    const data = await cmsQuery(
-      `
-        query Projects($slug: String!) {
-          projects(where: { slug: $slug }) {
-            id
-            title
-            projectPageDescription
-            projectPage
-          }
+  const data = await cmsQuery(
+    `
+      query Projects($slug: String!) {
+        projects(where: { slug: $slug }) {
+          id
+          title
+          projectPageDescription
+          projectPage
         }
-      `,
-      { slug: slug.toLowerCase() }
-    );
+      }
+    `,
+    { slug: slug.toLowerCase() }
+  );
 
-    return data.projects[0];
-  } catch (error) {
-    notFound();
-  }
+  return data.projects[0];
 }
 
 async function getProjectMetadata(slug: string) {
-  try {
-    const data = await cmsQuery(
-      `
-        query Projects($slug: String!) {
-          projects(where: { slug: $slug }) {
-            title
-            description
-            tags
-            image {
-              url
-            }
+  const data = await cmsQuery(
+    `
+      query Projects($slug: String!) {
+        projects(where: { slug: $slug }) {
+          title
+          description
+          tags
+          image {
+            url
           }
         }
-      `,
-      { slug: slug.toLowerCase() }
-    );
+      }
+    `,
+    { slug: slug.toLowerCase() }
+  );
 
-    return data.projects[0];
-  } catch (error) {
-    notFound();
-  }
+  return data.projects[0];
 }
 
 export default async function Page({ params }) {
@@ -108,30 +103,25 @@ export default async function Page({ params }) {
 export async function generateMetadata({ params }): Promise<Metadata> {
   const { slug } = await params;
 
-  try {
-    const project = await getProjectMetadata(slug);
+  const project = await getProjectMetadata(slug);
 
-    if (!project) {
-      return {
-        title: 'Project Not Found',
-      };
-    }
-
+  if (!project) {
     return {
+      title: 'Project Not Found',
+    };
+  }
+
+  return {
+    title: project.title,
+    description: project.description,
+    keywords: project.tags,
+    openGraph: {
+      type: "website",
+      url: `https://iamalexmartin.com/projects/${slug}`,
       title: project.title,
       description: project.description,
-      keywords: project.tags,
-      openGraph: {
-        type: "website",
-        url: `https://iamalexmartin.com/projects/${slug}`,
-        title: project.title,
-        description: project.description,
-        siteName: "Alex Martin's Portfolio",
-        images: [project.image]
-      }
+      siteName: "Alex Martin's Portfolio",
+      images: [project.image]
     }
-  }
-  catch (error) {
-    notFound();
   }
 }
