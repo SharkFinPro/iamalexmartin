@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import { cache } from "react";
 import styles from "./Project.module.scss";
 import { Metadata } from "next";
 import Banner from "@/components/Banner";
@@ -10,35 +11,23 @@ import { isAuthed } from "@/lib/auth";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { projectFlags } from "@/lib/siteConfig";
 
+// One query serves both the page and generateMetadata: cache() dedupes the
+// call within a single request, halving the per-request Hygraph round-trips.
+//
 // Note: CMS/network failures are deliberately NOT caught here. A Hygraph outage
 // is an error, not a missing page — mapping it to notFound() would tell crawlers
 // the page is gone and mask the real problem.
-async function getProject(slug: string) {
+const getProject = cache(async (slug: string) => {
   const data = await cmsQuery(
     `
       query Projects($slug: String!) {
         projects(where: { slug: $slug }) {
           id
           title
-          projectPageDescription
-          projectPage
-        }
-      }
-    `,
-    { slug: slug.toLowerCase() }
-  );
-
-  return data.projects[0];
-}
-
-async function getProjectMetadata(slug: string) {
-  const data = await cmsQuery(
-    `
-      query Projects($slug: String!) {
-        projects(where: { slug: $slug }) {
-          title
           description
           tags
+          projectPageDescription
+          projectPage
           image {
             url
           }
@@ -49,7 +38,7 @@ async function getProjectMetadata(slug: string) {
   );
 
   return data.projects[0];
-}
+});
 
 export default async function Page({ params }) {
   const { slug } = await params;
@@ -103,7 +92,7 @@ export default async function Page({ params }) {
 export async function generateMetadata({ params }): Promise<Metadata> {
   const { slug } = await params;
 
-  const project = await getProjectMetadata(slug);
+  const project = await getProject(slug);
 
   if (!project) {
     return {
