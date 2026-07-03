@@ -81,7 +81,7 @@ export default async function Footer() {
         </div>
       </div>
       <div className={styles.bottom}>
-        <p>&copy; 2026 <span>Alexander Martin</span>.</p>
+        <p>&copy; {new Date().getFullYear()} <span>Alexander Martin</span>.</p>
       </div>
     </footer>
   );
