@@ -65,6 +65,13 @@ export default async function Page({ params }) {
     isAuthed()
   ]);
 
+  // The query returns an empty list (not an error) for a slug that doesn't
+  // exist, so a missing project must 404 here — otherwise the render below
+  // would crash on `project.projectPage` and serve a 500.
+  if (!project) {
+    notFound();
+  }
+
   // Hidden or archived projects are reachable only while in admin mode.
   const flags = projectFlags(config, slug.toLowerCase());
   if (!isAdmin && (!flags.visible || flags.archived)) {
