@@ -3,6 +3,8 @@ import Landing from "./Landing";
 import Portfolio from "./Portfolio";
 import FeaturedProjects from "./FeaturedProjects";
 import type { Metadata } from "next";
+import JsonLd from "@/components/JsonLd";
+import { personJsonLd } from "@/lib/jsonLd";
 import { cmsQuery } from "@/lib/cms";
 import { isAuthed } from "@/lib/auth";
 import { getSiteConfig } from "@/lib/getSiteConfig";
@@ -68,6 +70,7 @@ export default async function Page() {
   const featured = featuredProjects(data.projects || [], config);
 
   return <main id="main-content" tabIndex={-1}>
+    <JsonLd data={personJsonLd} />
     <Landing className={`${styles.wrapper} ${styles.homepage}`} description={landingDescription} isAdmin={isAdmin} />
 
     {(config.homepage.showPortfolioCards || isAdmin) && (

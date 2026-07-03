@@ -6,6 +6,8 @@ import Banner from "@/components/Banner";
 import ProjectBlocks from "@/components/ProjectBlocks/ProjectBlocks";
 import ProjectPageEditor from "@/components/ProjectBlocks/editor/ProjectPageEditor";
 import { sanitizeProjectPage } from "@/components/ProjectBlocks/blocks";
+import JsonLd from "@/components/JsonLd";
+import { projectJsonLd } from "@/lib/jsonLd";
 import { cmsQuery } from "@/lib/cms";
 import { isAuthed } from "@/lib/auth";
 import { getSiteConfig } from "@/lib/getSiteConfig";
@@ -68,6 +70,7 @@ export default async function Page({ params }) {
 
   return (
     <>
+      <JsonLd data={projectJsonLd(project, slug.toLowerCase())} />
       <Banner
         title={project.title}
         description={project.projectPageDescription}
