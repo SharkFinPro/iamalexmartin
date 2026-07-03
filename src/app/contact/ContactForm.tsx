@@ -69,14 +69,15 @@ export default function ContactForm() {
       elapsedMs: Date.now() - mountedAt.current
     })
       .then((result) => {
-        if (result.ok) {
-          setStatus(true);
-          wasSuccessful = true;
-        } else {
-          // Server-side validation failed — show its reason rather than the
+        // ("in" narrowing works with strict mode off; result.ok wouldn't.)
+        if ("error" in result) {
+          // Server rejected the submission — show its reason rather than the
           // generic failure line.
           setStatus(false);
           setFailureMessage(result.error);
+        } else {
+          setStatus(true);
+          wasSuccessful = true;
         }
       })
       .catch(err => {
