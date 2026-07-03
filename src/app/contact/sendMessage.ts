@@ -1,8 +1,85 @@
 "use server";
 import FormData from "form-data";
 import Mailgun from "mailgun.js";
+import { headers } from "next/headers";
+import { rateLimit, clientIpFrom } from "@/lib/rateLimit";
 
-function createEmailData(name : string, email : string, subject : string, message : string) {
+// Per-IP ceiling: plenty for a human following up, useless for a spammer.
+const RATE_LIMIT_MAX = 3;
+const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
+
+// Server-side validation limits. The client validates too, but a Server Action
+// is a public endpoint — it must not trust anything the browser sends.
+const FIELD_LIMITS: Record<string, number> = {
+  name: 100,
+  email: 254,
+  subject: 150,
+  message: 5000
+};
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// Submissions faster than this are treated as bots — no human reads the page
+// and fills four fields in under three seconds.
+const MIN_FILL_MS = 3000;
+
+export type SendMessageResult = { ok: true } | { ok: false; error: string };
+
+export type ContactPayload = {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  /** Honeypot. The form hides this field from humans; any value means a bot. */
+  website?: string;
+  /** Milliseconds between the form mounting and the submit. */
+  elapsedMs?: number;
+};
+
+/** Returns a visitor-facing error message, or null when the input is valid. */
+function validateInput(fields: Record<string, unknown>): string | null {
+  for (const [key, limit] of Object.entries(FIELD_LIMITS)) {
+    const value = fields[key];
+    if (typeof value !== "string" || !value.trim()) {
+      return "All fields are required.";
+    }
+    if (value.length > limit) {
+      return `The ${key} field is too long (limit ${limit} characters).`;
+    }
+  }
+  if (!EMAIL_PATTERN.test((fields.email as string).trim())) {
+    return "Please enter a valid email address.";
+  }
+  return null;
+}
+
+/** Strip CR/LF and other control characters so visitor input can never smuggle
+ *  extra headers or recipients into the email envelope. */
+function stripControlChars(value: string) {
+  return value.replace(/[\u0000-\u001F\u007F]/g, " ").trim();
+}
+
+/** Escape for interpolation into the HTML email body. */
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function createEmailData(rawName : string, rawEmail : string, rawSubject : string, message : string) {
+  // Header-bound values get control characters stripped; body-bound values are
+  // additionally HTML-escaped so a visitor can't inject markup into an email
+  // that goes out under this domain's name.
+  const name = stripControlChars(rawName);
+  const email = stripControlChars(rawEmail);
+  const subject = stripControlChars(rawSubject);
+  const htmlName = escapeHtml(name);
+  const htmlEmail = escapeHtml(email);
+  const htmlSubject = escapeHtml(subject);
+  const htmlMessage = escapeHtml(message).replace(/\r?\n/g, "<br>");
+
   const date = new Date();
 
   const ptFormatter = new Intl.DateTimeFormat('en-US', {
@@ -21,7 +98,9 @@ function createEmailData(name : string, email : string, subject : string, messag
 
   return {
     from: "Alex Martin <no-reply@iamalexmartin.com>",
-    to: [`${name} <${email}>`],
+    // Bare address only — a visitor-typed display name stays out of the
+    // address header entirely.
+    to: [email],
     bcc: [`Alex Martin <${process.env.CONTACT_EMAIL}>`],
     subject: `Portfolio Message: ${subject}`,
     text: `Message Confirmation
@@ -154,7 +233,7 @@ function createEmailData(name : string, email : string, subject : string, messag
                 </div>
                 
                 <div class="content">
-                  <p>Dear ${name},</p>
+                  <p>Dear ${htmlName},</p>
                   
                   <p>Thank you for contacting me through my portfolio website. This email confirms that I have successfully received your message.</p>
                   
@@ -163,11 +242,11 @@ function createEmailData(name : string, email : string, subject : string, messag
                     <table>
                       <tr>
                         <td class="label">From:</td>
-                        <td>${name}</td>
+                        <td>${htmlName}</td>
                       </tr>
                       <tr>
                         <td class="label">Email:</td>
-                        <td>${email}</td>
+                        <td>${htmlEmail}</td>
                       </tr>
                       <tr>
                         <td class="label">Date:</td>
@@ -175,13 +254,13 @@ function createEmailData(name : string, email : string, subject : string, messag
                       </tr>
                       <tr>
                         <td class="label">Subject:</td>
-                        <td>${subject}</td>
+                        <td>${htmlSubject}</td>
                       </tr>
                     </table>
                     
                     <div class="message-text">
                       <strong>Your message:</strong><br>
-                      "${message}"
+                      "${htmlMessage}"
                     </div>
                   </div>
                   
@@ -210,8 +289,28 @@ function createEmailData(name : string, email : string, subject : string, messag
   }
 }
 
-export default async function sendMessage(name : string, email : string, subject : string, message : string) {
-  const emailData = createEmailData(name, email, subject, message);
+export default async function sendMessage(payload: ContactPayload): Promise<SendMessageResult> {
+  const { name, email, subject, message, website, elapsedMs } = payload ?? ({} as ContactPayload);
+
+  // Bot heuristics: a filled honeypot, or an impossibly fast (or absent) fill
+  // time. Report success so scripts get no signal to iterate on.
+  const filledHoneypot = typeof website === "string" && website.trim() !== "";
+  const tooFast = typeof elapsedMs !== "number" || !Number.isFinite(elapsedMs) || elapsedMs < MIN_FILL_MS;
+  if (filledHoneypot || tooFast) {
+    return { ok: true };
+  }
+
+  const validationError = validateInput({ name, email, subject, message });
+  if (validationError) {
+    return { ok: false, error: validationError };
+  }
+
+  const ip = clientIpFrom((await headers()).get("x-forwarded-for"));
+  if (!rateLimit(`contact:${ip}`, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_MS)) {
+    return { ok: false, error: "Too many messages from this connection. Please try again later." };
+  }
+
+  const emailData = createEmailData(name.trim(), email.trim(), subject.trim(), message.trim());
 
   const mailgun = new Mailgun(FormData);
   const mg = mailgun.client({
@@ -219,6 +318,13 @@ export default async function sendMessage(name : string, email : string, subject
     key: process.env.EMAIL_KEY
   });
 
-  await mg.messages.create("iamalexmartin.com", emailData);
-  return true;
+  try {
+    await mg.messages.create("iamalexmartin.com", emailData);
+  } catch {
+    // Don't leak provider errors to the visitor; the details land in the
+    // server logs via Mailgun's own SDK logging.
+    return { ok: false, error: "Message failed to send. Please try again." };
+  }
+
+  return { ok: true };
 }
