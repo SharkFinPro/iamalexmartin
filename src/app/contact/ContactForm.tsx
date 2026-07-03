@@ -13,6 +13,9 @@ export default function ContactForm() {
   const [sentEmail, setSentEmail] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const contactFormRef = useRef<HTMLFormElement>(null);
+  // When the form mounted — submissions arriving implausibly soon after are
+  // dropped server-side as bot traffic.
+  const mountedAt = useRef(Date.now());
 
   // Clear a field's error as soon as the visitor edits it.
   function clearError(field: string) {
@@ -57,7 +60,14 @@ export default function ContactForm() {
 
     let wasSuccessful = false;
 
-    sendMessage(name.value, email.value, subject.value, message.value)
+    sendMessage({
+      name: name.value,
+      email: email.value,
+      subject: subject.value,
+      message: message.value,
+      website: form.website?.value ?? "",
+      elapsedMs: Date.now() - mountedAt.current
+    })
       .then((result) => {
         if (result.ok) {
           setStatus(true);
@@ -104,6 +114,19 @@ export default function ContactForm() {
           {failureMessage || "Message failed to send. Please try again."}
         </p>
       )}
+      {/* Honeypot: offscreen, untabbable, and hidden from assistive tech.
+          Humans never see it; bots that fill every field reveal themselves and
+          the server drops the submission silently. */}
+      <div className={styles.honeypotField} aria-hidden="true">
+        <label htmlFor="contact-website">Website</label>
+        <input
+          type="text"
+          id="contact-website"
+          name="website"
+          tabIndex={-1}
+          autoComplete="off"
+        />
+      </div>
       <div className={styles.twoColumns}>
         <div className={styles.formGroup}>
           <label htmlFor="name">Full Name</label>

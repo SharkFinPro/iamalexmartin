@@ -12,7 +12,22 @@ const FIELD_LIMITS: Record<string, number> = {
 };
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Submissions faster than this are treated as bots — no human reads the page
+// and fills four fields in under three seconds.
+const MIN_FILL_MS = 3000;
+
 export type SendMessageResult = { ok: true } | { ok: false; error: string };
+
+export type ContactPayload = {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  /** Honeypot. The form hides this field from humans; any value means a bot. */
+  website?: string;
+  /** Milliseconds between the form mounting and the submit. */
+  elapsedMs?: number;
+};
 
 /** Returns a visitor-facing error message, or null when the input is valid. */
 function validateInput(fields: Record<string, unknown>): string | null {
@@ -268,12 +283,17 @@ function createEmailData(rawName : string, rawEmail : string, rawSubject : strin
   }
 }
 
-export default async function sendMessage(
-  name: string,
-  email: string,
-  subject: string,
-  message: string
-): Promise<SendMessageResult> {
+export default async function sendMessage(payload: ContactPayload): Promise<SendMessageResult> {
+  const { name, email, subject, message, website, elapsedMs } = payload ?? ({} as ContactPayload);
+
+  // Bot heuristics: a filled honeypot, or an impossibly fast (or absent) fill
+  // time. Report success so scripts get no signal to iterate on.
+  const filledHoneypot = typeof website === "string" && website.trim() !== "";
+  const tooFast = typeof elapsedMs !== "number" || !Number.isFinite(elapsedMs) || elapsedMs < MIN_FILL_MS;
+  if (filledHoneypot || tooFast) {
+    return { ok: true };
+  }
+
   const validationError = validateInput({ name, email, subject, message });
   if (validationError) {
     return { ok: false, error: validationError };

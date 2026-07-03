@@ -188,3 +188,15 @@
   }
 }
 
+
+// Honeypot wrapper: visually removed without display:none so naive bots still
+// "see" and fill the field; keyboard and assistive-tech users never encounter
+// it (tabindex=-1 + aria-hidden live on the markup).
+.honeypotField {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
