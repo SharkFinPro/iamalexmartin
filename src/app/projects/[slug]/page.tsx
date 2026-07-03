@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import { cache } from "react";
 import styles from "./Project.module.scss";
 import { Metadata } from "next";
 import Banner from "@/components/Banner";
@@ -10,51 +11,34 @@ import { isAuthed } from "@/lib/auth";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { projectFlags } from "@/lib/siteConfig";
 
-async function getProject(slug: string) {
-  try {
-    const data = await cmsQuery(
-      `
-        query Projects($slug: String!) {
-          projects(where: { slug: $slug }) {
-            id
-            title
-            projectPageDescription
-            projectPage
+// One query serves both the page and generateMetadata: cache() dedupes the
+// call within a single request, halving the per-request Hygraph round-trips.
+//
+// Note: CMS/network failures are deliberately NOT caught here. A Hygraph outage
+// is an error, not a missing page — mapping it to notFound() would tell crawlers
+// the page is gone and mask the real problem.
+const getProject = cache(async (slug: string) => {
+  const data = await cmsQuery(
+    `
+      query Projects($slug: String!) {
+        projects(where: { slug: $slug }) {
+          id
+          title
+          description
+          tags
+          projectPageDescription
+          projectPage
+          image {
+            url
           }
         }
-      `,
-      { slug: slug.toLowerCase() }
-    );
+      }
+    `,
+    { slug: slug.toLowerCase() }
+  );
 
-    return data.projects[0];
-  } catch (error) {
-    notFound();
-  }
-}
-
-async function getProjectMetadata(slug: string) {
-  try {
-    const data = await cmsQuery(
-      `
-        query Projects($slug: String!) {
-          projects(where: { slug: $slug }) {
-            title
-            description
-            tags
-            image {
-              url
-            }
-          }
-        }
-      `,
-      { slug: slug.toLowerCase() }
-    );
-
-    return data.projects[0];
-  } catch (error) {
-    notFound();
-  }
-}
+  return data.projects[0];
+});
 
 export default async function Page({ params }) {
   const { slug } = await params;
@@ -64,6 +48,13 @@ export default async function Page({ params }) {
     getSiteConfig(),
     isAuthed()
   ]);
+
+  // The query returns an empty list (not an error) for a slug that doesn't
+  // exist, so a missing project must 404 here — otherwise the render below
+  // would crash on `project.projectPage` and serve a 500.
+  if (!project) {
+    notFound();
+  }
 
   // Hidden or archived projects are reachable only while in admin mode.
   const flags = projectFlags(config, slug.toLowerCase());
@@ -101,30 +92,25 @@ export default async function Page({ params }) {
 export async function generateMetadata({ params }): Promise<Metadata> {
   const { slug } = await params;
 
-  try {
-    const project = await getProjectMetadata(slug);
+  const project = await getProject(slug);
 
-    if (!project) {
-      return {
-        title: 'Project Not Found',
-      };
-    }
-
+  if (!project) {
     return {
+      title: 'Project Not Found',
+    };
+  }
+
+  return {
+    title: project.title,
+    description: project.description,
+    keywords: project.tags,
+    openGraph: {
+      type: "website",
+      url: `https://iamalexmartin.com/projects/${slug}`,
       title: project.title,
       description: project.description,
-      keywords: project.tags,
-      openGraph: {
-        type: "website",
-        url: `https://iamalexmartin.com/projects/${slug}`,
-        title: project.title,
-        description: project.description,
-        siteName: "Alex Martin's Portfolio",
-        images: [project.image]
-      }
+      siteName: "Alex Martin's Portfolio",
+      images: [project.image]
     }
-  }
-  catch (error) {
-    notFound();
   }
 }
