@@ -13,7 +13,9 @@ import { featuredProjects } from "@/lib/siteConfig";
 export const dynamic = "force-dynamic";
 
 export const metadata : Metadata = {
-  title: "Portfolio"
+  // The home page leads with the name people actually search for, instead of
+  // the generic "Portfolio | Alex Martin" the template would produce.
+  title: { absolute: "Alex Martin — Software Developer | Graphics & Full-Stack" }
 };
 
 const PORTFOLIO_QUERY = `
