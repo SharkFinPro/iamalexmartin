@@ -85,6 +85,20 @@ body {
   color: var(--text-primary);
   font-family: var(--font-body), system-ui, -apple-system, sans-serif;
   transition: background-color var(--dur-base) var(--ease-standard), color var(--dur-base) var(--ease-standard);
+
+  // Sticky footer: a page shorter than the viewport (404/error pages, sparse
+  // admin screens) would otherwise leave the footer floating mid-screen. Safe
+  // here because top-level sections space themselves with padding, not
+  // margins, so losing margin collapsing changes nothing on regular pages.
+  min-height: 100vh;  // fallback for browsers without dvh
+  min-height: 100dvh; // stays correct as mobile browser chrome collapses
+  display: flex;
+  flex-direction: column;
+}
+
+// Pushed to the viewport bottom whenever the page content runs short.
+body > footer {
+  margin-top: auto;
 }
 
 // Site-wide text selection in the brand accent (theme-forked).
