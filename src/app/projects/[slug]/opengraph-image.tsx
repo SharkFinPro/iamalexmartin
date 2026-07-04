@@ -55,9 +55,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
   const [medium, bold, data] = await Promise.all([
     readFile(join(process.cwd(), "src/assets/fonts/SpaceGrotesk-Medium.ttf")),
     readFile(join(process.cwd(), "src/assets/fonts/SpaceGrotesk-Bold.ttf")),
-    // Crawler-facing only (no admin variant of a share card), so always
-    // served from the data cache.
-    cmsQuery(PROJECT_QUERY, { slug: slug.toLowerCase() }, { cached: true })
+    cmsQuery(PROJECT_QUERY, { slug: slug.toLowerCase() })
   ]);
 
   const project = data.projects[0];

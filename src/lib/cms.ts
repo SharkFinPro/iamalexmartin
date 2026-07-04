@@ -1,5 +1,9 @@
 // Shared Hygraph helpers. Reads use the public endpoint; mutations attach the
 // server-only Permanent Auth Token and must only ever run on the server.
+// (Importing auth.ts makes this module server-only — never import it from
+// client components or from proxy.ts, which is Edge/Web-Crypto-only.)
+
+import { isAuthed } from "@/lib/auth";
 
 type GraphQLVariables = Record<string, any>;
 
@@ -10,12 +14,12 @@ const READ_REVALIDATE_SECONDS = 60;
 
 export type ReadOptions = {
   /**
-   * Serve this read from the Next data cache, revalidating in the background.
-   * Only for visitor-facing reads — admin reads must stay uncached so the
-   * editing UI always reflects the latest saved state after a reload.
+   * Force a fresh read for everyone. Visitor reads are cached by default and
+   * admin reads are always fresh automatically, so this is only for a public
+   * read that genuinely can't tolerate the 60s window (none exist today).
    */
-  cached?: boolean;
-  /** Override the default 60s window for data that changes rarely. */
+  fresh?: boolean;
+  /** Widen the default 60s visitor window for data that changes rarely. */
   revalidateSeconds?: number;
 };
 
@@ -51,14 +55,23 @@ async function cmsRequest(
   return json.data;
 }
 
-/** Read from the CMS via the public endpoint. */
-export function cmsQuery(query: string, variables: GraphQLVariables = {}, opts: ReadOptions = {}) {
-  return cmsRequest(
-    query,
-    variables,
-    undefined,
-    opts.cached ? opts.revalidateSeconds ?? READ_REVALIDATE_SECONDS : undefined
-  );
+/**
+ * Read from the CMS via the public endpoint. The cache mode is picked here,
+ * once, rather than at every call site: admin sessions always read fresh (so
+ * the inline-editing UI reflects the latest saved state after a reload), and
+ * everyone else is served from the data cache. isAuthed is a memoized local
+ * cookie check, so this costs no extra I/O.
+ */
+export async function cmsQuery(
+  query: string,
+  variables: GraphQLVariables = {},
+  opts: ReadOptions = {}
+) {
+  const admin = await isAuthed();
+  const revalidate =
+    admin || opts.fresh ? undefined : opts.revalidateSeconds ?? READ_REVALIDATE_SECONDS;
+
+  return cmsRequest(query, variables, undefined, revalidate);
 }
 
 /**

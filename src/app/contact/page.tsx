@@ -28,9 +28,7 @@ const QUERY = `
 `;
 
 export default async function Page() {
-  // Cookie check first (no I/O) so the read can be cached for visitors.
-  const isAdmin = await isAuthed();
-  const data = await cmsQuery(QUERY, {}, { cached: !isAdmin });
+  const [data, isAdmin] = await Promise.all([cmsQuery(QUERY), isAuthed()]);
   const description = data.descriptions[0];
   const contactFormDescription = data.contactFormDescriptions[0];
 

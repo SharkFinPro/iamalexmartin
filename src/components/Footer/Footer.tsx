@@ -74,9 +74,8 @@ function Projects({ projectTypes }) {
 
 export default async function Footer() {
   // Schema-level data (enum values) that only changes when the CMS model
-  // changes — cache it hard rather than refetching on every page view. Safe
-  // for admins too: nothing here is content they edit inline.
-  const data = await cmsQuery(PROJECTS_TYPES_QUERY, {}, { cached: true, revalidateSeconds: 3600 });
+  // changes — widen the visitor cache window rather than refetching often.
+  const data = await cmsQuery(PROJECTS_TYPES_QUERY, {}, { revalidateSeconds: 3600 });
 
   return (
     <footer className={styles.wrapper}>
