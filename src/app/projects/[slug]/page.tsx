@@ -113,13 +113,15 @@ export async function generateMetadata({ params }): Promise<Metadata> {
     title: project.title,
     description: project.description,
     keywords: project.tags,
+    // og:image is intentionally absent here: the generated share card
+    // (opengraph-image.tsx in this segment) supplies it, and file-convention
+    // images take precedence over config ones anyway.
     openGraph: {
       type: "website",
       url: `https://www.iamalexmartin.com/projects/${slug}`,
       title: project.title,
       description: project.description,
-      siteName: "Alex Martin's Portfolio",
-      images: [project.image]
+      siteName: "Alex Martin's Portfolio"
     }
   }
 }
