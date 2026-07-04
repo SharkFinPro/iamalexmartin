@@ -1,4 +1,6 @@
 import { ImageResponse } from "next/og";
+import { readFile } from "fs/promises";
+import { join } from "path";
 import { cmsQuery } from "@/lib/cms";
 
 export const size = { width: 1200, height: 630 };
@@ -27,15 +29,11 @@ export default async function Image({ params }: { params: Promise<{ slug: string
   const { slug } = await params;
 
   // Satori (the renderer behind ImageResponse) needs raw font data — it can't
-  // use web fonts. The TTFs are bundled from src/assets/fonts via the
-  // new URL(..., import.meta.url) asset reference.
+  // use web fonts. Read via join(process.cwd(), <literal>) so Vercel's file
+  // tracing detects and bundles the TTFs with this route.
   const [medium, bold, data] = await Promise.all([
-    fetch(new URL("../../../assets/fonts/SpaceGrotesk-Medium.ttf", import.meta.url)).then((r) =>
-      r.arrayBuffer()
-    ),
-    fetch(new URL("../../../assets/fonts/SpaceGrotesk-Bold.ttf", import.meta.url)).then((r) =>
-      r.arrayBuffer()
-    ),
+    readFile(join(process.cwd(), "src/assets/fonts/SpaceGrotesk-Medium.ttf")),
+    readFile(join(process.cwd(), "src/assets/fonts/SpaceGrotesk-Bold.ttf")),
     cmsQuery(PROJECT_QUERY, { slug: slug.toLowerCase() })
   ]);
 
