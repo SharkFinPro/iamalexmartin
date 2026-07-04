@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { cookies } from "next/headers";
 import {
   ADMIN_COOKIE_NAME,
@@ -29,8 +30,12 @@ export async function clearSession(): Promise<void> {
   store.delete(ADMIN_COOKIE_NAME);
 }
 
-/** True if the current request carries a valid admin session. */
-export async function isAuthed(): Promise<boolean> {
+/**
+ * True if the current request carries a valid admin session. Memoized per
+ * request (React cache): the cookie can't change mid-render, and cmsQuery now
+ * consults this on every read, so the HMAC verify should run once, not N times.
+ */
+export const isAuthed = cache(async (): Promise<boolean> => {
   const store = await cookies();
   return verifySession(store.get(ADMIN_COOKIE_NAME)?.value);
-}
+});

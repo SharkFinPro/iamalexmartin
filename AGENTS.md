@@ -10,8 +10,9 @@ The site has a lightweight, **database-free admin editor**: log in with an env-v
 
 ## Architecture at a glance
 
-- **Rendering**: Server Components by default; CMS pages set `export const dynamic = "force-dynamic"` (fresh per request, no caching to invalidate). Interactive bits are small `"use client"` islands.
+- **Rendering**: Server Components by default; CMS pages set `export const dynamic = "force-dynamic"` (rendered per request). Interactive bits are small `"use client"` islands.
 - **Data flow**: pages `POST` GraphQL to `process.env.CMS_ENDPOINT` (public read). Writes go through Server Actions using a secret mutation token — never the client.
+- **Read caching**: `cmsQuery` picks the cache mode itself — admin sessions always read fresh (`no-store`); everyone else is served from the Next data cache with a 60s background revalidation (`revalidateSeconds` widens it, `{ fresh: true }` opts a public read out). Don't re-add per-call-site cache flags. Because `cmsQuery` calls `isAuthed()`, `cms.ts` is server-only — never import it from client components or `proxy.ts`. Authed reads (`cmsQueryAuthed`) and mutations are never cached.
 - **Admin mode**: a single signed, httpOnly cookie. Each server page reads it via `isAuthed()` and threads an `isAdmin` boolean into its client islands; when true, inline edit controls render. Visitors see zero change.
 - **The real authorization boundary is the Server Action**, not the UI or middleware — every write re-verifies the session before mutating.
 
