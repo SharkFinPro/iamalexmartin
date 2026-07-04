@@ -3,7 +3,28 @@
 
 type GraphQLVariables = Record<string, any>;
 
-async function cmsRequest(query: string, variables: GraphQLVariables, token?: string) {
+// Default window for cached visitor reads. Kept short: the optimistic-write
+// design already tolerates the Hygraph read-CDN lagging a beat behind writes,
+// so visitors seeing content up to a minute old is within the existing budget.
+const READ_REVALIDATE_SECONDS = 60;
+
+export type ReadOptions = {
+  /**
+   * Serve this read from the Next data cache, revalidating in the background.
+   * Only for visitor-facing reads — admin reads must stay uncached so the
+   * editing UI always reflects the latest saved state after a reload.
+   */
+  cached?: boolean;
+  /** Override the default 60s window for data that changes rarely. */
+  revalidateSeconds?: number;
+};
+
+async function cmsRequest(
+  query: string,
+  variables: GraphQLVariables,
+  token?: string,
+  revalidate?: number
+) {
   // Mutations may need the regular Content API host rather than the cached read
   // CDN; fall back to CMS_ENDPOINT when no dedicated mutation endpoint is set.
   const endpoint = (token && process.env.CMS_MUTATION_ENDPOINT) || process.env.CMS_ENDPOINT;
@@ -15,7 +36,10 @@ async function cmsRequest(query: string, variables: GraphQLVariables, token?: st
       ...(token ? { Authorization: `Bearer ${token}` } : {})
     },
     body: JSON.stringify({ query, variables }),
-    cache: "no-store"
+    // The data cache keys on URL + body, so distinct queries/variables never
+    // collide. `next.revalidate` still applies inside force-dynamic pages —
+    // the page renders per request but this fetch is served from cache.
+    ...(revalidate !== undefined ? { next: { revalidate } } : { cache: "no-store" as const })
   });
 
   const json = await response.json();
@@ -28,8 +52,13 @@ async function cmsRequest(query: string, variables: GraphQLVariables, token?: st
 }
 
 /** Read from the CMS via the public endpoint. */
-export function cmsQuery(query: string, variables: GraphQLVariables = {}) {
-  return cmsRequest(query, variables);
+export function cmsQuery(query: string, variables: GraphQLVariables = {}, opts: ReadOptions = {}) {
+  return cmsRequest(
+    query,
+    variables,
+    undefined,
+    opts.cached ? opts.revalidateSeconds ?? READ_REVALIDATE_SECONDS : undefined
+  );
 }
 
 /**
