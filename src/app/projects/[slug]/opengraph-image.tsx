@@ -21,9 +21,30 @@ const PROJECT_QUERY = `
       title
       description
       tags
+      image {
+        url
+      }
     }
   }
 `;
+
+/**
+ * Inline the project image as a data URI so satori never fetches it itself —
+ * a missing image or a failed fetch degrades to the text-only card instead of
+ * failing the whole ImageResponse.
+ */
+async function fetchImageAsDataUri(url: string | undefined): Promise<string | null> {
+  if (!url) return null;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const type = res.headers.get("content-type") ?? "image/jpeg";
+    const buf = Buffer.from(await res.arrayBuffer());
+    return `data:${type};base64,${buf.toString("base64")}`;
+  } catch {
+    return null;
+  }
+}
 
 export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -42,12 +63,24 @@ export default async function Image({ params }: { params: Promise<{ slug: string
     return new Response("Not found", { status: 404 });
   }
 
+  const image = await fetchImageAsDataUri(project.image?.url);
+
   const title: string = project.title ?? "";
   const rawDescription: string = project.description ?? "";
-  // Clamp in JS (satori has no reliable line clamping): ~150 chars ≈ two lines.
+  // Clamp in JS (satori has no reliable line clamping). With the image panel
+  // the text column is narrower, so clamp harder to keep it to ~3 lines.
+  const maxDescription = image ? 120 : 150;
   const description =
-    rawDescription.length > 150 ? `${rawDescription.slice(0, 147).trimEnd()}…` : rawDescription;
+    rawDescription.length > maxDescription
+      ? `${rawDescription.slice(0, maxDescription - 3).trimEnd()}…`
+      : rawDescription;
   const tags: string[] = (project.tags ?? []).slice(0, 4);
+
+  // The text column loses ~490px of width to the image panel, so both size
+  // ramps drop a step when it's present.
+  const titleSize = image
+    ? (title.length > 22 ? 48 : 60)
+    : (title.length > 26 ? 64 : 84);
 
   return new ImageResponse(
     (
@@ -69,23 +102,51 @@ export default async function Image({ params }: { params: Promise<{ slug: string
           <span style={{ color: ACCENT }}>Martin</span>
         </div>
 
-        {/* Title + description centered in the remaining space */}
-        <div style={{ display: "flex", flexDirection: "column", flexGrow: 1, justifyContent: "center" }}>
-          <div
-            style={{
-              fontSize: title.length > 26 ? 64 : 84,
-              fontWeight: 700,
-              color: TEXT,
-              lineHeight: 1.1,
-              letterSpacing: "-0.015em"
-            }}
-          >
-            {title}
-          </div>
-          {description && (
-            <div style={{ marginTop: 24, fontSize: 30, fontWeight: 500, color: MUTED, lineHeight: 1.4 }}>
-              {description}
+        {/* Middle: text column, with the 2:1 project image beside it when set */}
+        <div style={{ display: "flex", flexGrow: 1, alignItems: "center", gap: 52 }}>
+          <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+            <div
+              style={{
+                fontSize: titleSize,
+                fontWeight: 700,
+                color: TEXT,
+                lineHeight: 1.1,
+                letterSpacing: "-0.015em"
+              }}
+            >
+              {title}
             </div>
+            {description && (
+              <div
+                style={{
+                  marginTop: 24,
+                  fontSize: image ? 26 : 30,
+                  fontWeight: 500,
+                  color: MUTED,
+                  lineHeight: 1.4
+                }}
+              >
+                {description}
+              </div>
+            )}
+          </div>
+
+          {image && (
+            // Project images are always cropped 2:1 by the admin uploader, so a
+            // fixed 440x220 panel shows them without distortion.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={image}
+              width={440}
+              height={220}
+              style={{
+                borderRadius: 16,
+                border: "1px solid rgba(238, 242, 247, 0.16)",
+                objectFit: "cover",
+                flexShrink: 0
+              }}
+              alt=""
+            />
           )}
         </div>
 
