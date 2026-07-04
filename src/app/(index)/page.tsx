@@ -57,10 +57,13 @@ const PORTFOLIO_QUERY = `
 `;
 
 export default async function Page() {
-  const [data, { data: config }, isAdmin] = await Promise.all([
-    cmsQuery(PORTFOLIO_QUERY),
-    getSiteConfig(),
-    isAuthed()
+  // isAuthed is a local cookie check (no I/O), so resolving it first to pick
+  // the cache mode costs nothing: visitors get cached reads, admins fresh ones.
+  const isAdmin = await isAuthed();
+
+  const [data, { data: config }] = await Promise.all([
+    cmsQuery(PORTFOLIO_QUERY, {}, { cached: !isAdmin }),
+    getSiteConfig({ cached: !isAdmin })
   ]);
 
   const portfolioDescription = data.portfolioDescriptions[0];

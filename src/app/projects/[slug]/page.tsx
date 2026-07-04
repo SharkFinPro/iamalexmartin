@@ -20,6 +20,11 @@ import { projectFlags } from "@/lib/siteConfig";
 // is an error, not a missing page — mapping it to notFound() would tell crawlers
 // the page is gone and mask the real problem.
 const getProject = cache(async (slug: string) => {
+  // isAuthed is a local cookie check (no I/O). Resolving it here keeps the
+  // shared page/metadata fetcher a single-argument memo while still giving
+  // visitors cached reads and admins fresh ones.
+  const isAdmin = await isAuthed();
+
   const data = await cmsQuery(
     `
       query Projects($slug: String!) {
@@ -36,7 +41,8 @@ const getProject = cache(async (slug: string) => {
         }
       }
     `,
-    { slug: slug.toLowerCase() }
+    { slug: slug.toLowerCase() },
+    { cached: !isAdmin }
   );
 
   return data.projects[0];

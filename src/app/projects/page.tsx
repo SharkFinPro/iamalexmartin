@@ -52,13 +52,16 @@ export default async function Page({
 }: {
   searchParams: Promise<{ projectType?: string | string[] }>;
 }) {
-  // Banner + filter only need the fast meta query; await it (and config/auth)
-  // so the shell renders immediately. The projects list is kicked off here but
+  // isAuthed is a local cookie check (no I/O); resolving it first picks the
+  // cache mode for every read below — cached for visitors, fresh for admins.
+  const isAdmin = await isAuthed();
+
+  // Banner + filter only need the fast meta query; await it (and config) so
+  // the shell renders immediately. The projects list is kicked off here but
   // intentionally NOT awaited — it's passed down as a promise and streamed in.
-  const [meta, { data: config }, isAdmin, params] = await Promise.all([
-    cmsQuery(META_QUERY),
-    getSiteConfig(),
-    isAuthed(),
+  const [meta, { data: config }, params] = await Promise.all([
+    cmsQuery(META_QUERY, {}, { cached: !isAdmin }),
+    getSiteConfig({ cached: !isAdmin }),
     searchParams
   ]);
 
@@ -73,7 +76,7 @@ export default async function Page({
 
   // Order by config; admins also see hidden projects (dimmed in the UI). Kept
   // as a promise so the client component can suspend just the card grid on it.
-  const projectsPromise = cmsQuery(PROJECTS_QUERY).then((data) =>
+  const projectsPromise = cmsQuery(PROJECTS_QUERY, {}, { cached: !isAdmin }).then((data) =>
     applyConfigToProjects(data.projects, config, isAdmin)
   );
 

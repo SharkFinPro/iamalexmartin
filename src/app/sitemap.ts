@@ -40,7 +40,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   ];
 
-  const [data, { data: config }] = await Promise.all([cmsQuery(SLUGS_QUERY), getSiteConfig()]);
+  // Crawler-facing only, so always served from the data cache.
+  const [data, { data: config }] = await Promise.all([
+    cmsQuery(SLUGS_QUERY, {}, { cached: true }),
+    getSiteConfig({ cached: true })
+  ]);
 
   const dynamicProjectPages: MetadataRoute.Sitemap = data.projects
     .filter(({ slug }: { slug: string }) => {
